@@ -1,0 +1,129 @@
+{
+  "name": "ai-text-speech-platform-frontend",
+  "version": "1.0.0",
+  "description": "Advanced AI-powered text generation and speech synthesis platform - Frontend",
+  "author": "AI Development Team",
+  "license": "MIT",
+  "private": true,
+  "homepage": "http://localhost:3000",
+  "keywords": [
+    "ai",
+    "text-generation",
+    "text-to-speech",
+    "openai",
+    "gemini",
+    "react",
+    "typescript"
+  ],
+  "engines": {
+    "node": "18.x",
+    "npm": ">=8.0.0"
+  },
+  "dependencies": {
+    "@testing-library/jest-dom": "6.1.4",
+    "@testing-library/react": "13.4.0",
+    "@testing-library/user-event": "14.5.1",
+    "axios": "1.6.8",
+    "classnames": "2.3.2",
+    "date-fns": "2.30.0",
+    "framer-motion": "10.16.4",
+    "lodash": "4.17.21",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-dropzone": "14.2.3",
+    "react-error-boundary": "4.0.11",
+    "react-helmet-async": "1.3.0",
+    "react-hot-toast": "2.4.1",
+    "react-markdown": "9.0.1",
+    "react-query": "3.39.3",
+    "react-router-dom": "6.17.0",
+    "react-syntax-highlighter": "15.6.0",
+    "react-use": "17.4.0",
+    "react-window": "1.8.8",
+    "recharts": "2.8.0",
+    "remark-gfm": "4.0.0",
+    "use-debounce": "9.0.4",
+    "web-vitals": "3.5.0",
+    "zustand": "4.4.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/aspect-ratio": "0.4.2",
+    "@tailwindcss/forms": "0.5.7",
+    "@tailwindcss/typography": "0.5.10",
+    "@types/jest": "29.5.12",
+    "@types/lodash": "4.14.202",
+    "@types/node": "20.11.30",
+    "@types/react": "18.2.73",
+    "@types/react-dom": "18.2.22",
+    "@types/react-syntax-highlighter": "15.5.11",
+    "@types/react-window": "1.8.8",
+    "autoprefixer": "10.4.16",
+    "cross-env": "^10.0.0",
+    "eslint": "8.57.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-prettier": "5.1.3",
+    "eslint-plugin-react-hooks": "4.6.2",
+    "postcss": "8.4.35",
+    "prettier": "3.2.5",
+    "react-scripts": "5.0.1",
+    "tailwindcss": "3.4.3",
+    "typescript": "4.9.5"
+  },
+  "scripts": {
+    "start": "cross-env HOST=0.0.0.0 react-scripts start",
+    "start:local": "HOST=localhost react-scripts start",
+    "start:server": "HOST=0.0.0.0 DANGEROUSLY_DISABLE_HOST_CHECK=true react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:ci": "react-scripts test --coverage --ci --passWithNoTests",
+    "eject": "react-scripts eject",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "analyze": "npm run build && npx serve -s build",
+    "prepare": "echo 'husky not configured'",
+    "check:versions": "node -v && npm -v && npx react-scripts --version || echo react-scripts-version-check-failed"
+  },
+  "proxy": "http://222.252.99.27:18000",
+  "prettier": {
+    "semi": true,
+    "singleQuote": true,
+    "tabWidth": 2,
+    "trailingComma": "es5",
+    "printWidth": 80,
+    "bracketSpacing": true,
+    "arrowParens": "avoid"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all",
+      "not ie <= 11"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version",
+      "last 1 edge version"
+    ]
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts",
+      "!src/index.tsx",
+      "!src/reportWebVitals.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    }
+  }
+}

@@ -1,0 +1,613 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.header {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 1rem 0;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Home Page Styles */
+.homeContainer {
+  min-height: 100vh;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Section */
+.homeHeader {
+  background: white;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.headerWrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 80px;
+}
+
+.logoSection {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.homeLogo {
+  height: 100px;
+  width: auto;
+  transition: transform 0.3s ease;
+}
+
+.homeLogo:hover {
+  transform: scale(1.05);
+}
+
+.titleSection {
+  text-align: center;
+  flex: 1;
+  margin: 0 3rem;
+  max-width: 800px;
+}
+
+.navigation {
+  display: flex;
+  gap: 2rem;
+}
+
+.navTab {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: 2px solid #0B3C88;
+  border-radius: 8px;
+  color: #0B3C88;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.navTab:hover {
+  background: #0B3C88;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.navTab.active {
+  background: #0B3C88;
+  color: white;
+}
+
+/* Hero Section */
+.heroSection {
+  background: white;
+  padding: 3rem 0 2rem 0;
+  text-align: center;
+}
+
+.heroWrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.mainTitle {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin-bottom: 1rem;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #4b5563;
+  font-weight: 500;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Content Section */
+.contentSection {
+  flex: 1;
+  background: #f9fafb;
+  padding: 5rem 0;
+}
+
+.featureGrid {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2.5rem;
+}
+
+.featureCard {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.featureCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.clickableCard {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clickableCard:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.15), 0 15px 15px -5px rgba(0, 0, 0, 0.08);
+  border-color: #0B3C88;
+}
+
+.featureIconBox {
+  width: 80px;
+  height: 80px;
+  background: #0B3C88;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+}
+
+.featureIcon {
+  width: 40px;
+  height: 40px;
+  color: white;
+}
+
+.featureTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #003366;
+  margin-bottom: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.featureDescription {
+  color: #000;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .featureGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 900px;
+  }
+  
+  .headerWrapper {
+    max-width: 1000px;
+  }
+  
+  .titleSection {
+    margin: 0 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .mainTitle {
+    font-size: 2.2rem;
+  }
+  
+  .subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .homeLogo {
+    height: 80px;
+  }
+  
+  .headerWrapper {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  .titleSection {
+    margin: 0;
+  }
+  
+  .featureGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0 1rem;
+  }
+  
+  .contentSection {
+    padding: 3rem 0;
+  }
+  
+  .homeHeader {
+    padding: 1.5rem 0 1rem 0;
+  }
+  
+  .featureCard {
+    padding: 1.5rem;
+  }
+}
+
+.title {
+  margin: 0;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.headerInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.apiVersion {
+  background: #f0f0f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.healthStatus {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.healthStatus.healthy {
+  background: #22c55e;
+  color: white;
+}
+
+.healthStatus.unhealthy {
+  background: #ef4444;
+  color: white;
+}
+
+.nav {
+  background: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.navTabs {
+  display: flex;
+  gap: 0;
+}
+
+.navTab {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #666;
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.navTab:hover {
+  background: #f9f9f9;
+  color: #333;
+}
+
+.navTab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: #f9f9f9;
+}
+
+.main {
+  flex: 1;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Remove logoContainer as no longer used */
+
+.main.withTabSwitcher {
+  margin-top: 95px; /* Ensure content always starts below header */
+  min-height: calc(100vh - 95px); /* Prevent content from going behind header */
+}
+
+.chatTabSwitcher {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999; /* Very high z-index to stay on top */
+  background: white;
+  border-bottom: 2px solid #000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.2rem 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  min-height: 90px; /* Fixed minimum height */
+  height: auto; /* Allow height to grow with content */
+}
+
+.headerLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logoImage {
+  height: 80px;
+  width: auto;
+}
+
+/* .companyName - removed as no longer used */
+
+.tabContainer {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.chatTab {
+  background: transparent;
+  border: 2px solid #ccc;
+  padding: 0.8rem 1.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  margin: 0 0.5rem;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Card navigation effect - sliding background */
+.chatTab::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.chatTab::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.chatTab:hover::before {
+  left: 100%;
+}
+
+.chatTab:hover {
+  border-color: #1e5799;
+  color: #1e5799;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(30, 87, 153, 0.2);
+}
+
+.chatTab.active {
+  background: #1e5799;
+  color: white;
+  border-color: #1e5799;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(30, 87, 153, 0.3);
+  position: relative;
+}
+
+.chatTab.active::after {
+  transform: scaleX(1);
+  background: #1e5799;
+}
+
+.chatTab.active:hover {
+  color: white;
+  background: #1e5799;
+  box-shadow: 0 15px 35px rgba(30, 87, 153, 0.4);
+}
+
+/* Glowing effect for active tab */
+.chatTab.active::before {
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .chatTabSwitcher {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .headerLogo {
+    justify-content: center;
+  }
+
+  .logoImage {
+    height: 40px;
+  }
+
+  /* .companyName - removed as no longer used */
+
+  .tabContainer {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chatTab {
+    padding: 0.6rem 1rem;
+    margin: 0;
+    font-size: 0.8rem;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .main.withTabSwitcher {
+    margin-top: 140px;
+  }
+}
+
+/* Removed duplicate homeContainer definition */
+
+/* FOXAI Branding */
+.foxaiBranding {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 1rem 0;
+  padding: 0.5rem;
+  background: rgba(30, 87, 153, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(30, 87, 153, 0.2);
+}
+
+.brandingLogo {
+  height: 20px;
+  width: auto;
+}
+
+.brandingText {
+  color: #1e5799;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+}
+
+.footer {
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  padding: 1rem 0;
+  margin-top: auto;
+  text-align: center;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .logoContainer {
+    padding: 2rem 1rem 1.5rem 1rem;
+  }
+
+  .mainLogo {
+    height: 100px;
+    max-width: 280px;
+  }
+
+  .chatTabSwitcher {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .headerLogo {
+    justify-content: center;
+  }
+
+  .logoImage {
+    height: 40px;
+  }
+
+  .tabContainer {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chatTab {
+    padding: 0.6rem 1rem;
+    margin: 0;
+    font-size: 0.8rem;
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .main.withTabSwitcher {
+    margin-top: 140px;
+  }
+
+  .homeContainer {
+    background-attachment: scroll; /* Fixed background doesn't work well on mobile */
+    padding: 1.5rem 1rem;
+  }
+
+  .homeTitle {
+    font-size: 2rem;
+  }
+
+  .homeDescription {
+    font-size: 1rem;
+  }
+
+  .featureGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .featureCard {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .homeContainer {
+    padding: 1rem 0.5rem;
+  }
+}
