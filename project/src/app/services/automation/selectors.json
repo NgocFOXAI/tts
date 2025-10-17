@@ -31,8 +31,8 @@
     },
     "timeouts": {
       "short_wait": 2000,
-      "medium_wait": 5000,
-      "long_wait": 15000,
+      "medium_wait": 3000000,
+      "long_wait": 13000000,
       "auth_timeout": 60000,
       "selector_timeout": 10000,
       "audio_generation_timeout": 900000

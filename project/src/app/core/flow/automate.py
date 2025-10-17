@@ -73,7 +73,7 @@ class NotebookLMAutomation:
         """Reload page and try download."""
         try:
             print("🔄 Reloading page...")
-            page.reload(wait_until="load", timeout=30000)
+            page.reload(wait_until="load", timeout=3000)
             page.wait_for_timeout(2000)
 
             # Activate page
@@ -298,7 +298,7 @@ class NotebookLMAutomation:
             # Method 1: get_by_role for buttons
             try:
                 audio_overview_btn = page.get_by_role("button", name="Audio Overview")
-                expect(audio_overview_btn).to_be_visible(timeout=5000)
+                expect(audio_overview_btn).to_be_visible(timeout=3000)
                 print("Found Audio Overview with get_by_role")
             except Exception:
                 try:
@@ -348,7 +348,7 @@ class NotebookLMAutomation:
 
             # Click Audio Overview button
             try:
-                expect(audio_overview_btn).to_be_enabled(timeout=5000)
+                expect(audio_overview_btn).to_be_enabled(timeout=3000)
                 audio_overview_btn.click()
                 print("✅ Audio Overview clicked successfully")
             except Exception as e:
@@ -357,7 +357,7 @@ class NotebookLMAutomation:
 
             # Wait for UI to respond
             print("⏳ Waiting for audio generation to start...")
-            page.wait_for_timeout(5000)
+            page.wait_for_timeout(3000)
 
             self.debug_page_state(page, "after_audio_overview_click")
 
@@ -395,8 +395,8 @@ class NotebookLMAutomation:
         last_download = 0
 
         while elapsed_time < max_wait_time:
-            # Auto-reload every 60 seconds ONLY after 5 minutes (300 seconds)
-            if elapsed_time >= 300 and elapsed_time - last_reload >= 60:
+            # Auto-reload every 30 seconds ONLY after 5 minutes (300 seconds)
+            if elapsed_time >= 300 and elapsed_time - last_reload >= 30:
                 if self.perform_reload_and_try_download(page, elapsed_time):
                     return True
                 last_reload = elapsed_time
@@ -460,14 +460,14 @@ class NotebookLMAutomation:
                         pass
 
                 # Try download when audio ready and after minimum wait time
-                if audio_found and elapsed_time >= 120:  # Wait at least 2 minutes
+                if audio_found and elapsed_time >= 180:  # Wait at least 3 minutes
                     if self.try_download_method(page, "more"):
                         return True
                     # If download failed, wait longer before next attempt
-                    page.wait_for_timeout(30000)  # Wait 30 more seconds
-                    elapsed_time += 30
+                    page.wait_for_timeout(60000)  # Wait 60 more seconds
+                    elapsed_time += 60
 
-            page.wait_for_timeout(30000)  # 30 sec intervals
+            page.wait_for_timeout(3000)  # 30 sec intervals
             elapsed_time += 30
 
         print(f"❌ Timeout after {max_wait_minutes} minutes")
@@ -478,7 +478,7 @@ class NotebookLMAutomation:
         for selector in selectors:
             try:
                 candidate = page.locator(selector).first
-                expect(candidate).to_be_visible(timeout=5000)
+                expect(candidate).to_be_visible(timeout=3000)
                 return candidate
             except Exception as e:
                 print(f"   Failed selector {selector}: {e}")
@@ -488,14 +488,14 @@ class NotebookLMAutomation:
 
     def try_download_method(self, page, method: str) -> bool:
         """Try More menu download method."""
-        page.wait_for_timeout(3000)
+        page.wait_for_timeout(5000)
 
         print("📋 Trying More menu...")
 
         # Use the working XPath that was found
         try:
             more_btn = page.locator("//artifact-library-item//button[contains(@aria-label, 'More')]")
-            expect(more_btn).to_be_visible(timeout=10000)
+            expect(more_btn).to_be_visible(timeout=15000)
             print("✅ Found More button")
         except Exception as e:
             print(f"❌ Could not find More button: {e}")
@@ -504,7 +504,7 @@ class NotebookLMAutomation:
         # Wait for More button to be enabled (audio generation complete)
         print("   Waiting for More button to be enabled...")
         try:
-            expect(more_btn).to_be_enabled(timeout=30000)  # Wait up to 30 seconds
+            expect(more_btn).to_be_enabled(timeout=60000)  # Wait up to 60 seconds
             more_btn.click()
             print("✅ More button clicked")
         except Exception as e:
@@ -520,7 +520,7 @@ class NotebookLMAutomation:
         # Method 1: get_by_role for menu items
         try:
             dl_btn = page.get_by_role("menuitem", name="Download")
-            expect(dl_btn).to_be_visible(timeout=5000)
+            expect(dl_btn).to_be_visible(timeout=3000)
             print("✅ Found Download with get_by_role")
         except Exception:
             try:
@@ -569,8 +569,8 @@ class NotebookLMAutomation:
 
         # Execute download using best practices
         try:
-            expect(dl_btn).to_be_enabled(timeout=5000)
-            with page.expect_download(timeout=30000) as dl_info:
+            expect(dl_btn).to_be_enabled(timeout=3000)
+            with page.expect_download(timeout=3000) as dl_info:
                 dl_btn.click()
                 print("✅ Download button clicked")
 
@@ -590,7 +590,7 @@ class NotebookLMAutomation:
 
     def download_audio(self, page) -> bool:
         """Simplified download with dual strategy."""
-        page.wait_for_timeout(5000)
+        page.wait_for_timeout(3000)
 
         # Only try More menu method
         return self.try_download_method(page, "more")

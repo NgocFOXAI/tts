@@ -96,7 +96,7 @@ export const env = {
   // Performance Settings
   performance: {
     retryAttempts: getEnvVar('REACT_APP_RETRY_ATTEMPTS', 3),
-    cacheTtl: getEnvVar('REACT_APP_CACHE_TTL', 300000), // 5 minutes
+    cacheTtl: getEnvVar('REACT_APP_CACHE_TTL', 30000000), // 5 minutes
   },
 
   // Analytics (for future use)

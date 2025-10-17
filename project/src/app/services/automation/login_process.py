@@ -145,7 +145,7 @@ class GoogleLoginService:
                     print(f"   Found {count} email input elements")
 
                     if count > 0:
-                        input_elem.first.wait_for(timeout=5000)
+                        input_elem.first.wait_for(timeout=3000000)
                         email_input = input_elem.first
                         print(f"✅ Found email input with: {selector}")
                         break
@@ -200,7 +200,7 @@ class GoogleLoginService:
                     print(f"   Found {count} Next button elements")
 
                     if count > 0:
-                        btn_elem.first.wait_for(timeout=5000)
+                        btn_elem.first.wait_for(timeout=3000000)
                         next_btn = btn_elem.first
                         print(f"✅ Found Next button with: {selector}")
                         break
@@ -263,7 +263,7 @@ class GoogleLoginService:
             next_btn.click()
 
             print("✅ Password Next button clicked")
-            page.wait_for_timeout(5000)  # Wait longer for login to complete
+            page.wait_for_timeout(3000000)  # Wait longer for login to complete
             self.debug_login_state(page, "after_password_next")
             return True
 
