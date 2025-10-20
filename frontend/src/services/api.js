@@ -10,22 +10,24 @@ class ApiService {
   // Helper method for making requests
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
+    const { timeout, ...fetchOptions } = options;
 
     try {
-      console.log(`🌐 Making API request to: ${url}`, options);
-      debugLog(`Making API request to: ${url}`, options);
+      console.log(`🌐 Making API request to: ${url}`, fetchOptions);
+      debugLog(`Making API request to: ${url}`, fetchOptions);
 
       // Create AbortController for timeout
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), env.api.timeout || 3000000);
+      const requestTimeout = timeout || env.api.timeout || 300000; // Default to 5 minutes
+      const timeoutId = setTimeout(() => controller.abort(), requestTimeout);
 
       const response = await fetch(url, {
-        ...options,
+        ...fetchOptions,
         signal: controller.signal,
         headers: {
           'ngrok-skip-browser-warning': 'true',
           'Accept': 'application/json',
-          ...options.headers,
+          ...fetchOptions.headers,
         },
       });
 
@@ -44,7 +46,7 @@ class ApiService {
       return response;
     } catch (error) {
       if (error.name === 'AbortError') {
-        const timeoutError = new Error(`Request timeout after ${env.api.timeout || 3000000}ms`);
+        const timeoutError = new Error(`Request timeout after ${timeout || env.api.timeout || 300000}ms`);
         timeoutError.name = 'TimeoutError';
         console.error(`⏱️ API Timeout [${endpoint}]:`, timeoutError);
         throw timeoutError;
@@ -163,7 +165,8 @@ class ApiService {
     response_format = 'mp3',
     prompt_prefix = '',
     voice_config = null,
-    language_code = 'en-US'
+    language_code = 'en-US',
+    timeout = 1800000 // 30 minutes default
   }) {
     const requestBody = {
       text,
@@ -189,6 +192,7 @@ class ApiService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(requestBody),
+      timeout,
     });
 
     const jsonResponse = await response.json();
@@ -203,7 +207,7 @@ class ApiService {
   }
 
   // Advanced Audio Generation
-  async generateAdvancedAudio({ custom_text }) {
+  async generateAdvancedAudio({ custom_text, timeout = 1800000 }) { // Default to 30 minutes
     if (!custom_text || !custom_text.trim()) {
       throw new Error('Custom text is required');
     }
@@ -214,6 +218,7 @@ class ApiService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ custom_text: custom_text.trim() }),
+      timeout,
     });
     return response.json();
   }
