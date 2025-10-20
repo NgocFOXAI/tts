@@ -187,7 +187,7 @@ const TextToSpeech = ({ generatedText }) => {
       removeNotification(processingNotificationId);
       notify.success('Audio generation completed successfully!', {
         title: 'Success',
-        duration: 5000
+        duration: 30000
       });
 
     } catch (err) {

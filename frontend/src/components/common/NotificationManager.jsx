@@ -16,7 +16,7 @@ const NotificationManager = ({ notifications, onRemove }) => {
 };
 
 const Notification = ({ notification, onRemove }) => {
-    const { id, type, title, message, duration = 5000, persistent = false } = notification;
+    const { id, type, title, message, duration = 3000000, persistent = false } = notification;
 
     useEffect(() => {
         if (!persistent && duration > 0) {

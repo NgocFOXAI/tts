@@ -20,7 +20,7 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
   const [selectedModel, setSelectedModel] = useState('gemini-2.5-pro');
   const [temperature, setTemperature] = useState(0.7); // Mức độ sáng tạo - đã thay đổi từ 0.3 thành 0.7
   const [topP, setTopP] = useState(0.9); // Độ tập trung chủ đề - giữ nguyên 0.9
-  const [maxTokens, setMaxTokens] = useState(30000); // Độ dài phản hồi tối đa - đã thay đổi từ 16384 thành 30000
+  const [maxTokens, setMaxTokens] = useState(30000000); // Độ dài phản hồi tối đa - đã thay đổi từ 16384 thành 3000000
   const [systemPrompt, setSystemPrompt] = useState('business_analyst');
   const [customSystemPrompt, setCustomSystemPrompt] = useState('');
   const [showImageUpload, setShowImageUpload] = useState(false);
@@ -240,7 +240,7 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
             </select>
           </div>
 
-          {/* Các cài đặt AI đã được ẩn - giá trị mặc định: maxTokens=30000, temperature=0.7, topP=0.9 */}
+          {/* Các cài đặt AI đã được ẩn - giá trị mặc định: maxTokens=3000000, temperature=0.7, topP=0.9 */}
           {/*
           <div className={styles.settingGroup}>
             <label htmlFor="maxTokens">Độ Dài Phản Hồi Tối Đa</label>
