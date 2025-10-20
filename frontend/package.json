@@ -86,7 +86,7 @@
     "prepare": "echo 'husky not configured'",
     "check:versions": "node -v && npm -v && npx react-scripts --version || echo react-scripts-version-check-failed"
   },
-  "proxy": "http://222.252.99.27:18000",
+  "proxy": "https://vina-nondeep-uncontrastively.ngrok-free.dev",
   "prettier": {
     "semi": true,
     "singleQuote": true,

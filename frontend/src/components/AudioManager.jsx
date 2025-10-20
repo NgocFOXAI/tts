@@ -17,7 +17,12 @@ const AudioManager = () => {
             setLoading(true);
             const url = `${API_BASE}/audio/files`;
             console.log('🔍 Fetching files from:', url);
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                    'Accept': 'application/json'
+                }
+            });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -37,7 +42,12 @@ const AudioManager = () => {
         try {
             const url = `${API_BASE}/audio/stats`;
             console.log('🔍 Fetching stats from:', url);
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                    'Accept': 'application/json'
+                }
+            });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

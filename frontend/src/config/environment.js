@@ -31,7 +31,7 @@ const getEnvVar = (key, defaultValue = undefined) => {
 export const env = {
   // API Configuration
   api: {
-    baseUrl: getEnvVar('REACT_APP_API_URL', 'http://222.252.99.27/api'),
+    baseUrl: getEnvVar('REACT_APP_API_URL', 'https://vina-nondeep-uncontrastively.ngrok-free.dev/api'),
   },
 
   // Application Info

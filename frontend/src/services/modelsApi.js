@@ -12,7 +12,12 @@ class ModelsApiService {
     debugLog(`Fetching models from: ${url}`);
 
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+          'Accept': 'application/json'
+        }
+      });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
@@ -59,7 +64,9 @@ class ModelsApiService {
       const response = await fetch(url, {
         method: 'POST',
         headers: {
+          'ngrok-skip-browser-warning': 'true',
           'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
         body: JSON.stringify({ prompt: promptText }),
       });
@@ -85,6 +92,10 @@ class ModelsApiService {
     try {
       const response = await fetch(url, {
         method: 'DELETE',
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+          'Accept': 'application/json'
+        }
       });
 
       if (!response.ok) {

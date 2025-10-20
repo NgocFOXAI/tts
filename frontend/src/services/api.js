@@ -23,6 +23,8 @@ class ApiService {
         ...options,
         signal: controller.signal,
         headers: {
+          'ngrok-skip-browser-warning': 'true',
+          'Accept': 'application/json',
           ...options.headers,
         },
       });
