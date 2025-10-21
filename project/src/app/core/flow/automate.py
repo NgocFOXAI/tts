@@ -576,10 +576,15 @@ class NotebookLMAutomation:
 
             download = dl_info.value
             suggested_filename = download.suggested_filename
+            
+            # Sanitize filename to prevent truncation and invalid characters
+            safe_filename = self.sanitize_filename(suggested_filename)
             print(f"✅ Download started: {suggested_filename}")
+            if safe_filename != suggested_filename:
+                print(f"   Sanitized to: {safe_filename}")
 
             # Wait for download to complete and save to our folder
-            download_path = os.path.join(self.download_folder, suggested_filename)
+            download_path = os.path.join(self.download_folder, safe_filename)
             download.save_as(download_path)
             print(f"✅ Download saved to: {download_path}")
 
@@ -587,6 +592,35 @@ class NotebookLMAutomation:
         except Exception as e:
             print(f"❌ Download failed: {e}")
             return False
+    
+    def sanitize_filename(self, filename: str) -> str:
+        """Sanitize filename to remove invalid characters and prevent truncation."""
+        if not filename:
+            return f"audio_{int(time.time())}.wav"
+        
+        # Remove or replace invalid characters for Windows/Linux
+        # Keep only alphanumeric, spaces, hyphens, underscores, and dots
+        sanitized = re.sub(r'[<>:"/\\|?*\x00-\x1f]', '_', filename)
+        
+        # Replace multiple spaces/underscores with single one
+        sanitized = re.sub(r'[_\s]+', '_', sanitized)
+        
+        # Ensure filename isn't too long (max 255 chars for most filesystems)
+        # Keep extension
+        name, ext = os.path.splitext(sanitized)
+        if len(sanitized) > 255:
+            max_name_len = 255 - len(ext) - 10  # Reserve space for extension and safety
+            name = name[:max_name_len]
+            sanitized = name + ext
+        
+        # Remove leading/trailing dots and spaces
+        sanitized = sanitized.strip('. ')
+        
+        # If empty after sanitization, use timestamp
+        if not sanitized or sanitized == ext:
+            sanitized = f"audio_{int(time.time())}{ext if ext else '.wav'}"
+        
+        return sanitized
 
     def download_audio(self, page) -> bool:
         """Simplified download with dual strategy."""

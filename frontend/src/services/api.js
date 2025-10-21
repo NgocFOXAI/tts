@@ -18,7 +18,7 @@ class ApiService {
 
       // Create AbortController for timeout
       const controller = new AbortController();
-      const requestTimeout = timeout || env.api.timeout || 300000; // Default to 5 minutes
+      const requestTimeout = timeout || env.api.timeout || 1800000; // Default to 30 minutes for TTS operations
       const timeoutId = setTimeout(() => controller.abort(), requestTimeout);
 
       const response = await fetch(url, {
@@ -46,7 +46,7 @@ class ApiService {
       return response;
     } catch (error) {
       if (error.name === 'AbortError') {
-        const timeoutError = new Error(`Request timeout after ${timeout || env.api.timeout || 300000}ms`);
+        const timeoutError = new Error(`Request timeout after ${timeout || env.api.timeout || 1800000}ms`);
         timeoutError.name = 'TimeoutError';
         console.error(`⏱️ API Timeout [${endpoint}]:`, timeoutError);
         throw timeoutError;

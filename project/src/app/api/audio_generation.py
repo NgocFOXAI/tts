@@ -107,7 +107,7 @@ async def generate_audio_from_text(request: NotebookLMRequest):
                 result = run_notebooklm_automation(
                     content_source=custom_text,
                     debug_mode=False,
-                    max_wait_minutes=20  # Increase timeout to 20 minutes
+                    max_wait_minutes=30  # Increase timeout to 30 minutes for long audio
                 )
                 print(f"🎯 Automation completed with result: {result}")
                 return result
@@ -124,10 +124,10 @@ async def generate_audio_from_text(request: NotebookLMRequest):
         try:
             with ThreadPoolExecutor() as executor:
                 future = loop.run_in_executor(executor, run_automation)
-                # Add a timeout to prevent hanging
-                success = await asyncio.wait_for(future, timeout=300)  # 5 minutes max
+                # Increase timeout to 35 minutes to allow 30 min automation + 5 min buffer
+                success = await asyncio.wait_for(future, timeout=2100)  # 35 minutes
         except asyncio.TimeoutError:
-            print("❌ Automation timed out after 5 minutes")
+            print("❌ Automation timed out after 35 minutes")
             success = False
         
         processing_time = time.time() - start_time

@@ -14,8 +14,8 @@ class FileHandler:
         self.static_folder = static_folder or os.path.join(os.path.dirname(__file__), '..', '..', '..', 'static')
         os.makedirs(self.static_folder, exist_ok=True)
 
-        # File cleanup after 1 hour by default
-        self.cleanup_after_hours = 1
+        # File cleanup after 7 days by default for audio files
+        self.cleanup_after_hours = 168  # 7 days = 168 hours
 
         # Supported file types
         self.supported_image_types = {
@@ -79,22 +79,29 @@ class FileHandler:
 
 
 
-    def cleanup_old_files(self):
-        """Remove files older than cleanup_after_hours"""
+    def cleanup_old_files(self, hours: int = None):
+        """Remove files older than specified hours (default: cleanup_after_hours)"""
         try:
+            cleanup_hours = hours if hours is not None else self.cleanup_after_hours
             current_time = datetime.now()
-            cutoff_time = current_time - timedelta(hours=self.cleanup_after_hours)
-
+            cutoff_time = current_time - timedelta(hours=cleanup_hours)
+            
+            deleted_count = 0
             for filename in os.listdir(self.static_folder):
                 file_path = os.path.join(self.static_folder, filename)
                 if os.path.isfile(file_path):
                     file_mtime = datetime.fromtimestamp(os.path.getmtime(file_path))
                     if file_mtime < cutoff_time:
                         os.remove(file_path)
-                        print(f"Cleaned up old file: {filename}")
+                        deleted_count += 1
+                        print(f"Cleaned up old file: {filename} (modified: {file_mtime})")
+            
+            print(f"Cleanup completed: {deleted_count} files deleted (older than {cleanup_hours} hours)")
+            return deleted_count
 
         except Exception as e:
             print(f"Error during file cleanup: {e}")
+            return 0
 
     def get_file_info(self, file_id: str) -> Optional[Dict[str, Any]]:
         """Get information about a saved file by ID"""

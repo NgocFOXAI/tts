@@ -101,31 +101,73 @@
 /* Hero Section */
 .heroSection {
   background: white;
-  padding: 3rem 0 2rem 0;
+  padding: 5rem 0 4rem 0;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  border-bottom: 3px solid #0B3C88;
+}
+
+.heroSection::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(11, 60, 136, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 50%, rgba(11, 60, 136, 0.03) 0%, transparent 50%);
+  animation: pulse 4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
 }
 
 .heroWrapper {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .mainTitle {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 900;
-  color: #000;
+  color: #0B3C88;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   letter-spacing: -0.025em;
   text-transform: uppercase;
+  position: relative;
+  display: inline-block;
+}
+
+.mainTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #0B3C88, transparent);
+  animation: lineGlow 2s ease-in-out infinite;
+}
+
+@keyframes lineGlow {
+  0%, 100% { opacity: 0.5; width: 60%; }
+  50% { opacity: 1; width: 80%; }
 }
 
 .subtitle {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   color: #4b5563;
   font-weight: 500;
-  line-height: 1.6;
+  line-height: 1.7;
   max-width: 700px;
   margin: 0 auto;
 }
@@ -148,39 +190,66 @@
 
 .featureCard {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 2rem;
   text-align: center;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-  border: 1px solid #e5e7eb;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid #e5e7eb;
+  position: relative;
+  overflow: hidden;
+}
+
+.featureCard::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(11, 60, 136, 0.05), transparent);
+  transform: rotate(45deg);
+  transition: all 0.6s;
+}
+
+.featureCard:hover::before {
+  left: 100%;
 }
 
 .featureCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(11, 60, 136, 0.25), 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  border-color: #0B3C88;
 }
 
 .clickableCard {
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .clickableCard:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 25px 30px -5px rgba(0, 0, 0, 0.15), 0 15px 15px -5px rgba(0, 0, 0, 0.08);
+  transform: translateY(-12px) scale(1.03);
+  box-shadow: 0 30px 60px -15px rgba(11, 60, 136, 0.3), 0 25px 30px -10px rgba(0, 0, 0, 0.15);
   border-color: #0B3C88;
+  border-width: 3px;
 }
 
 .featureIconBox {
   width: 80px;
   height: 80px;
-  background: #0B3C88;
-  border-radius: 12px;
+  background: linear-gradient(135deg, #0B3C88 0%, #1e5bb8 100%);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.5rem auto;
+  box-shadow: 0 8px 20px rgba(11, 60, 136, 0.3);
+  transition: all 0.3s ease;
+}
+
+.featureCard:hover .featureIconBox {
+  transform: rotate(5deg) scale(1.1);
+  box-shadow: 0 12px 30px rgba(11, 60, 136, 0.4);
 }
 
 .featureIcon {
@@ -189,19 +258,174 @@
   color: white;
 }
 
+/* Feature Image Styles */
+.featureImageBox {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem auto;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8fafc 0%, #e5e7eb 100%);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.featureImageBox::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(11, 60, 136, 0.05) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.featureCard:hover .featureImageBox::after {
+  opacity: 1;
+}
+
+.featureImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
+}
+
+.featureCard:hover .featureImage {
+  transform: scale(1.15) rotate(2deg);
+}
+
+/* Animation keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation classes */
+.fadeInUp {
+  animation: fadeInUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.fadeInDown {
+  animation: fadeInDown 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animateFromLeft {
+  animation: slideInFromLeft 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.animateFromTop {
+  animation: slideInFromTop 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+.animateFromBottom {
+  animation: slideInFromBottom 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.6s;
+  opacity: 0;
+}
+
+.animateFromRight {
+  animation: slideInFromRight 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: 0.8s;
+  opacity: 0;
+}
+
 .featureTitle {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
-  color: #003366;
+  color: #0B3C88;
   margin-bottom: 1rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: all 0.3s ease;
+}
+
+.featureCard:hover .featureTitle {
+  color: #1e5bb8;
+  transform: scale(1.05);
 }
 
 .featureDescription {
-  color: #000;
-  line-height: 1.6;
+  color: #374151;
+  line-height: 1.7;
   font-size: 0.95rem;
   text-align: center;
+  transition: color 0.3s ease;
+}
+
+.featureCard:hover .featureDescription {
+  color: #1f2937;
 }
 
 /* Responsive Design */

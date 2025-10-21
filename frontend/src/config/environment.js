@@ -32,6 +32,7 @@ export const env = {
   // API Configuration
   api: {
     baseUrl: getEnvVar('REACT_APP_API_URL', 'https://vina-nondeep-uncontrastively.ngrok-free.dev/api'),
+    timeout: getEnvVar('REACT_APP_API_TIMEOUT', 1800000), // 30 minutes for long-running TTS operations
   },
 
   // Application Info

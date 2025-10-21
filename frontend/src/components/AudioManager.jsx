@@ -8,6 +8,12 @@ const AudioManager = () => {
     const [stats, setStats] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [showCleanupModal, setShowCleanupModal] = useState(false);
+    const [showResultModal, setShowResultModal] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [modalMessage, setModalMessage] = useState('');
+    const [resultMessage, setResultMessage] = useState('');
 
     const API_BASE = env.api.baseUrl;
 
@@ -60,36 +66,49 @@ const AudioManager = () => {
 
     // Delete a file
     const deleteFile = async (filename) => {
-        if (!window.confirm(`⚠️ Bạn có chắc chắn muốn xóa vĩnh viễn tài liệu "${filename}"?\n\n📋 Hành động này không thể hoàn tác.`)) {
-            return;
-        }
+        setSelectedFile(filename);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!selectedFile) return;
 
         try {
-            const url = `${API_BASE}/audio/files/${encodeURIComponent(filename)}`;
-            console.log('🔍 Deleting file:', url);
+            const url = `${API_BASE}/audio/files/${encodeURIComponent(selectedFile)}`;
+            console.log('Deleting file:', url);
             const response = await fetch(url, {
                 method: 'DELETE'
             });
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            
+            setShowDeleteModal(false);
+            setSelectedFile(null);
+            
+            // Show success result
+            setResultMessage(`Đã xóa thành công file "${selectedFile}"`);
+            setShowResultModal(true);
+            
             // Refresh the file list
             await fetchFiles();
             await fetchStats();
         } catch (err) {
-            alert(`❌ Lỗi xóa tài liệu: ${err.message}\n\n🔧 Vui lòng thử lại hoặc liên hệ hỗ trợ kỹ thuật.`);
+            setShowDeleteModal(false);
+            setResultMessage(`Lỗi khi xóa file: ${err.message}`);
+            setShowResultModal(true);
         }
     };
 
     // Cleanup old files
     const cleanupOldFiles = async (days = 7) => {
-        if (!window.confirm(`🗑️ Xác nhận dọn dẹp tự động?\n\n📅 Sẽ xóa tất cả tài liệu cũ hơn ${days} ngày.\n⚠️ Hành động này không thể hoàn tác.`)) {
-            return;
-        }
+        setShowCleanupModal(true);
+    };
 
+    const confirmCleanup = async () => {
         try {
-            const url = `${API_BASE}/audio/cleanup?days=${days}`;
-            console.log('🔍 Cleanup URL:', url);
+            const url = `${API_BASE}/audio/cleanup?days=7`;
+            console.log('Cleanup URL:', url);
             const response = await fetch(url, {
                 method: 'POST'
             });
@@ -97,12 +116,24 @@ const AudioManager = () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const result = await response.json();
-            alert(`✅ Dọn dẹp hoàn tất!\n\n📊 Đã xóa ${result.count} tài liệu cũ.\n💾 Dung lượng đã được tối ưu hóa.`);
+            
+            setShowCleanupModal(false);
+            
+            // Show result
+            if (result.count > 0) {
+                setResultMessage(`Dọn dẹp hoàn tất! Đã xóa ${result.count} file cũ hơn 7 ngày.`);
+            } else {
+                setResultMessage('Không có file nào cần dọn dẹp. Tất cả file đều còn mới.');
+            }
+            setShowResultModal(true);
+            
             // Refresh the file list
             await fetchFiles();
             await fetchStats();
         } catch (err) {
-            alert(`❌ Dọn dẹp thất bại: ${err.message}\n\n🔧 Vui lòng kiểm tra kết nối mạng và thử lại.`);
+            setShowCleanupModal(false);
+            setResultMessage(`Lỗi khi dọn dẹp: ${err.message}`);
+            setShowResultModal(true);
         }
     };
 
@@ -128,7 +159,7 @@ const AudioManager = () => {
     if (loading) {
         return (
             <div className="audio-manager">
-                <div className="loading">⏳ Đang tải thư viện âm thanh...</div>
+                <div className="loading">Đang tải thư viện âm thanh...</div>
             </div>
         );
     }
@@ -137,9 +168,9 @@ const AudioManager = () => {
         return (
             <div className="audio-manager">
                 <div className="error">
-                    <p>❌ Lỗi hệ thống: {error}</p>
+                    <p>Lỗi: {error}</p>
                     <button onClick={fetchFiles} className="retry-btn">
-                        🔄 Thử Lại
+                        Thử Lại
                     </button>
                 </div>
             </div>
@@ -148,74 +179,138 @@ const AudioManager = () => {
 
     return (
         <div className="audio-manager">
+            {/* Delete Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Xác nhận xóa file</h3>
+                        <p>Bạn có chắc chắn muốn xóa file này?</p>
+                        <p className="modal-filename">"{selectedFile}"</p>
+                        <p className="modal-warning">Hành động này không thể hoàn tác.</p>
+                        <div className="modal-actions">
+                            <button onClick={() => { setShowDeleteModal(false); setSelectedFile(null); }} className="modal-btn cancel">
+                                Hủy
+                            </button>
+                            <button onClick={confirmDelete} className="modal-btn confirm">
+                                Xóa File
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Cleanup Confirmation Modal */}
+            {showCleanupModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Dọn dẹp file cũ</h3>
+                        <p>Xóa tất cả file đã tồn tại trên hệ thống hơn 7 ngày.</p>
+                        <p className="modal-warning">Hành động này không thể hoàn tác.</p>
+                        <div className="modal-actions">
+                            <button onClick={() => setShowCleanupModal(false)} className="modal-btn cancel">
+                                Hủy
+                            </button>
+                            <button onClick={confirmCleanup} className="modal-btn confirm">
+                                Xác nhận dọn dẹp
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Result Modal */}
+            {showResultModal && (
+                <div className="modal-overlay" onClick={() => setShowResultModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h3>Thông báo</h3>
+                        <p className="modal-result-message">{resultMessage}</p>
+                        <div className="modal-actions">
+                            <button onClick={() => setShowResultModal(false)} className="modal-btn confirm">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="header">
-                <h2>🎵 Trung Tâm Quản Lý Thư Viện Âm Thanh Chuyên Nghiệp</h2>
-                <div className="stats">
-                    <span className="stat">📁 Tổng Tài Liệu: {stats.total_files || 0}</span>
-                    <span className="stat">🎶 File Âm Thanh: {stats.audio_files || 0}</span>
-                    <span className="stat">💾 Dung Lượng Sử Dụng: {formatFileSize(stats.total_size_bytes || 0)}</span>
+                <div className="header-title">
+                    <h2>Thư Viện Âm Thanh</h2>
+                    <p className="header-subtitle">Quản lý và tải xuống các file âm thanh đã tạo</p>
                 </div>
                 <div className="actions">
                     <button onClick={fetchFiles} className="refresh-btn">
-                        🔄 Làm Mới Dữ Liệu
+                        Làm Mới
                     </button>
                     <button onClick={() => cleanupOldFiles(7)} className="cleanup-btn">
-                        🗑️ Dọn Dẹp Tự Động (7+ ngày)
+                        Dọn Dẹp (7+ ngày)
                     </button>
+                </div>
+            </div>
+
+            <div className="stats-container">
+                <div className="stat-card">
+                    <div className="stat-label">Tổng File</div>
+                    <div className="stat-value">{stats.total_files || 0}</div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-label">File Âm Thanh</div>
+                    <div className="stat-value">{stats.audio_files || 0}</div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-label">Dung Lượng</div>
+                    <div className="stat-value">{formatFileSize(stats.total_size_bytes || 0)}</div>
                 </div>
             </div>
 
             {files.length === 0 ? (
                 <div className="no-files">
-                    <p>📂 Thư viện âm thanh hiện đang trống</p>
-                    <p className="tip">💡 Các file sẽ xuất hiện tại đây sau khi bạn tạo nội dung âm thanh thông qua hệ thống</p>
+                    <p>Thư viện âm thanh hiện đang trống</p>
+                    <p className="tip">Các file sẽ xuất hiện tại đây sau khi bạn tạo nội dung âm thanh</p>
                 </div>
             ) : (
                 <div className="file-list">
+                    <div className="file-list-header">
+                        <div className="col-name">Tên File</div>
+                        <div className="col-info">Thông Tin</div>
+                        <div className="col-actions">Thao Tác</div>
+                    </div>
                     {files.map((file, index) => (
                         <div key={index} className={`file-item ${file.is_audio ? 'audio-file' : ''}`}>
-                            <div className="file-info">
-                                <div className="file-name">
-                                    {file.is_audio && <span className="audio-icon">🎵</span>}
-                                    <strong>{file.name}</strong>
-                                </div>
-                                <div className="file-meta">
-                                    <span className="file-size">{formatFileSize(file.size)}</span>
-                                    <span className="file-date">{formatDate(file.modified)}</span>
-                                    <span className="file-type">{file.mime_type}</span>
-                                </div>
+                            <div className="file-name-col">
+                                <strong>{file.name}</strong>
                             </div>
-                            <div className="file-actions">
+                            <div className="file-info-col">
+                                <span className="file-size">{formatFileSize(file.size)}</span>
+                                <span className="file-date">{formatDate(file.modified)}</span>
+                            </div>
+                            <div className="file-actions-col">
                                 <a
                                     href={`${API_BASE}${file.download_url}`}
                                     download
                                     className="download-btn"
-                                    title="Tải xuống tài liệu"
+                                    title="Tải xuống"
                                 >
-                                    📥 Tải Xuống
+                                    Tải Xuống
                                 </a>
                                 {file.is_audio && (
                                     <audio controls className="audio-player">
                                         <source src={`${API_BASE}${file.download_url}`} type={file.mime_type} />
-                                        🔊 Trình duyệt không hỗ trợ phát nhạc trực tiếp
+                                        Trình duyệt không hỗ trợ
                                     </audio>
                                 )}
                                 <button
                                     onClick={() => deleteFile(file.name)}
                                     className="delete-btn"
-                                    title="Xóa tài liệu vĩnh viễn"
+                                    title="Xóa file"
                                 >
-                                    🗑️ Xóa Bỏ
+                                    Xóa
                                 </button>
                             </div>
                         </div>
                     ))}
                 </div>
             )}
-
-            <div className="footer">
-                <p className="storage-path">💾 Vị Trí Lưu Trữ: {stats.directory}</p>
-            </div>
         </div>
     );
 };

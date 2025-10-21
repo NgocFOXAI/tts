@@ -19,7 +19,12 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://222.252.99.27:3000", "http://localhost:3000"],
+    allow_origins=[
+        "https://dashboard_al.foxai.com.vn",
+        "https://dashboard_al.foxai.com.vn:3000",
+        "http://localhost:3000",
+        "http://222.252.99.27:3000"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
