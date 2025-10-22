@@ -36,7 +36,7 @@
     "react-hot-toast": "2.4.1",
     "react-markdown": "9.0.1",
     "react-query": "3.39.3",
-    "react-router-dom": "6.17.0",
+    "react-router-dom": "^6.17.0",
     "react-syntax-highlighter": "15.6.0",
     "react-use": "17.4.0",
     "react-window": "1.8.8",
@@ -44,6 +44,8 @@
     "remark-gfm": "4.0.0",
     "use-debounce": "9.0.4",
     "web-vitals": "3.5.0",
+    "zmp-sdk": "^2.48.2",
+    "zmp-ui": "^1.11.11",
     "zustand": "4.4.6"
   },
   "devDependencies": {
@@ -86,7 +88,7 @@
     "prepare": "echo 'husky not configured'",
     "check:versions": "node -v && npm -v && npx react-scripts --version || echo react-scripts-version-check-failed"
   },
-  "proxy": "https://vina-nondeep-uncontrastively.ngrok-free.dev",
+  "proxy": "https://dashboard_be.foxai.com.vn:18000/",
   "prettier": {
     "semi": true,
     "singleQuote": true,

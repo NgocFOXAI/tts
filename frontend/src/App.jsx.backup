@@ -1,0 +1,261 @@
+import React, { useState } from 'react';import React, { useState } from 'react';
+
+import HomePage from './components/HomePage';import HomePage from './components/HomePage';
+
+import ChatInterface from './components/ChatInterface';import ChatInterface from './components/ChatInterface';
+
+import TextToSpeech from './components/TextToSpeech';import TextToSpeech from './components/TextToSpeech';
+
+import AudioManager from './components/AudioManager';import AudioManager from './components/AudioManager';
+
+import NotificationManager, { useNotifications } from './components/common/NotificationManager';import NotificationManager, { useNotifications } from './components/common/NotificationManager';
+
+import styles from './styles/App.module.css';import styles from './styles/App.module.css';
+
+
+
+const foxaiLogo = '/static/logo/foxai-logo-3.png';function App() {
+
+  const [activeTab, setActiveTab] = useState('home');
+
+function App() {  const [generatedText, setGeneratedText] = useState('');
+
+  const [activeTab, setActiveTab] = useState('home');  const { notifications, notify, removeNotification } = useNotifications();
+
+  const [generatedText, setGeneratedText] = useState('');  
+
+  const { notifications, notify, removeNotification } = useNotifications();  // Health check and API info hooks (available for future use)
+
+  // const { status: healthStatus } = useHealthCheck();
+
+  const tabs = [  // const { info: apiInfo } = useApiInfo();
+
+    { id: 'home', label: 'Trang Chủ' },
+
+    { id: 'generator', label: 'Trí Tuệ Nhân Tạo' },  // Simple tabs without complex configuration
+
+    { id: 'tts', label: 'Chuyển Đổi Ngữ Âm' },  const tabs = [
+
+    { id: 'audio', label: 'Thư Viện Âm Thanh' },    { id: 'home', label: 'Trang Chủ', component: null },
+
+  ];    { id: 'generator', label: 'Trí Tuệ Nhân Tạo', component: ChatInterface },
+
+    { id: 'tts', label: 'Chuyển Đổi Ngữ Âm', component: TextToSpeech },
+
+  const handleTextGenerated = (text) => {    { id: 'audio', label: 'Thư Viện Âm Thanh', component: AudioManager },
+
+    setGeneratedText(text);  ];
+
+  };
+
+  const handleTextGenerated = (text) => {
+
+  const renderContent = () => {    setGeneratedText(text);
+
+    switch (activeTab) {    // Note: Auto-switch to TTS disabled for better chat experience
+
+      case 'home':    // setActiveTab('tts'); // Auto-switch to TTS tab
+
+        return <HomePage onNavigate={setActiveTab} />;  };
+
+      case 'generator':
+
+        return <ChatInterface onTextGenerated={handleTextGenerated} notify={notify} />;  const renderActiveComponent = () => {
+
+      case 'tts':    const activeTabData = tabs.find(tab => tab.id === activeTab);
+
+        return <TextToSpeech generatedText={generatedText} notify={notify} />;    if (!activeTabData) return null;
+
+      case 'audio':
+
+        return <AudioManager notify={notify} />;    const Component = activeTabData.component;
+
+      default:
+
+        return <HomePage onNavigate={setActiveTab} />;    // Pass different props based on the component
+
+    }    if (activeTabData.id === 'generator') {
+
+  };      return <Component onTextGenerated={handleTextGenerated} notify={notify} />;
+
+    } else if (activeTabData.id === 'tts') {
+
+  return (      return <Component generatedText={generatedText} notify={notify} />;
+
+    <div className={styles.app}>    }
+
+      <NotificationManager 
+
+        notifications={notifications}     return <Component notify={notify} />;
+
+        onRemove={removeNotification}   };
+
+      />
+
+
+
+      {activeTab !== 'home' && (            <div className={styles.featureImageBox}>
+
+        <div className={styles.chatTabSwitcher} data-active={activeTab}>              <img src={gioiThieuImg} alt="Giới thiệu FoxAI" className={styles.featureImage} />
+
+          <div className={styles.headerLogo}>            </div>
+
+            <img src={foxaiLogo} alt="FOXAI Logo" className={styles.logoImage} />            <h3 className={styles.featureTitle}>Giới thiệu FoxAI</h3>
+
+          </div>            <p className={styles.featureDescription}>
+
+              FoxAI là công ty uy tín tại Việt Nam và Lào, đi đầu trong lĩnh vực chuyển đổi số.
+
+          <div className={styles.tabs}>            </p>
+
+            {tabs.map(tab => (          </div>
+
+              <button
+
+                key={tab.id}          {/* Khối 2: Trí tuệ nhân tạo - Click để chuyển đến Chat */}
+
+                className={`${styles.tabButton} ${activeTab === tab.id ? styles.active : ''}`}          <div 
+
+                onClick={() => setActiveTab(tab.id)}            className={`${styles.featureCard} ${styles.clickableCard} ${styles.animateFromTop}`}
+
+              >            onClick={() => setActiveTab('generator')}
+
+                {tab.label}          >
+
+              </button>            <div className={styles.featureImageBox}>
+
+            ))}              <img src={aiChatImg} alt="Trí tuệ nhân tạo" className={styles.featureImage} />
+
+          </div>            </div>
+
+        </div>            <h3 className={styles.featureTitle}>Trí tuệ nhân tạo</h3>
+
+      )}            <p className={styles.featureDescription}>
+
+              Hệ thống phân tích báo cáo file thông qua ngôn ngữ tự nhiên.
+
+      <div className={styles.content}>            </p>
+
+        {renderContent()}          </div>
+
+      </div>
+
+    </div>          {/* Khối 3: Chuyển đổi âm thanh - Click để chuyển đến TTS */}
+
+  );          <div 
+
+}            className={`${styles.featureCard} ${styles.clickableCard} ${styles.animateFromBottom}`}
+
+            onClick={() => setActiveTab('tts')}
+
+export default App;          >
+
+            <div className={styles.featureImageBox}>
+              <img src={textToSpeechImg} alt="Chuyển đổi âm thanh" className={styles.featureImage} />
+            </div>
+            <h3 className={styles.featureTitle}>Chuyển đổi âm thanh</h3>
+            <p className={styles.featureDescription}>
+              Chuyển đổi văn bản thành giọng nói tự nhiên và cuộc trò chuyện.
+            </p>
+          </div>
+
+          {/* Khối 4: Thư viện âm thanh - Click để chuyển đến Audio Manager */}
+          <div 
+            className={`${styles.featureCard} ${styles.clickableCard} ${styles.animateFromRight}`}
+            onClick={() => setActiveTab('audio')}
+          >
+            <div className={styles.featureImageBox}>
+              <img src={thuVienAmThanhImg} alt="Thư viện âm thanh" className={styles.featureImage} />
+            </div>
+            <h3 className={styles.featureTitle}>Thư viện âm thanh</h3>
+            <p className={styles.featureDescription}>
+              Quản lý, tải xuống và xem các tệp âm thanh đã tạo của bạn.
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+
+  return (
+    <div className={styles.app}>
+      {/* Notification Manager */}
+      <NotificationManager 
+        notifications={notifications} 
+        onRemove={removeNotification} 
+      />
+
+      {/* Tab switcher - chỉ hiển thị khi không phải trang chủ */}
+      {activeTab !== 'home' && (
+        <div className={styles.chatTabSwitcher} data-active={activeTab}>
+          {/* FOXAI Logo */}
+          <div className={styles.headerLogo}>
+            <img src={foxaiLogo} alt="FOXAI Logo" className={styles.logoImage} />
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className={styles.tabContainer}>
+            <button
+              onClick={() => setActiveTab('home')}
+              className={`${styles.chatTab} ${activeTab === 'home' ? styles.active : ''}`}
+            >
+              Trang Chủ
+            </button>
+            <button
+              onClick={() => window.open('https://fox.ai.vn', '_blank')}
+              className={styles.chatTab}
+            >
+              Giới Thiệu
+            </button>
+            <button
+              onClick={() => setActiveTab('generator')}
+              className={`${styles.chatTab} ${activeTab === 'generator' ? styles.active : ''}`}
+            >
+              Trí Tuệ Nhân Tạo
+            </button>
+            <button
+              onClick={() => setActiveTab('tts')}
+              className={`${styles.chatTab} ${activeTab === 'tts' ? styles.active : ''}`}
+            >
+              Chuyển Đổi Ngữ Âm
+            </button>
+            <button
+              onClick={() => setActiveTab('audio')}
+              className={`${styles.chatTab} ${activeTab === 'audio' ? styles.active : ''}`}
+            >
+              Thư Viện Âm Thanh
+            </button>
+          </div>
+
+          {/* Right side placeholder for future features */}
+          <div style={{ width: '120px' }}></div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <main className={`${styles.main} ${activeTab !== 'home' ? styles.withTabSwitcher : ''}`}>
+        {activeTab === 'home' ? (
+          renderHomePage()
+        ) : activeTab === 'generator' ? (
+          // Fullscreen for chat interface
+          renderActiveComponent()
+        ) : activeTab === 'tts' ? (
+          // Fullscreen for TTS interface
+          renderActiveComponent()
+        ) : activeTab === 'audio' ? (
+          // Fullscreen for Audio Manager
+          renderActiveComponent()
+        ) : (
+          // Container for other components
+          <div className="container">
+            {renderActiveComponent()}
+          </div>
+        )}
+      </main>
+
+
+    </div>
+  );
+}
+
+export default App;
