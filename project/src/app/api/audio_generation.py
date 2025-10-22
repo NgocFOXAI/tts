@@ -56,7 +56,7 @@ async def generate_audio_from_text(request: NotebookLMRequest):
             )
         
         custom_text = request.custom_text.strip()
-        print(f"🚀 Using custom text for NotebookLM (length: {len(custom_text)} chars)")
+        print(f"[INFO] Using custom text for NotebookLM (length: {len(custom_text)} chars)", flush=True)
         
         text_info = {
             'source': 'custom_text',
@@ -65,7 +65,7 @@ async def generate_audio_from_text(request: NotebookLMRequest):
         }
         
         # Run automation in thread pool to avoid sync/async conflict
-        print(f"🚀 Starting NotebookLM automation with custom text")
+        print(f"[INFO] Starting NotebookLM automation with custom text", flush=True)
 
         def run_automation():
             try:
@@ -80,12 +80,12 @@ async def generate_audio_from_text(request: NotebookLMRequest):
                         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
                     
                     # Test Playwright installation properly
-                    print(f"🔍 Testing Playwright installation...")
+                    print(f"[INFO] Testing Playwright installation...", flush=True)
                     with sync_playwright() as p:
                         browser_path = p.chromium.executable_path
                         if not browser_path or not os.path.exists(browser_path):
                             raise Exception("Playwright Chromium browser not found. Please run: playwright install chromium")
-                        print(f"✅ Playwright Chromium found at: {browser_path}")
+                        print(f"[SUCCESS] Playwright Chromium found at: {browser_path}", flush=True)
                 except ImportError:
                     raise Exception("Playwright not installed. Please run: pip install playwright && playwright install chromium")
                 except Exception as e:
@@ -93,30 +93,30 @@ async def generate_audio_from_text(request: NotebookLMRequest):
                     if "not found" in error_msg or "chromium" in error_msg:
                         raise e
                     elif "target page" in error_msg or "browser has been closed" in error_msg:
-                        print(f"⚠️ Browser closed during automation: {e}")
+                        print(f"[WARNING] Browser closed during automation: {e}", flush=True)
                         raise Exception(f"Browser automation interrupted: {e}")
                     else:
-                        print(f"❌ Playwright error: {e}")
+                        print(f"[ERROR] Playwright error: {e}", flush=True)
                         raise Exception(f"Playwright setup issue: {e}")
                 
                 # Validate content length
                 if len(custom_text.strip()) < 50:
                     raise Exception(f"Content too short ({len(custom_text.strip())} chars). Minimum 50 characters required for NotebookLM.")
                 
-                print(f"🚀 Starting automation for {len(custom_text)} character text...")
+                print(f"[INFO] Starting automation for {len(custom_text)} character text...", flush=True)
                 result = run_notebooklm_automation(
                     content_source=custom_text,
-                    debug_mode=False,
+                    debug_mode=True,  # Enable debug mode to see browser
                     max_wait_minutes=30  # Increase timeout to 30 minutes for long audio
                 )
-                print(f"🎯 Automation completed with result: {result}")
+                print(f"[SUCCESS] Automation completed with result: {result}", flush=True)
                 return result
                 
             except Exception as e:
-                print(f"❌ Automation exception: {str(e)}")
-                print(f"❌ Exception type: {type(e).__name__}")
+                print(f"[ERROR] Automation exception: {str(e)}", flush=True)
+                print(f"[ERROR] Exception type: {type(e).__name__}", flush=True)
                 import traceback
-                print(f"❌ Traceback: {traceback.format_exc()}")
+                print(f"[ERROR] Traceback: {traceback.format_exc()}", flush=True)
                 return False
 
         # Execute in thread pool with timeout
@@ -127,7 +127,7 @@ async def generate_audio_from_text(request: NotebookLMRequest):
                 # Increase timeout to 35 minutes to allow 30 min automation + 5 min buffer
                 success = await asyncio.wait_for(future, timeout=2100)  # 35 minutes
         except asyncio.TimeoutError:
-            print("❌ Automation timed out after 35 minutes")
+            print("[ERROR] Automation timed out after 35 minutes", flush=True)
             success = False
         
         processing_time = time.time() - start_time

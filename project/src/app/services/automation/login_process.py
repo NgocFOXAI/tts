@@ -262,8 +262,8 @@ class GoogleLoginService:
             next_btn.wait_for(timeout=8000)
             next_btn.click()
 
-            print("✅ Password Next button clicked")
-            page.wait_for_timeout(3000000)  # Wait longer for login to complete
+            print("✅ Password Next button clicked", flush=True)
+            page.wait_for_timeout(5000)  # Wait 5 seconds for login to complete
             self.debug_login_state(page, "after_password_next")
             return True
 

@@ -92,3 +92,4 @@ frontend/package-lock.json
 pip-wheel-metadata/
 .python-version
 .claude/
+*static/

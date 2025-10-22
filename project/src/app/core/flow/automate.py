@@ -25,13 +25,15 @@ from services.automation.login_process import perform_google_login  # noqa: E402
 
 def _default_chrome_profile() -> str:
     """Trả về đường dẫn profile mặc định theo OS."""
-    home = os.path.expanduser("~")
+    # Use fixed shared profile path for consistency between IIS and console
     if sys.platform.startswith("win"):
-        return os.path.join(
-            home, "AppData", "Local", "Google", "Chrome", "User Data", "Default"
-        )
+        # Use a shared location that both IIS and user can access
+        shared_profile = r"C:\playwright-browsers\chrome-profile"
+        os.makedirs(shared_profile, exist_ok=True)
+        return shared_profile
     else:
         # Linux
+        home = os.path.expanduser("~")
         return os.path.join(home, ".config", "google-chrome", "Default")
 
 
@@ -93,13 +95,14 @@ class NotebookLMAutomation:
             return False
 
     def debug_page_state(self, page, step_name: str) -> None:
-        """Debug helper."""
-        if self.debug_mode:
-            try:
-                print(f"🔍 Debug {step_name}: {page.url}")
-                page.screenshot(path=f"debug_{step_name}.png")
-            except Exception as e:
-                print(f"⚠️ Debug error: {e}")
+        """Debug helper - always print URL and take screenshot."""
+        try:
+            print(f"🔍 Debug [{step_name}]: {page.url}", flush=True)
+            screenshot_path = f"debug_{step_name}.png"
+            page.screenshot(path=screenshot_path)
+            print(f"   📸 Screenshot saved: {screenshot_path}", flush=True)
+        except Exception as e:
+            print(f"⚠️ Debug error [{step_name}]: {e}", flush=True)
 
     def handle_google_login(self, page) -> bool:
         """Handle Google login if credentials are provided."""
@@ -215,10 +218,12 @@ class NotebookLMAutomation:
                     continue
 
             if not create_clicked:
-                print("Could not find Create new button")
+                print("❌ Could not find Create new button")
+                self.debug_page_state(page, "01_no_create_button")
                 return False
 
             page.wait_for_timeout(2000)
+            self.debug_page_state(page, "02_after_create_click")
 
             # Click "Copied text"
             print("📎 Adding copied text...")
@@ -243,13 +248,15 @@ class NotebookLMAutomation:
                     continue
 
             if not copied_clicked:
-                print("Could not find Copied text chip")
+                print("❌ Could not find Copied text chip")
+                self.debug_page_state(page, "03_no_copied_text")
                 return False
 
             page.wait_for_timeout(2000)
+            self.debug_page_state(page, "04_after_copied_text_click")
 
             # Paste content
-            print(f"Pasting {len(content)} chars...")
+            print(f"✍️ Pasting {len(content)} chars...")
             dialog = page.get_by_role("dialog").first
             dialog.locator("textarea").first.fill(content)
 
@@ -276,9 +283,13 @@ class NotebookLMAutomation:
                     continue
 
             if not insert_clicked:
-                print("Could not find Insert button")
+                print("❌ Could not find Insert button")
+                self.debug_page_state(page, "05_no_insert_button")
                 return False
+            
             page.wait_for_timeout(1500)
+            self.debug_page_state(page, "06_after_insert_click")
+            print("✅ Content uploaded successfully!")
             return True
 
         except Exception as e:
@@ -289,8 +300,9 @@ class NotebookLMAutomation:
     def generate_audio_overview(self, page) -> bool:
         """Generate audio overview in NotebookLM."""
         try:
-            print("🎵 Generating Audio Overview...")
-            print("🔍 Looking for Audio Overview button...")
+            print("🎵 Generating Audio Overview...", flush=True)
+            print("🔍 Looking for Audio Overview button...", flush=True)
+            self.debug_page_state(page, "07_before_audio_overview")
 
             # Look for Audio Overview button using best practices
             audio_overview_btn = None
@@ -343,23 +355,25 @@ class NotebookLMAutomation:
                     audio_overview_btn = None
 
             if not audio_overview_btn:
-                print("Audio Overview button not found")
+                print("❌ Audio Overview button not found")
+                self.debug_page_state(page, "08_no_audio_overview_button")
                 return False
 
             # Click Audio Overview button
             try:
                 expect(audio_overview_btn).to_be_enabled(timeout=3000)
                 audio_overview_btn.click()
-                print("✅ Audio Overview clicked successfully")
+                print("✅ Audio Overview clicked successfully", flush=True)
             except Exception as e:
-                print(f"❌ Failed to click Audio Overview: {e}")
+                print(f"❌ Failed to click Audio Overview: {e}", flush=True)
+                self.debug_page_state(page, "09_failed_to_click_audio_overview")
                 return False
 
             # Wait for UI to respond
-            print("⏳ Waiting for audio generation to start...")
+            print("⏳ Waiting for audio generation to start...", flush=True)
             page.wait_for_timeout(3000)
 
-            self.debug_page_state(page, "after_audio_overview_click")
+            self.debug_page_state(page, "10_after_audio_overview_click")
 
             # Check for daily limits using best practices
             limit_messages = [

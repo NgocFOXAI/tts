@@ -9,43 +9,43 @@ import os
 
 def run_command(command, description):
     """Run a command and print the result"""
-    print(f"🚀 {description}...")
+    print(f"[INFO] {description}...", flush=True)
     try:
         result = subprocess.run(command, shell=True, capture_output=True, text=True)
         if result.returncode == 0:
-            print(f"✅ {description} completed successfully")
+            print(f"[SUCCESS] {description} completed successfully", flush=True)
             if result.stdout:
-                print(f"   Output: {result.stdout.strip()}")
+                print(f"   Output: {result.stdout.strip()}", flush=True)
             return True
         else:
-            print(f"❌ {description} failed")
+            print(f"[ERROR] {description} failed", flush=True)
             if result.stderr:
-                print(f"   Error: {result.stderr.strip()}")
+                print(f"   Error: {result.stderr.strip()}", flush=True)
             return False
     except Exception as e:
-        print(f"❌ {description} failed with exception: {e}")
+        print(f"[ERROR] {description} failed with exception: {e}", flush=True)
         return False
 
 def check_playwright():
     """Check if Playwright is installed and working"""
-    print("🔍 Checking Playwright installation...")
+    print("[INFO] Checking Playwright installation...", flush=True)
     
     try:
         from playwright.sync_api import sync_playwright
-        print("✅ Playwright Python library is installed")
+        print("[SUCCESS] Playwright Python library is installed", flush=True)
         
         # Check if browsers are installed
         with sync_playwright() as p:
             try:
                 browser_path = p.chromium.executable_path
                 if browser_path and os.path.exists(browser_path):
-                    print(f"✅ Chromium browser found: {browser_path}")
+                    print(f"[SUCCESS] Chromium browser found: {browser_path}", flush=True)
                     return True
                 else:
-                    print("❌ Chromium browser not found")
+                    print("[ERROR] Chromium browser not found", flush=True)
                     return False
             except Exception as e:
-                print(f"❌ Browser check failed: {e}")
+                print(f"[ERROR] Browser check failed: {e}", flush=True)
                 return False
                 
     except ImportError:
