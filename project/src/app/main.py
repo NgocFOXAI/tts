@@ -16,18 +16,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Add CORS middleware
+# Add CORS middleware - Allow all origins for maximum compatibility
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://dashboard_al.foxai.com.vn",
-        "https://dashboard_al.foxai.com.vn:3000",
-        "http://localhost:3000",
-        "http://222.252.99.27:3000"
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=False,  # Must be False when using allow_origins=["*"]
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
 )
 
 # Include routers with /api prefix

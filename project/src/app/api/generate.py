@@ -12,26 +12,20 @@ async def generate_text(
     prompt: str = Form(..., description="Text prompt for generation"),
     max_tokens: int = Form(default=100, description="Maximum tokens to generate"),
     model: str = Form(default="gemini-2.0-flash-exp", description="Model to use"),
-    system_prompt: str = Form(default="text_generation", description="System prompt type"),
-    custom_system_prompt: str = Form(default="", description="Custom system prompt text"),
     temperature: float = Form(default=0.7, description="Temperature (0.0-2.0)"),
     top_p: float = Form(default=0.9, description="Top-p (0.0-1.0)"),
     files: List[UploadFile] = File(default=[], description="Optional files to include in the prompt")
 ):
-    """Generate text từ prompt"""
+    """Generate text từ prompt với FoxAI_Senior_DataAnalyst system prompt cố định"""
     try:
         # Import services
         from ..core import ai_service
         from ..utils.config_manager import ConfigManager
-        # Removed cache_manager import as caching is now disabled
 
-        # Get system prompt text using ConfigManager
-        if system_prompt == 'custom' and custom_system_prompt.strip():
-            system_prompt_text = custom_system_prompt.strip()
-        else:
-            system_prompts = ConfigManager.get_system_prompts("default")
-            system_prompt_text = system_prompts.get(system_prompt,
-                "You are a helpful AI assistant. Please provide accurate and helpful responses to user queries.")
+        # Luôn sử dụng system prompt FoxAI_Senior_DataAnalyst (cố định, không cho thay đổi)
+        system_prompts = ConfigManager.get_system_prompts("default")
+        system_prompt_text = system_prompts.get("text_generation",
+            "Bạn là FoxAI_Senior_DataAnalyst, một chuyên gia phân tích dữ liệu cấp cao.")
 
         # Process uploaded files
         processed_files = []

@@ -89,7 +89,7 @@ export function useTextGeneration() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const generateText = useCallback(async ({ prompt, maxTokens, files, model, systemPrompt, customSystemPrompt, temperature, topP }) => {
+  const generateText = useCallback(async ({ prompt, maxTokens, files, model, temperature, topP }) => {
     setLoading(true);
     setError(null);
     setResult(null);
@@ -101,8 +101,6 @@ export function useTextGeneration() {
         stream: false,
         files,
         model,
-        systemPrompt,
-        customSystemPrompt,
         temperature,
         topP,
       });
