@@ -87,9 +87,30 @@ frontend/package-lock.json
 *.sqlite3
 *.db
 *.env
+
 # Caches and packaging artifacts
 .cache/
 pip-wheel-metadata/
 .python-version
 .claude/
-*static/
+
+# Build artifacts
+frontend/build/
+build/
+dist/
+
+# Backup files
+*.backup
+
+# Debug/screenshot files
+debug_*.png
+debug_*.jpg
+*.screenshot.png
+
+# Package lock files (use package.json only)
+package-lock.json
+
+# Static assets (uncommit if needed)
+# Uncomment below if you want to ignore all static folders
+# static/
+# */static/
