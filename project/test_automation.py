@@ -36,9 +36,9 @@ if __name__ == "__main__":
     
     print("\n" + "=" * 60)
     if result:
-        print("✅ Automation completed successfully!")
+        print(" Automation completed successfully!")
     else:
-        print("❌ Automation failed!")
+        print(" Automation failed!")
     print("=" * 60)
     
     input("\nPress Enter to exit...")

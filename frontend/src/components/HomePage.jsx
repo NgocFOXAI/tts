@@ -76,17 +76,17 @@ function HomePage({ onNavigate }) {
             </p>
           </div>
 
-          {/* Thư viện âm thanh */}
+          {/* Quản lý file */}
           <div 
             className={`${styles.featureCard} ${styles.clickableCard} ${styles.animateFromRight}`}
-            onClick={() => onNavigate('audio')}
+            onClick={() => onNavigate('files')}
           >
             <div className={styles.featureImageBox}>
-              <img src={thuVienAmThanhImg} alt="Thư viện âm thanh" className={styles.featureImage} />
+              <img src={thuVienAmThanhImg} alt="Quản lý file" className={styles.featureImage} />
             </div>
-            <h3 className={styles.featureTitle}>Thư viện âm thanh</h3>
+            <h3 className={styles.featureTitle}>Quản lý file</h3>
             <p className={styles.featureDescription}>
-              Quản lý và lưu trữ các file âm thanh đã tạo một cách dễ dàng.
+              Quản lý tài liệu, tạo cuộc trò chuyện và lưu trữ file âm thanh.
             </p>
           </div>
         </div>

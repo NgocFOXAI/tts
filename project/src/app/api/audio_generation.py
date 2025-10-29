@@ -3,9 +3,9 @@
 NotebookLM Automation API endpoint
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union, List
 import os
 import sys
 import time
@@ -23,49 +23,163 @@ sys.path.append(core_dir)
 sys.path.append(automation_dir)
 sys.path.append(flow_dir)
 
+# Import directly using sys.path
+import automate
 from automate import run_notebooklm_automation
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/audio-generation",
+    tags=["NotebookLM Audio Generation"],
+    responses={404: {"description": "Not found"}},
+)
 
 class NotebookLMRequest(BaseModel):
-    custom_text: str  # Required custom text input
+    custom_text: Optional[str] = None  # Optional custom text input
 
 class NotebookLMResponse(BaseModel):
     success: bool
     message: str
-    audio_url: Optional[str] = None
     text_info: Optional[Dict[str, Any]] = None
     processing_time: Optional[float] = None
 
-@router.post("/audio-generation/generate", response_model=NotebookLMResponse)
-async def generate_audio_from_text(request: NotebookLMRequest):
+@router.post("/generate", response_model=NotebookLMResponse)
+async def generate_audio_from_text(
+    custom_text: Optional[str] = Form(None),
+    files: Optional[List[UploadFile]] = File(None)
+):
     """
-    Generate audio using NotebookLM automation from custom text.
-    Returns audio download URL when completed.
+    Generate audio using NotebookLM automation from custom text or uploaded files.
+    Audio files will be saved to the static/audio_downloads folder.
     
     Note: This feature requires manual browser interaction due to Google's automation restrictions.
     """
     try:
         start_time = time.time()
         
-        # Validate custom text is provided
-        if not request.custom_text or not request.custom_text.strip():
+        # Validate that either text or files is provided
+        if not custom_text and not files:
             raise HTTPException(
                 status_code=400,
-                detail="Custom text is required and cannot be empty."
+                detail="Either custom_text or files must be provided."
             )
         
-        custom_text = request.custom_text.strip()
-        print(f"[INFO] Using custom text for NotebookLM (length: {len(custom_text)} chars)", flush=True)
+        # Process input content
+        content = None
+        content_source = None
+        files_content = []  # List of (file_content_bytes, filename) tuples
+        
+        if files:
+            # Handle multiple file uploads
+            try:
+                for file in files:
+                    if not file:
+                        continue
+                        
+                    file_content_bytes = await file.read()
+                    filename = file.filename
+                    
+                    # Define supported file types based on NotebookLM capabilities
+                    supported_types = {
+                        # Text files
+                        "text/plain": ['.txt'],
+                        "text/markdown": ['.md'],
+                        
+                        # Document files
+                        "application/pdf": ['.pdf'],
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ['.docx'],
+                        "application/msword": ['.doc'],
+                        
+                        # Audio files (NotebookLM can process these)
+                        "audio/mpeg": ['.mp3'],
+                        "audio/mp4": ['.m4a'],
+                        "audio/wav": ['.wav'],
+                        "audio/aac": ['.aac'],
+                        "audio/ogg": ['.ogg'],
+                        
+                        # Video files
+                        "video/mp4": ['.mp4'],
+                        "video/mpeg": ['.mpeg'],
+                        "video/quicktime": ['.mov'],
+                        
+                        # Other formats
+                        "application/rtf": ['.rtf']
+                    }
+                    
+                    # Check if file type is supported
+                    file_extension = os.path.splitext(filename)[1].lower()
+                    content_type = file.content_type
+                    
+                    is_supported = False
+                    if content_type in supported_types:
+                        if file_extension in supported_types[content_type]:
+                            is_supported = True
+                    else:
+                        # Check by extension fallback
+                        for mime_type, extensions in supported_types.items():
+                            if file_extension in extensions:
+                                is_supported = True
+                                break
+                    
+                    if not is_supported:
+                        supported_extensions = []
+                        for extensions in supported_types.values():
+                            supported_extensions.extend(extensions)
+                        
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"Unsupported file type: {content_type} ({file_extension}) in file {filename}. "
+                                   f"Supported types: {', '.join(sorted(set(supported_extensions)))}"
+                        )
+                    
+                    # Add to files list
+                    files_content.append((file_content_bytes, filename))
+                    print(f"[INFO] File processed: {filename} ({content_type})")
+                
+                if not files_content:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="No valid files provided."
+                    )
+                
+                filenames = [f[1] for f in files_content]
+                content = f"File uploads: {', '.join(filenames)}"
+                content_source = f"files:{len(files_content)}"
+                print(f"[INFO] Multiple files upload ready: {len(files_content)} files")
+                
+            except HTTPException:
+                raise
+            except Exception as e:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Error processing files: {str(e)}"
+                )
+        else:
+            # Handle text input
+            content = custom_text.strip()
+            content_source = "custom_text"
+        
+        # Validate content (for text input only)
+        if not files_content and (not content or not content.strip()):
+            raise HTTPException(
+                status_code=400,
+                detail="Content is required and cannot be empty."
+            )
+        
+        if content:
+            content = content.strip()
+        
+        print(f"[INFO] Using {content_source} for NotebookLM", flush=True)
         
         text_info = {
-            'source': 'custom_text',
-            'content_length': len(custom_text),
+            'source': content_source,
+            'content_length': len(content) if content else sum(len(f[0]) for f in files_content) if files_content else 0,
+            'filenames': [f[1] for f in files_content] if files_content else None,
+            'file_count': len(files_content) if files_content else 0,
             'created_at': 'now'
         }
         
         # Run automation in thread pool to avoid sync/async conflict
-        print(f"[INFO] Starting NotebookLM automation with custom text", flush=True)
+        print(f"[INFO] Starting NotebookLM automation with {content_source}", flush=True)
 
         def run_automation():
             try:
@@ -99,15 +213,26 @@ async def generate_audio_from_text(request: NotebookLMRequest):
                         print(f"[ERROR] Playwright error: {e}", flush=True)
                         raise Exception(f"Playwright setup issue: {e}")
                 
-                # Validate content length
-                if len(custom_text.strip()) < 50:
-                    raise Exception(f"Content too short ({len(custom_text.strip())} chars). Minimum 50 characters required for NotebookLM.")
+                # Validate content length (only for text input)
+                if not files_content and len(content.strip()) < 50:
+                    raise Exception(f"Content too short ({len(content.strip())} chars). Minimum 50 characters required for NotebookLM.")
                 
-                print(f"[INFO] Starting automation for {len(custom_text)} character text...", flush=True)
+                if files_content:
+                    content_desc = f"{len(files_content)} files: {', '.join([f[1] for f in files_content])}"
+                    if len(files_content) > 1:
+                        print(f"[INFO] Multiple files detected - audio generation may take 15-40 minutes", flush=True)
+                        print(f"[INFO] Files will be uploaded to the same notebook session for comprehensive audio overview", flush=True)
+                else:
+                    content_desc = f"{len(content)} character content"
+                    
+                print(f"[INFO] Starting automation for {content_desc}...")
                 result = run_notebooklm_automation(
-                    content_source=custom_text,
+                    content_source=content or "Multiple files upload",
                     debug_mode=True,  # Enable debug mode to see browser
-                    max_wait_minutes=30  # Increase timeout to 30 minutes for long audio
+                    max_wait_minutes=45,  # Increase timeout to 45 minutes for multiple files
+                    files_content=files_content if files_content else None,
+                    file_content=files_content[0][0] if files_content and len(files_content) == 1 else None,
+                    filename=files_content[0][1] if files_content and len(files_content) == 1 else None
                 )
                 print(f"[SUCCESS] Automation completed with result: {result}", flush=True)
                 return result
@@ -133,13 +258,9 @@ async def generate_audio_from_text(request: NotebookLMRequest):
         processing_time = time.time() - start_time
         
         if success:
-            # Generate audio URL (simulated - in real implementation you'd track actual download)
-            audio_url = f"/downloads/notebooklm_audio_{int(time.time())}.mp3"
-            
             return NotebookLMResponse(
                 success=True,
                 message="Audio generation initiated successfully! Please check your Downloads folder and browser for the completed audio file.",
-                audio_url=audio_url,
                 text_info=text_info,
                 processing_time=processing_time
             )

@@ -10,16 +10,20 @@ class ApiService {
   // Helper method for making requests
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
-    const { timeout, ...fetchOptions } = options;
+    const { timeout, noTimeout, ...fetchOptions } = options;
 
     try {
       console.log(`🌐 Making API request to: ${url}`, fetchOptions);
       debugLog(`Making API request to: ${url}`, fetchOptions);
 
-      // Create AbortController for timeout
+      // Create AbortController for timeout (only if not disabled)
       const controller = new AbortController();
-      const requestTimeout = timeout || env.api.timeout || 1800000; // Default to 30 minutes for TTS operations
-      const timeoutId = setTimeout(() => controller.abort(), requestTimeout);
+      let timeoutId;
+      
+      if (!noTimeout) {
+        const requestTimeout = timeout || env.api.timeout || 1800000; // Default to 30 minutes for TTS operations
+        timeoutId = setTimeout(() => controller.abort(), requestTimeout);
+      }
 
       const response = await fetch(url, {
         ...fetchOptions,
@@ -31,7 +35,9 @@ class ApiService {
         },
       });
 
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
@@ -41,7 +47,7 @@ class ApiService {
         throw error;
       }
 
-      console.log(`✅ API request successful: ${url}`);
+      console.log(` API request successful: ${url}`);
       debugLog(`API request successful: ${url}`);
       return response;
     } catch (error) {
@@ -51,7 +57,7 @@ class ApiService {
         console.error(`⏱️ API Timeout [${endpoint}]:`, timeoutError);
         throw timeoutError;
       }
-      console.error(`❌ API Error [${endpoint}]:`, error);
+      console.error(` API Error [${endpoint}]:`, error);
       debugLog(`API Error [${endpoint}]:`, error);
       throw error;
     }
@@ -104,8 +110,8 @@ class ApiService {
       return response; // Return response for streaming
     } else {
       const jsonResponse = await response.json();
-      console.log('✅ Text generation JSON response:', jsonResponse);
-      debugLog('✅ Text generation JSON response:', jsonResponse);
+      console.log(' Text generation JSON response:', jsonResponse);
+      debugLog(' Text generation JSON response:', jsonResponse);
       return jsonResponse;
     }
   }
@@ -204,7 +210,7 @@ class ApiService {
   }
 
   // Advanced Audio Generation
-  async generateAdvancedAudio({ custom_text, timeout = 1800000 }) { // Default to 30 minutes
+  async generateAdvancedAudio({ custom_text }) { // Remove timeout parameter
     if (!custom_text || !custom_text.trim()) {
       throw new Error('Custom text is required');
     }
@@ -215,7 +221,21 @@ class ApiService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ custom_text: custom_text.trim() }),
-      timeout,
+      noTimeout: true, // Disable timeout for long-running podcast generation
+    });
+    return response.json();
+  }
+
+  // Advanced Audio Generation with Files (same endpoint)
+  async generateAdvancedAudioWithFiles(formData) { // Remove timeout parameter
+    if (!formData) {
+      throw new Error('Form data is required');
+    }
+    
+    const response = await this.request('/audio-generation/generate', {
+      method: 'POST',
+      body: formData, // FormData handles its own headers
+      noTimeout: true, // Disable timeout for long-running podcast generation
     });
     return response.json();
   }

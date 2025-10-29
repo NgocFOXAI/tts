@@ -77,7 +77,7 @@ async def generate_text(
             generated_text = result["generated_text"]
 
             # ✨ Caching disabled - return response directly
-            print(f"✅ Text generation completed (caching disabled)")
+            print(f" Text generation completed (caching disabled)")
             print(f"   Content length: {len(generated_text)} chars")
             
             return GenerateResponse(response=generated_text)

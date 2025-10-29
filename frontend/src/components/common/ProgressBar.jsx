@@ -15,8 +15,8 @@ const ProgressBar = ({
             case 'processing': return '🎵';
             case 'generating': return '🔄';
             case 'downloading': return '⬇️';
-            case 'completed': return '✅';
-            case 'error': return '❌';
+            case 'completed': return '';
+            case 'error': return '';
             default: return '⏳';
         }
     };
@@ -72,13 +72,13 @@ const ProgressBar = ({
 
             {status === 'error' && (
                 <div className="error-message">
-                    <span>❌ Something went wrong. Please try again.</span>
+                    <span> Something went wrong. Please try again.</span>
                 </div>
             )}
 
             {status === 'completed' && (
                 <div className="success-message">
-                    <span>🎉 Your audio conversation is ready!</span>
+                    <span> Your audio conversation is ready!</span>
                 </div>
             )}
         </div>

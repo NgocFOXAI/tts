@@ -105,47 +105,6 @@ async def delete_audio_file(filename: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error deleting file: {str(e)}")
 
-@router.get("/audio/stats")
-async def get_audio_stats():
-    """
-    Get statistics about audio files
-    """
-    try:
-        # Ensure directory exists
-        AUDIO_DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
-
-        total_files = 0
-        total_size = 0
-        audio_files = 0
-        file_types = {}
-
-        for file_path in AUDIO_DOWNLOADS_DIR.iterdir():
-            if file_path.is_file():
-                total_files += 1
-                file_size = file_path.stat().st_size
-                total_size += file_size
-
-                # Check MIME type
-                mime_type, _ = mimetypes.guess_type(str(file_path))
-                if mime_type and mime_type.startswith("audio/"):
-                    audio_files += 1
-
-                # Count file extensions
-                ext = file_path.suffix.lower()
-                file_types[ext] = file_types.get(ext, 0) + 1
-
-        return {
-            "total_files": total_files,
-            "audio_files": audio_files,
-            "total_size_bytes": total_size,
-            "total_size_mb": round(total_size / (1024 * 1024), 2),
-            "file_types": file_types,
-            "directory": str(AUDIO_DOWNLOADS_DIR)
-        }
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error getting stats: {str(e)}")
-
 @router.post("/audio/cleanup")
 async def cleanup_old_files(days: int = 7):
     """

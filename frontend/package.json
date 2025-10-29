@@ -88,7 +88,7 @@
     "prepare": "echo 'husky not configured'",
     "check:versions": "node -v && npm -v && npx react-scripts --version || echo react-scripts-version-check-failed"
   },
-  "proxy": "https://dashboard_be.foxai.com.vn:18000/",
+  "proxy": "https://localhost:18000/",
   "prettier": {
     "semi": true,
     "singleQuote": true,

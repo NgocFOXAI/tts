@@ -17,7 +17,7 @@ class AuthSettings(BaseSettings):
         extra="ignore"
     )
     
-    secret_key: str = Field(..., description="Secret key for JWT token generation")
+    secret_key: str = Field(default="default_secret_key", description="Secret key for JWT token generation")
     algorithm: str = Field(default="HS256", description="JWT algorithm")
     access_token_expire_minutes: int = Field(default=6000, description="Token expiration time in minutes")
 
@@ -31,7 +31,7 @@ class OpenAISettings(BaseSettings):
         extra="ignore"
     )
     
-    api_key: str = Field(..., description="OpenAI API key")
+    api_key: str = Field(default="dummy_openai_key", description="OpenAI API key")
     embedding_model: str = Field(default="text-embedding-3-large", description="Embedding model name")
     model_name: str = Field(default="gpt-4o", description="GPT model name")
     temperature: float = Field(default=0.2, ge=0.0, le=2.0, description="Model temperature")
@@ -49,9 +49,9 @@ class PostgresSettings(BaseSettings):
     
     host: str = Field(default="localhost", description="Database host")
     port: int = Field(default=5432, description="Database port")
-    username: str = Field(..., description="Database username")
-    password: str = Field(..., description="Database password")
-    db: str = Field(..., description="Database name")
+    username: str = Field(default="dummy_user", description="Database username")
+    password: str = Field(default="dummy_pass", description="Database password")
+    db: str = Field(default="dummy_db", description="Database name")
     limit: int = Field(default=100, description="Query result limit")
 
     @computed_field
@@ -95,10 +95,10 @@ class MinioSettings(BaseSettings):
         extra="ignore"
     )
     
-    host: str = Field(..., description="MinIO host")
+    host: str = Field(default="localhost", description="MinIO host")
     public_host: Optional[str] = Field(default=None, description="MinIO public host")
-    username: str = Field(..., description="MinIO username")
-    password: str = Field(..., description="MinIO password")
+    username: str = Field(default="dummy_minio_user", description="MinIO username")
+    password: str = Field(default="dummy_minio_pass", description="MinIO password")
     ssl: bool = Field(default=False, description="Use SSL connection")
     debug: bool = Field(default=False, description="Enable debug mode")
 
@@ -141,8 +141,8 @@ class LangsmithSettings(BaseSettings):
     
     tracing: str = Field(default="true", description="Enable tracing")
     endpoint: str = Field(default="https://api.smith.langchain.com", description="LangSmith endpoint")
-    api_key: str = Field(..., description="LangSmith API key")
-    project: str = Field(..., description="LangSmith project name")
+    api_key: str = Field(default="dummy_langsmith_key", description="LangSmith API key")
+    project: str = Field(default="dummy_project", description="LangSmith project name")
 
     @computed_field
     @property
@@ -159,7 +159,7 @@ class GeminiSettings(BaseSettings):
         extra="ignore"
     )
 
-    api_key: str = Field(..., description="Gemini API key")
+    api_key: str = Field(default="dummy_gemini_key", description="Gemini API key")
 
 
 class GmailSettings(BaseSettings):
@@ -171,8 +171,8 @@ class GmailSettings(BaseSettings):
         extra="ignore"
     )
 
-    email: str = Field(..., description="Gmail email address")
-    password: str = Field(..., description="Gmail password")
+    email: str = Field(default="dummy@gmail.com", description="Gmail email address")
+    password: str = Field(default="dummy_password", description="Gmail password")
 
 
 class NotebookLMSettings(BaseSettings):

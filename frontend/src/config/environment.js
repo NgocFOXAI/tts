@@ -31,7 +31,7 @@ const getEnvVar = (key, defaultValue = undefined) => {
 export const env = {
   // API Configuration
   api: {
-    baseUrl: getEnvVar('REACT_APP_API_URL', 'https://dashboard_be.foxai.com.vn:18000/api'),
+    baseUrl: getEnvVar('REACT_APP_API_URL', 'https://localhost:18000/api'),
     timeout: getEnvVar('REACT_APP_API_TIMEOUT', 1800000), // 30 minutes for long-running TTS operations
   },
 

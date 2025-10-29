@@ -187,6 +187,29 @@ def format_config_for_user():
     try:
         from ..core import ai_service
         available_models = ai_service.get_available_models()
+        
+        # Safely handle available_models structure
+        if isinstance(available_models, list):
+            # If it's a list, convert to expected structure
+            available_models = {"text_generation": {"gemini": {}}, "voices": {"openai_voices": [], "google_languages": []}}
+        elif not isinstance(available_models, dict):
+            # If it's neither list nor dict, create default structure
+            available_models = {"text_generation": {"gemini": {}}, "voices": {"openai_voices": [], "google_languages": []}}
+
+        # Safely get nested values with defaults
+        gemini_models = available_models.get("text_generation", {}).get("gemini", {})
+        if isinstance(gemini_models, dict):
+            gemini_model_names = list(gemini_models.keys())
+        else:
+            gemini_model_names = ["gemini-2.5-pro", "gemini-2.5-flash"]  # Default fallback
+            
+        openai_voices = available_models.get("voices", {}).get("openai_voices", [])
+        if not isinstance(openai_voices, list):
+            openai_voices = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]  # Default fallback
+            
+        google_languages = available_models.get("voices", {}).get("google_languages", [])
+        if not isinstance(google_languages, list):
+            google_languages = ["en-US", "vi-VN", "fr-FR", "de-DE", "es-ES", "it-IT", "ja-JP", "ko-KR"]  # Default fallback
 
         return {
             "current_configuration": {
@@ -205,11 +228,11 @@ def format_config_for_user():
             },
             "available_options": {
                 "📚 Text Generation Models": {
-                    "🟢 Google Gemini": list(available_models.get("text_generation", {}).get("gemini", {}).keys())
+                    "🟢 Google Gemini": gemini_model_names
                 },
                 "🎵 Text-to-Speech Options": {
-                    "🔴 OpenAI Voices": available_models.get("voices", {}).get("openai_voices", []),
-                    "🟢 Google Languages": available_models.get("voices", {}).get("google_languages", [])[:8]  # Show first 8
+                    "🔴 OpenAI Voices": openai_voices,
+                    "🟢 Google Languages": google_languages[:8]  # Show first 8
                 }
             },
             "quick_templates": {
@@ -242,18 +265,58 @@ def format_config_for_user():
             }
         }
     except Exception as e:
-        return {"error": f"Configuration formatting failed: {str(e)}"}
-
-@router.get("/", response_model=ConfigResponseFormatted)
-async def get_config():
-    """Lấy cấu hình hiện tại với format dễ đọc cho người dùng"""
-    return format_config_for_user()
-
-@router.get("/templates")
-async def get_templates():
-    """Lấy các mẫu cấu hình có sẵn"""
-    return {
-        "templates": get_config_templates(),
-        "description": "Các mẫu cấu hình có thể sử dụng",
-        "usage": "Sao chép một mẫu và sửa đổi theo nhu cầu, sau đó POST lên /config"
-    }
+        print(f"Configuration formatting error: {e}")
+        # Return a valid structure even on error
+        return {
+            "current_configuration": {
+                "📄 Model Being Used": current_config.get("model", "Unknown"),
+                "💬 System Prompt": "Error loading system prompt",
+                "🎛️ Text Generation Settings": {
+                    "🌡️ Temperature (Creativity)": "Error loading settings",
+                    "🎯 Top-P (Nucleus Sampling)": "Error loading settings",
+                    "📝 Max Tokens": "Error loading settings"
+                },
+                "🎵 Text-to-Speech Settings": {
+                    "🎤 Voice": "Error loading voice settings",
+                    "⚡ Speed": "Error loading speed settings",
+                    "🔧 Provider": "Error loading provider settings"
+                }
+            },
+            "available_options": {
+                "📚 Text Generation Models": {
+                    "🟢 Google Gemini": ["gemini-2.5-pro", "gemini-2.5-flash"]
+                },
+                "🎵 Text-to-Speech Options": {
+                    "🔴 OpenAI Voices": ["alloy", "echo", "fable", "onyx", "nova", "shimmer"],
+                    "🟢 Google Languages": ["en-US", "vi-VN", "fr-FR", "de-DE"]
+                }
+            },
+            "quick_templates": {
+                "💡 How to Use": "Choose a template below, or create custom settings",
+                "📝 Text Only": {
+                    "basic": "Simple assistant (temp=0.7, 100 tokens)",
+                    "creative": "Creative writing (temp=1.2, 500 tokens)",
+                    "technical": "Programming help (temp=0.3, 1000 tokens)"
+                },
+                "🎵 Speech Only": {
+                    "basic": "Standard voice (alloy, 1.0x speed)",
+                    "expressive": "Lively voice (nova, 1.1x speed)",
+                    "formal": "Professional voice (echo, 0.9x speed)"
+                },
+                "🎯 Complete Setup": "Full configuration with both text + speech"
+            },
+            "instructions": {
+                "📋 How to Update": {
+                    "1️⃣ Change Model": "POST /config/ with {'model': 'gpt-4o'}",
+                    "2️⃣ Change Settings": "POST /config/ with {'model_parameters': {...}}",
+                    "3️⃣ Change Voice": "POST /config/ with {'tts_parameters': {...}}",
+                    "4️⃣ Use Template": "GET /config/templates, then POST the template data"
+                },
+                "💡 Pro Tips": {
+                    "🌡️ Temperature": "Lower = more focused, Higher = more creative",
+                    "🎯 Top-P": "0.9 = balanced, 0.8 = focused, 0.95 = diverse",
+                    "📝 Tokens": "1 token ≈ 0.75 words in English",
+                    "⚡ Speed": "1.0 = normal, 0.5 = slow, 2.0 = fast"
+                }
+            }
+        }

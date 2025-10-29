@@ -30,8 +30,8 @@ const Notification = ({ notification, onRemove }) => {
 
     const getIcon = () => {
         switch (type) {
-            case 'success': return '✅';
-            case 'error': return '❌';
+            case 'success': return '';
+            case 'error': return '';
             case 'warning': return '⚠️';
             case 'info': return 'ℹ️';
             case 'processing': return '🔄';

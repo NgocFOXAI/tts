@@ -49,7 +49,7 @@ def check_playwright():
                 return False
                 
     except ImportError:
-        print("❌ Playwright not installed")
+        print(" Playwright not installed")
         return False
 
 def install_playwright():
@@ -80,7 +80,7 @@ def main():
     
     # Check current installation
     if check_playwright():
-        print("\n🎉 Playwright is already properly installed!")
+        print("\n Playwright is already properly installed!")
         print("💡 You can now use NotebookLM automation features")
         return
     
@@ -88,19 +88,19 @@ def main():
     print("\n🔧 Playwright needs to be installed...")
     
     if install_playwright():
-        print("\n🎉 Playwright installation completed!")
+        print("\n Playwright installation completed!")
         
         # Verify installation
         if check_playwright():
-            print("✅ Installation verified successfully")
+            print(" Installation verified successfully")
             print("💡 You can now use NotebookLM automation features")
         else:
-            print("❌ Installation verification failed")
+            print(" Installation verification failed")
             print("💡 Please try running manually:")
             print("   pip install playwright")
             print("   playwright install chromium")
     else:
-        print("\n❌ Playwright installation failed")
+        print("\n Playwright installation failed")
         print("💡 Please try running manually:")
         print("   pip install playwright")
         print("   playwright install chromium")

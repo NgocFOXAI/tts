@@ -59,9 +59,13 @@ class NotebookLMAutomation:
         # Set up static download folder
         self.static_folder = os.path.join(project_dir, "static")
         self.download_folder = os.path.join(self.static_folder, "audio_downloads")
+        self.upload_folder = os.path.join(self.static_folder, "upload_files")
+        self.debug_folder = os.path.join(self.static_folder, "debug_screenshots")
 
         # Create folders if they don't exist
         os.makedirs(self.download_folder, exist_ok=True)
+        os.makedirs(self.upload_folder, exist_ok=True)
+        os.makedirs(self.debug_folder, exist_ok=True)
 
         # Log credentials status
         print("🔐 Login credentials loaded:")
@@ -69,6 +73,10 @@ class NotebookLMAutomation:
         print(f"   Password: {'*' * 8}" if self.password else "   Password: Not set")
         print(f"   Auto-login: {self.auto_login}")
         print(f"   Debug mode: {self.debug_mode}")
+        print(f"📁 Folders setup:")
+        print(f"   Downloads: {self.download_folder}")
+        print(f"   Uploads: {self.upload_folder}")
+        print(f"   Debug: {self.debug_folder}")
 
 
     def perform_reload_and_try_download(self, page, elapsed_time) -> bool:
@@ -91,18 +99,36 @@ class NotebookLMAutomation:
             return self.try_download_method(page, "more")
 
         except Exception as e:
-            print(f"❌ Reload error: {e}")
+            print(f" Reload error: {e}")
             return False
 
     def debug_page_state(self, page, step_name: str) -> None:
         """Debug helper - always print URL and take screenshot."""
         try:
-            print(f"🔍 Debug [{step_name}]: {page.url}", flush=True)
-            screenshot_path = f"debug_{step_name}.png"
+            current_url = page.url
+            print(f"🔍 DEBUG [{step_name}] URL: {current_url}")
+            
+            # Take screenshot for debugging in separate debug folder
+            screenshot_path = os.path.join(self.debug_folder, f"debug_{step_name}.png")
             page.screenshot(path=screenshot_path)
-            print(f"   📸 Screenshot saved: {screenshot_path}", flush=True)
+            print(f"📸 Screenshot saved: {screenshot_path}")
+            
+            # Also log file input information if available
+            try:
+                file_inputs = page.locator('input[type="file"]')
+                if file_inputs.count() > 0:
+                    for i in range(file_inputs.count()):
+                        file_input = file_inputs.nth(i)
+                        multiple_attr = file_input.get_attribute("multiple")
+                        accept_attr = file_input.get_attribute("accept")
+                        print(f"📋 File input {i+1}: multiple={multiple_attr}, accept={accept_attr}")
+                else:
+                    print("📋 No file inputs found on current page")
+            except Exception as e:
+                print(f"📋 Could not check file inputs: {e}")
+                
         except Exception as e:
-            print(f"⚠️ Debug error [{step_name}]: {e}", flush=True)
+            print(f"Debug error: {e}")
 
     def handle_google_login(self, page) -> bool:
         """Handle Google login if credentials are provided."""
@@ -142,6 +168,25 @@ class NotebookLMAutomation:
             print(f"Login error: {e}")
             return False
 
+    def save_temp_file(self, file_content: bytes, filename: str) -> str:
+        """Save uploaded file to temporary upload folder and return path."""
+        try:
+            # Generate safe filename
+            safe_filename = re.sub(r'[<>:"/\\|?*\x00-\x1f]', '_', filename)
+            timestamp = int(time.time())
+            unique_filename = f"{timestamp}_{safe_filename}"
+            
+            file_path = os.path.join(self.upload_folder, unique_filename)
+            
+            with open(file_path, 'wb') as f:
+                f.write(file_content)
+            
+            print(f"📁 File saved to: {file_path}")
+            return file_path
+        except Exception as e:
+            print(f" Error saving file: {e}")
+            return None
+
     def get_content(self, content_source: str) -> Optional[str]:
         """Get content from either direct text or file (hiện dùng direct text)."""
         print("📤 Processing content source...")
@@ -154,8 +199,8 @@ class NotebookLMAutomation:
         print("💡 Content must be at least 10 characters long")
         return None
 
-    def upload_content_to_notebooklm(self, page, content: str) -> bool:
-        """Upload content to NotebookLM."""
+    def upload_content_to_notebooklm(self, page, content: str, file_paths: list = None) -> bool:
+        """Upload content to NotebookLM - either text or multiple files."""
         try:
             # Navigate to NotebookLM
             print("🌐 Navigating to NotebookLM...")
@@ -218,13 +263,421 @@ class NotebookLMAutomation:
                     continue
 
             if not create_clicked:
-                print("❌ Could not find Create new button")
+                print(" Could not find Create new button")
                 self.debug_page_state(page, "01_no_create_button")
                 return False
 
             page.wait_for_timeout(2000)
             self.debug_page_state(page, "02_after_create_click")
 
+            # Decide between file upload or text input
+            if file_paths and len(file_paths) > 0:
+                # Upload all files to the same notebook session
+                print(f"📎 Uploading {len(file_paths)} files to the same notebook...")
+                return self._upload_multiple_files_to_notebooklm(page, file_paths)
+            else:
+                return self._upload_text_to_notebooklm(page, content)
+
+        except Exception as e:
+            print(f"Upload error: {e}")
+            self.debug_page_state(page, "upload_error")
+            return False
+
+    def _upload_multiple_files_to_notebooklm(self, page, file_paths: list) -> bool:
+        """Upload multiple files to the same NotebookLM session."""
+        try:
+            print(f"📎 Starting multiple file upload for {len(file_paths)} files...")
+            
+            # Try to upload all files at once using the file chooser
+            if self._upload_all_files_at_once(page, file_paths):
+                print(f" Successfully uploaded all {len(file_paths)} files at once!")
+                return True
+            
+            # Fallback: Upload first file to create the notebook, then add others
+            print("🔄 Falling back to sequential upload...")
+            first_file = file_paths[0]
+            print(f"📎 Uploading first file: {os.path.basename(first_file)}...")
+            if not self._upload_single_file_to_session(page, first_file):
+                return False
+            
+            # Wait for first file to process
+            print("⏳ Waiting for first file to process...")
+            self._wait_for_file_processing(page)
+            
+            # Upload remaining files one by one using "Add" button
+            for i, file_path in enumerate(file_paths[1:], 2):
+                print(f"📎 Adding file {i}/{len(file_paths)}: {os.path.basename(file_path)}...")
+                if not self._add_additional_file_to_session(page, file_path):
+                    print(f" Failed to add file: {os.path.basename(file_path)}")
+                    return False
+                
+                # Wait between file uploads
+                print("⏳ Waiting for file to process...")
+                page.wait_for_timeout(5000)  # 5 second wait between files
+            
+            # Final wait for all files to be processed
+            print("⏳ Final wait for all files to be processed...")
+            self._wait_for_file_processing(page, max_attempts=5)
+            
+            print(f" Successfully uploaded all {len(file_paths)} files to the same notebook!")
+            return True
+            
+        except Exception as e:
+            print(f" Multiple file upload error: {e}")
+            self.debug_page_state(page, "multiple_file_upload_error")
+            return False
+
+    def _upload_all_files_at_once(self, page, file_paths: list) -> bool:
+        """Try to upload all files at once using file chooser multiple selection."""
+        try:
+            print(f"📎 Attempting to upload all {len(file_paths)} files at once...")
+            
+            # Click "Upload sources" button (based on specific XPath)
+            upload_selectors = [
+                # Specific XPaths provided
+                'xpath=/html/body/div[7]/div[2]/div/mat-dialog-container/div/div/upload-dialog/div/div[2]/upload-main-screen/div[1]/button/span[3]',
+                'xpath=/html/body/div[7]/div[2]/div/mat-dialog-container/div/div/upload-dialog/div/div[2]/upload-main-screen/div[1]/h4/span',
+                
+                # Fallback selectors
+                'text="Upload sources"',
+                'button:has-text("Upload sources")',
+                ':has-text("Upload sources")',
+                'button[aria-label="Upload sources from your computer"]',
+                'button:has-text("Upload sources from your computer")'
+            ]
+
+            upload_clicked = False
+            file_chooser = None
+            
+            # Try to click upload button and catch file chooser
+            for selector in upload_selectors:
+                try:
+                    element = page.locator(selector).first
+                    if element.count() > 0:
+                        print(f"🔍 Attempting to click upload with: {selector}")
+                        
+                        # Set up file chooser listener before clicking
+                        with page.expect_file_chooser(timeout=10000) as fc_info:
+                            element.click()
+                            
+                        file_chooser = fc_info.value
+                        upload_clicked = True
+                        print(f" Clicked upload element and got file chooser with: {selector}")
+                        break
+                        
+                except Exception as e:
+                    print(f"   Failed with {selector}: {e}")
+                    continue
+
+            # Alternative: try to find file input directly if button click failed
+            if not upload_clicked or not file_chooser:
+                print(" Could not get file chooser, trying direct file input...")
+                try:
+                    file_inputs = page.locator('input[type="file"]')
+                    if file_inputs.count() > 0:
+                        print(f" Found {file_inputs.count()} file input(s), using first one")
+                        # Try to set multiple files at once
+                        file_inputs.first().set_input_files(file_paths)
+                        print(f" All files uploaded directly: {[os.path.basename(f) for f in file_paths]}")
+                        page.wait_for_timeout(5000)
+                        self.debug_page_state(page, "04_direct_multiple_file_upload")
+                        # Wait for all files to process
+                        self._wait_for_file_processing(page, max_attempts=10)
+                        return True
+                    else:
+                        print(" No file input found")
+                        return False
+                except Exception as e:
+                    print(f" Direct multiple file input failed: {e}")
+                    return False
+
+            # If we got file chooser, set all files at once
+            if file_chooser:
+                print(f"📁 Setting all {len(file_paths)} files at once...")
+                print(f"   Files: {[os.path.basename(f) for f in file_paths]}")
+                
+                # Use set_files with multiple files
+                file_chooser.set_files(file_paths)
+                page.wait_for_timeout(5000)
+                self.debug_page_state(page, "03_after_multiple_file_select")
+                
+                # Wait for all files to process
+                print("⏳ Waiting for all files to process...")
+                self._wait_for_file_processing(page, max_attempts=15)
+                
+                print(f" All files uploaded successfully: {[os.path.basename(f) for f in file_paths]}")
+                return True
+            else:
+                print(" No file chooser available")
+                return False
+                
+        except Exception as e:
+            print(f" Upload all files at once error: {e}")
+            return False
+
+    def _add_additional_file_to_session(self, page, file_path: str) -> bool:
+        """Add an additional file to existing NotebookLM session."""
+        try:
+            # First, check if we can find the sources panel with existing files
+            print("🔍 Looking for sources panel...")
+            page.wait_for_timeout(2000)  # Wait for page to stabilize
+            
+            # Look for "Add" button or "+" button to add more sources
+            add_selectors = [
+                # Common add source buttons
+                'button:has-text("Add")',
+                'button[aria-label="Add source"]',
+                'button[aria-label="Add more sources"]',
+                'button:has-text("Add source")',
+                'button:has-text("Add more")',
+                'button:has-text("+")',
+                'button[title="Add source"]',
+                'button[title="Add more sources"]',
+                
+                # Specific patterns for NotebookLM
+                'button:has-text("Upload")',
+                'button:has-text("Upload more")',
+                'button[aria-label="Upload more"]',
+                
+                # Alternative selectors
+                '.add-source-button',
+                '.add-button',
+                '[data-testid="add-source"]',
+                
+                # Try to find any button with "add" or "upload" in class/text
+                'button[class*="add"]',
+                'button[class*="plus"]',
+                'button[class*="upload"]'
+            ]
+            
+            add_clicked = False
+            file_chooser = None
+            
+            # Try to click add button and catch file chooser
+            for selector in add_selectors:
+                try:
+                    elements = page.locator(selector)
+                    if elements.count() > 0:
+                        print(f"🔍 Trying add button: {selector} (found {elements.count()} elements)")
+                        
+                        # Try each matching element
+                        for i in range(elements.count()):
+                            try:
+                                element = elements.nth(i)
+                                if element.is_visible():
+                                    print(f"   Clicking element {i+1}...")
+                                    
+                                    # Set up file chooser listener before clicking
+                                    with page.expect_file_chooser(timeout=10000) as fc_info:
+                                        element.click()
+                                        
+                                    file_chooser = fc_info.value
+                                    add_clicked = True
+                                    print(f" Successfully clicked add button with: {selector}")
+                                    break
+                            except Exception as e:
+                                print(f"   Element {i+1} failed: {e}")
+                                continue
+                        
+                        if add_clicked:
+                            break
+                        
+                except Exception as e:
+                    print(f"   Failed with {selector}: {e}")
+                    continue
+            
+            # If no add button found, try the original upload sources flow
+            if not add_clicked:
+                print("🔍 No add button found, trying upload sources button...")
+                return self._upload_single_file_to_session(page, file_path)
+            
+            # Set the file using the file chooser
+            if file_chooser:
+                print(f"📁 Setting additional file: {os.path.basename(file_path)}")
+                file_chooser.set_files(file_path)
+                page.wait_for_timeout(3000)
+                print(f" Additional file uploaded: {os.path.basename(file_path)}")
+                return True
+            else:
+                print(" No file chooser available for additional file")
+                return False
+                
+        except Exception as e:
+            print(f" Add additional file error: {e}")
+            # Fallback to regular upload
+            print("🔄 Falling back to regular upload method...")
+            return self._upload_single_file_to_session(page, file_path)
+
+    def _upload_single_file_to_session(self, page, file_path: str) -> bool:
+        """Upload a single file to NotebookLM session (used for first file or fallback)."""
+        try:
+            print(f"📎 Uploading file: {os.path.basename(file_path)}...")
+            
+            # Click "Upload sources" button (based on specific XPath)
+            upload_selectors = [
+                # Specific XPaths provided
+                'xpath=/html/body/div[7]/div[2]/div/mat-dialog-container/div/div/upload-dialog/div/div[2]/upload-main-screen/div[1]/button/span[3]',
+                'xpath=/html/body/div[7]/div[2]/div/mat-dialog-container/div/div/upload-dialog/div/div[2]/upload-main-screen/div[1]/h4/span',
+                
+                # Fallback selectors
+                'text="Upload sources"',
+                'button:has-text("Upload sources")',
+                ':has-text("Upload sources")',
+                'button[aria-label="Upload sources from your computer"]',
+                'button:has-text("Upload sources from your computer")'
+            ]
+
+            upload_clicked = False
+            file_chooser = None
+            
+            # Try to click upload button and catch file chooser
+            for selector in upload_selectors:
+                try:
+                    element = page.locator(selector).first
+                    if element.count() > 0:
+                        print(f"🔍 Attempting to click upload with: {selector}")
+                        
+                        # Set up file chooser listener before clicking
+                        with page.expect_file_chooser(timeout=10000) as fc_info:
+                            element.click()
+                            
+                        file_chooser = fc_info.value
+                        upload_clicked = True
+                        print(f" Clicked upload element and got file chooser with: {selector}")
+                        break
+                        
+                except Exception as e:
+                    print(f"   Failed with {selector}: {e}")
+                    continue
+
+            # Alternative: try to find file input directly if button click failed
+            if not upload_clicked or not file_chooser:
+                print(" Could not get file chooser, trying direct file input...")
+                try:
+                    file_inputs = page.locator('input[type="file"]')
+                    if file_inputs.count() > 0:
+                        print(f" Found {file_inputs.count()} file input(s), using first one")
+                        # Check if file input supports multiple files
+                        file_input = file_inputs.first()
+                        multiple_attr = file_input.get_attribute("multiple")
+                        print(f"📋 File input multiple attribute: {multiple_attr}")
+                        
+                        file_input.set_input_files(file_path)
+                        print(f" File uploaded directly: {os.path.basename(file_path)}")
+                        page.wait_for_timeout(3000)
+                        self.debug_page_state(page, "04_direct_file_upload")
+                        return True
+                    else:
+                        print(" No file input found")
+                        self.debug_page_state(page, "no_file_input_found")
+                        return False
+                except Exception as e:
+                    print(f" Direct file input failed: {e}")
+                    return False
+
+            # If we got file chooser, set the file
+            if file_chooser:
+                print(f"📁 Setting file: {os.path.basename(file_path)}")
+                
+                # Check if file chooser supports multiple files
+                try:
+                    # Get the input element to check for multiple attribute
+                    page.wait_for_timeout(1000)
+                    file_inputs = page.locator('input[type="file"]')
+                    if file_inputs.count() > 0:
+                        multiple_attr = file_inputs.first().get_attribute("multiple")
+                        print(f"📋 File chooser multiple support: {multiple_attr}")
+                except Exception as e:
+                    print(f"📋 Could not check multiple attribute: {e}")
+                
+                file_chooser.set_files(file_path)
+                page.wait_for_timeout(3000)
+                self.debug_page_state(page, "03_after_file_select")
+                
+                # Wait for file processing
+                self._wait_for_file_processing(page)
+                
+                print(f" File uploaded successfully: {os.path.basename(file_path)}")
+                return True
+            else:
+                print(" No file chooser available")
+                self.debug_page_state(page, "no_file_chooser")
+                return False
+                
+        except Exception as e:
+            print(f" Single file upload error: {e}")
+            self.debug_page_state(page, "single_file_upload_error")
+            return False
+
+    def _upload_file_to_notebooklm(self, page, file_path: str) -> bool:
+        """Upload file to NotebookLM (legacy method, redirects to single file upload)."""
+        return self._upload_single_file_to_session(page, file_path)
+
+    def _wait_for_file_processing(self, page, max_attempts: int = 20) -> bool:
+        """Wait for NotebookLM to finish processing uploaded file with reload strategy."""
+        print(f"⏳ Waiting for file processing (max {max_attempts} attempts)...")
+        
+        for attempt in range(1, max_attempts + 1):
+            print(f"📋 Attempt {attempt}/{max_attempts}")
+            
+            # Wait 45 seconds before checking/reloading (increased for multiple files)
+            print("   ⏰ Waiting 45 seconds...")
+            page.wait_for_timeout(45000)  # 45 seconds
+            
+            # Reload page to check latest state
+            print("   🔄 Reloading page...")
+            try:
+                page.reload(wait_until="load", timeout=10000)
+                page.wait_for_timeout(3000)  # Wait for page to stabilize
+                print("    Page reloaded successfully")
+            except Exception as e:
+                print(f"   ⚠️ Reload warning: {e}")
+                continue
+            
+            # Check if file processing is complete by looking for Audio Overview button
+            try:
+                print("   🔍 Checking for Audio Overview button...")
+                
+                # Try to find Audio Overview button
+                audio_overview_selectors = [
+                    'button:has-text("Audio Overview")',
+                    'text="Audio Overview"',
+                    'button:has-text("Tổng quan âm thanh")',
+                    '[aria-label*="Audio Overview"]'
+                ]
+                
+                audio_found = False
+                for selector in audio_overview_selectors:
+                    try:
+                        element = page.locator(selector).first
+                        if element.count() > 0 and element.is_visible():
+                            print(f"    Found Audio Overview button with: {selector}")
+                            audio_found = True
+                            break
+                    except:
+                        continue
+                
+                if audio_found:
+                    print(f" File processing completed after {attempt} attempts!")
+                    return True
+                else:
+                    print(f"    Audio Overview not available yet (attempt {attempt})")
+                    
+            except Exception as e:
+                print(f"   ⚠️ Error checking Audio Overview: {e}")
+            
+            # If not the last attempt, continue waiting
+            if attempt < max_attempts:
+                print(f"   📋 Will try again in next cycle...")
+            else:
+                print(f"   ⏰ Max attempts reached, proceeding anyway...")
+        
+        print(f"⚠️ File processing timeout after {max_attempts} attempts, continuing anyway...")
+        return True  # Continue even if we can't confirm processing is done
+
+    def _upload_text_to_notebooklm(self, page, content: str) -> bool:
+        """Upload text content to NotebookLM."""
+        try:
             # Click "Copied text"
             print("📎 Adding copied text...")
             copied_selectors = [
@@ -248,7 +701,7 @@ class NotebookLMAutomation:
                     continue
 
             if not copied_clicked:
-                print("❌ Could not find Copied text chip")
+                print(" Could not find Copied text chip")
                 self.debug_page_state(page, "03_no_copied_text")
                 return False
 
@@ -283,18 +736,17 @@ class NotebookLMAutomation:
                     continue
 
             if not insert_clicked:
-                print("❌ Could not find Insert button")
+                print(" Could not find Insert button")
                 self.debug_page_state(page, "05_no_insert_button")
                 return False
             
             page.wait_for_timeout(1500)
             self.debug_page_state(page, "06_after_insert_click")
-            print("✅ Content uploaded successfully!")
+            print(" Content uploaded successfully!")
             return True
 
         except Exception as e:
-            print(f"Upload error: {e}")
-            self.debug_page_state(page, "upload_error")
+            print(f"Text upload error: {e}")
             return False
 
     def generate_audio_overview(self, page) -> bool:
@@ -307,36 +759,36 @@ class NotebookLMAutomation:
             # Look for Audio Overview button using best practices
             audio_overview_btn = None
 
-            # Method 1: get_by_role for buttons
+            # Method 1: get_by_role for buttons - increased timeout for file uploads
             try:
                 audio_overview_btn = page.get_by_role("button", name="Audio Overview")
-                expect(audio_overview_btn).to_be_visible(timeout=3000)
+                expect(audio_overview_btn).to_be_visible(timeout=15000)  # 15 seconds for file uploads
                 print("Found Audio Overview with get_by_role")
             except Exception:
                 try:
                     audio_overview_btn = page.get_by_role("button", name="Tổng quan âm thanh")
-                    expect(audio_overview_btn).to_be_visible(timeout=3000)
+                    expect(audio_overview_btn).to_be_visible(timeout=15000)  # 15 seconds for file uploads
                     print("Found Audio Overview with get_by_role (Vietnamese)")
                 except Exception as e:
                     print(f"   get_by_role failed: {e}")
                     audio_overview_btn = None
 
-            # Method 2: get_by_text
+            # Method 2: get_by_text - increased timeout
             if not audio_overview_btn:
                 try:
                     audio_overview_btn = page.get_by_text("Audio Overview", exact=False)
-                    expect(audio_overview_btn).to_be_visible(timeout=3000)
+                    expect(audio_overview_btn).to_be_visible(timeout=15000)  # 15 seconds for file uploads
                     print("Found Audio Overview with get_by_text")
                 except Exception:
                     try:
                         audio_overview_btn = page.get_by_text("Tổng quan âm thanh", exact=False)
-                        expect(audio_overview_btn).to_be_visible(timeout=3000)
+                        expect(audio_overview_btn).to_be_visible(timeout=15000)  # 15 seconds for file uploads
                         print("Found Audio Overview with get_by_text (Vietnamese)")
                     except Exception as e:
                         print(f"   get_by_text failed: {e}")
                         audio_overview_btn = None
 
-            # Method 3: Fallback with locators
+            # Method 3: Fallback with locators - increased timeout
             if not audio_overview_btn:
                 selectors = [
                     'button:has-text("Audio Overview")',
@@ -346,7 +798,7 @@ class NotebookLMAutomation:
                 for selector in selectors:
                     try:
                         audio_overview_btn = page.locator(selector).first
-                        expect(audio_overview_btn).to_be_visible(timeout=2000)
+                        expect(audio_overview_btn).to_be_visible(timeout=10000)  # 10 seconds for file uploads
                         print(f"Found Audio Overview with: {selector}")
                         break
                     except Exception:
@@ -355,7 +807,7 @@ class NotebookLMAutomation:
                     audio_overview_btn = None
 
             if not audio_overview_btn:
-                print("❌ Audio Overview button not found")
+                print(" Audio Overview button not found")
                 self.debug_page_state(page, "08_no_audio_overview_button")
                 return False
 
@@ -363,9 +815,9 @@ class NotebookLMAutomation:
             try:
                 expect(audio_overview_btn).to_be_enabled(timeout=3000)
                 audio_overview_btn.click()
-                print("✅ Audio Overview clicked successfully", flush=True)
+                print(" Audio Overview clicked successfully", flush=True)
             except Exception as e:
-                print(f"❌ Failed to click Audio Overview: {e}", flush=True)
+                print(f" Failed to click Audio Overview: {e}", flush=True)
                 self.debug_page_state(page, "09_failed_to_click_audio_overview")
                 return False
 
@@ -387,16 +839,16 @@ class NotebookLMAutomation:
                 try:
                     limit_text = page.get_by_text(message, exact=False)
                     expect(limit_text).to_be_visible(timeout=1000)
-                    print("❌ Daily limits reached!")
+                    print(" Daily limits reached!")
                     return False
                 except Exception:
                     continue
 
-            print("✅ Audio generation initiated")
+            print(" Audio generation initiated")
             return True
 
         except Exception as e:
-            print(f"❌ Audio generation error: {e}")
+            print(f" Audio generation error: {e}")
             return False
 
     def wait_for_audio_completion(self, page, max_wait_minutes: int = 15) -> bool:
@@ -484,7 +936,7 @@ class NotebookLMAutomation:
             page.wait_for_timeout(3000)  # 30 sec intervals
             elapsed_time += 30
 
-        print(f"❌ Timeout after {max_wait_minutes} minutes")
+        print(f" Timeout after {max_wait_minutes} minutes")
         return False
 
     def find_element_with_expect(self, page, selectors: list, description: str):
@@ -497,7 +949,7 @@ class NotebookLMAutomation:
             except Exception as e:
                 print(f"   Failed selector {selector}: {e}")
                 continue
-        print(f"❌ Could not find {description}")
+        print(f" Could not find {description}")
         return None
 
     def try_download_method(self, page, method: str) -> bool:
@@ -510,9 +962,9 @@ class NotebookLMAutomation:
         try:
             more_btn = page.locator("//artifact-library-item//button[contains(@aria-label, 'More')]")
             expect(more_btn).to_be_visible(timeout=15000)
-            print("✅ Found More button")
+            print(" Found More button")
         except Exception as e:
-            print(f"❌ Could not find More button: {e}")
+            print(f" Could not find More button: {e}")
             return False
 
         # Wait for More button to be enabled (audio generation complete)
@@ -520,9 +972,9 @@ class NotebookLMAutomation:
         try:
             expect(more_btn).to_be_enabled(timeout=60000)  # Wait up to 60 seconds
             more_btn.click()
-            print("✅ More button clicked")
+            print(" More button clicked")
         except Exception as e:
-            print(f"❌ More button not enabled within timeout: {e}")
+            print(f" More button not enabled within timeout: {e}")
             return False
 
         page.wait_for_timeout(3000)
@@ -535,12 +987,12 @@ class NotebookLMAutomation:
         try:
             dl_btn = page.get_by_role("menuitem", name="Download")
             expect(dl_btn).to_be_visible(timeout=3000)
-            print("✅ Found Download with get_by_role")
+            print(" Found Download with get_by_role")
         except Exception:
             try:
                 dl_btn = page.get_by_role("menuitem", name="Tải xuống")
                 expect(dl_btn).to_be_visible(timeout=3000)
-                print("✅ Found Download with get_by_role (Vietnamese)")
+                print(" Found Download with get_by_role (Vietnamese)")
             except Exception as e:
                 print(f"   get_by_role for menuitem failed: {e}")
                 dl_btn = None
@@ -550,12 +1002,12 @@ class NotebookLMAutomation:
             try:
                 dl_btn = page.get_by_text("Download", exact=False)
                 expect(dl_btn).to_be_visible(timeout=3000)
-                print("✅ Found Download with get_by_text")
+                print(" Found Download with get_by_text")
             except Exception:
                 try:
                     dl_btn = page.get_by_text("Tải xuống", exact=False)
                     expect(dl_btn).to_be_visible(timeout=3000)
-                    print("✅ Found Download with get_by_text (Vietnamese)")
+                    print(" Found Download with get_by_text (Vietnamese)")
                 except Exception as e:
                     print(f"   get_by_text failed: {e}")
                     dl_btn = None
@@ -570,7 +1022,7 @@ class NotebookLMAutomation:
                 try:
                     dl_btn = page.locator(selector).first
                     expect(dl_btn).to_be_visible(timeout=2000)
-                    print(f"✅ Found Download with: {selector}")
+                    print(f" Found Download with: {selector}")
                     break
                 except Exception:
                     continue
@@ -578,7 +1030,7 @@ class NotebookLMAutomation:
                 dl_btn = None
 
         if not dl_btn:
-            print("❌ Could not find Download menu item")
+            print(" Could not find Download menu item")
             return False
 
         # Execute download using best practices
@@ -586,25 +1038,25 @@ class NotebookLMAutomation:
             expect(dl_btn).to_be_enabled(timeout=3000)
             with page.expect_download(timeout=3000) as dl_info:
                 dl_btn.click()
-                print("✅ Download button clicked")
+                print(" Download button clicked")
 
             download = dl_info.value
             suggested_filename = download.suggested_filename
             
             # Sanitize filename to prevent truncation and invalid characters
             safe_filename = self.sanitize_filename(suggested_filename)
-            print(f"✅ Download started: {suggested_filename}")
+            print(f" Download started: {suggested_filename}")
             if safe_filename != suggested_filename:
                 print(f"   Sanitized to: {safe_filename}")
 
             # Wait for download to complete and save to our folder
             download_path = os.path.join(self.download_folder, safe_filename)
             download.save_as(download_path)
-            print(f"✅ Download saved to: {download_path}")
+            print(f" Download saved to: {download_path}")
 
             return True
         except Exception as e:
-            print(f"❌ Download failed: {e}")
+            print(f" Download failed: {e}")
             return False
     
     def sanitize_filename(self, filename: str) -> str:
@@ -655,7 +1107,7 @@ class NotebookLMAutomation:
             print(f"Playwright check failed: {e}")
             return False
 
-    def run_automation(self, content_source: str, max_wait_minutes: int = 10) -> bool:
+    def run_automation(self, content_source: str, max_wait_minutes: int = 45, files_content: Optional[list] = None, file_content: bytes = None, filename: str = None) -> bool:
         """Run complete NotebookLM automation workflow."""
         try:
             print("Starting NotebookLM Text-to-Speech Automation")
@@ -668,10 +1120,31 @@ class NotebookLMAutomation:
                 print("   playwright install chromium")
                 return False
 
-            # Get content
-            content = self.get_content(content_source)
-            if not content:
-                return False
+            # Handle file input if provided (multiple files or single file)
+            file_paths = []
+            if files_content:
+                print(f"📁 Processing {len(files_content)} uploaded files...")
+                for file_bytes, file_name in files_content:
+                    file_path = self.save_temp_file(file_bytes, file_name)
+                    if not file_path:
+                        print(f" Failed to save uploaded file: {file_name}")
+                        return False
+                    file_paths.append(file_path)
+                    print(f"    Saved: {file_name}")
+                content = f"Multiple files uploaded ({len(files_content)} files)"
+            elif file_content and filename:
+                print(f"📁 Processing uploaded file: {filename}")
+                file_path = self.save_temp_file(file_content, filename)
+                if not file_path:
+                    print(" Failed to save uploaded file")
+                    return False
+                file_paths = [file_path]
+                content = "File uploaded"  # Placeholder text
+            else:
+                # Get text content
+                content = self.get_content(content_source)
+                if not content:
+                    return False
 
             print(f"Content preview: {content[:100]}...")
             print(f"Using Chrome profile: {self.profile_path}")
@@ -717,8 +1190,8 @@ class NotebookLMAutomation:
                     page = browser.new_page()
 
                     try:
-                        # Upload content
-                        if not self.upload_content_to_notebooklm(page, content):
+                        # Upload content (either text or multiple files)
+                        if not self.upload_content_to_notebooklm(page, content, file_paths):
                             return False
 
                         # Generate audio
@@ -736,7 +1209,7 @@ class NotebookLMAutomation:
                             download_success = self.download_audio(page)
 
                         # Summary
-                        print("\n🎉 Automation Workflow Completed!")
+                        print("\n Automation Workflow Completed!")
                         print("📊 Summary:")
                         print("   Content source: custom text")
                         print(f"   Content length: {len(content)} chars")
@@ -783,9 +1256,12 @@ class NotebookLMAutomation:
 def run_notebooklm_automation(
     content_source: str,
     debug_mode: bool = False,
-    max_wait_minutes: int = 15,
+    max_wait_minutes: int = 45,
     email: Optional[str] = None,
     password: Optional[str] = None,
+    files_content: Optional[list] = None,
+    file_content: bytes = None,
+    filename: str = None,
 ) -> bool:
     """
     Run NotebookLM automation workflow.
@@ -793,9 +1269,12 @@ def run_notebooklm_automation(
     Args:
         content_source: Text content to convert to audio
         debug_mode: Enable debug screenshots and logs (use True to debug login issues)
-        max_wait_minutes: Maximum wait time for audio generation (default 15 minutes)
+        max_wait_minutes: Maximum wait time for audio generation (default 45 minutes for multiple files)
         email: Google account email (optional, for login)
         password: Google account password (optional, for login)
+        files_content: List of (file_bytes, filename) tuples for multiple files (optional)
+        file_content: File content as bytes (optional, for single file upload - legacy)
+        filename: Original filename (optional, for single file upload - legacy)
 
     Returns:
         bool: True if successful, False otherwise
@@ -803,7 +1282,7 @@ def run_notebooklm_automation(
     automation = NotebookLMAutomation(
         debug_mode=debug_mode, email=email, password=password
     )
-    return automation.run_automation(content_source, max_wait_minutes)
+    return automation.run_automation(content_source, max_wait_minutes, files_content, file_content, filename)
 
 
 if __name__ == "__main__":

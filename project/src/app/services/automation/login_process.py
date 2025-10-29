@@ -84,7 +84,7 @@ class GoogleLoginService:
                         # Only click if element contains relevant text or is .riDSKb
                         if ("another" in text.lower() and "account" in text.lower()) or selector == ".riDSKb":
                             btn.first.click(force=True)
-                            print(f"✅ Clicked 'Use another account' using: {selector}")
+                            print(f" Clicked 'Use another account' using: {selector}")
                             page.wait_for_timeout(3000)  # Wait longer for page transition
 
                             # Verify we moved to a different page/state
@@ -96,7 +96,7 @@ class GoogleLoginService:
                             print(f"   ⏭️ Skipped - text doesn't match: '{text}'")
 
                 except Exception as e:
-                    print(f"   ❌ Failed with {selector}: {e}")
+                    print(f"    Failed with {selector}: {e}")
                     continue
 
             # Final attempt: Click any .riDSKb element that might be the right one
@@ -107,7 +107,7 @@ class GoogleLoginService:
                     text = element.text_content() or ""
                     if "another" in text.lower() or "account" in text.lower():
                         element.click()
-                        print(f"✅ Clicked riDSKb element with matching text: '{text}'")
+                        print(f" Clicked riDSKb element with matching text: '{text}'")
                         page.wait_for_timeout(2000)
                         return True
             except Exception as e:
@@ -147,14 +147,14 @@ class GoogleLoginService:
                     if count > 0:
                         input_elem.first.wait_for(timeout=3000000)
                         email_input = input_elem.first
-                        print(f"✅ Found email input with: {selector}")
+                        print(f" Found email input with: {selector}")
                         break
                 except Exception as e:
-                    print(f"   ❌ Failed with {selector}: {e}")
+                    print(f"    Failed with {selector}: {e}")
                     continue
 
             if not email_input:
-                print("❌ No email input field found with any selector")
+                print(" No email input field found with any selector")
                 self.debug_login_state(page, "email_input_not_found")
                 return False
 
@@ -167,12 +167,12 @@ class GoogleLoginService:
             email_input.fill(email)
             page.wait_for_timeout(1000)
 
-            print(f"✅ Email entered: {email}")
+            print(f" Email entered: {email}")
             self.debug_login_state(page, "after_email_input")
             return True
 
         except Exception as e:
-            print(f"❌ Error entering email: {e}")
+            print(f" Error entering email: {e}")
             self.debug_login_state(page, "email_error")
             return False
 
@@ -202,27 +202,27 @@ class GoogleLoginService:
                     if count > 0:
                         btn_elem.first.wait_for(timeout=3000000)
                         next_btn = btn_elem.first
-                        print(f"✅ Found Next button with: {selector}")
+                        print(f" Found Next button with: {selector}")
                         break
                 except Exception as e:
-                    print(f"   ❌ Failed with {selector}: {e}")
+                    print(f"    Failed with {selector}: {e}")
                     continue
 
             if not next_btn:
-                print("❌ No Next button found with any selector")
+                print(" No Next button found with any selector")
                 self.debug_login_state(page, "next_button_not_found")
                 return False
 
             # Click the button
             print("🖱️ Clicking Next button...")
             next_btn.click()
-            print("✅ Next button clicked")
+            print(" Next button clicked")
             page.wait_for_timeout(4000)  # Wait longer for password page
             self.debug_login_state(page, "after_email_next")
             return True
 
         except Exception as e:
-            print(f"❌ Error clicking Next after email: {e}")
+            print(f" Error clicking Next after email: {e}")
             self.debug_login_state(page, "next_error")
             return False
 
@@ -241,15 +241,15 @@ class GoogleLoginService:
             password_input.fill(password)
             page.wait_for_timeout(1000)
 
-            print("✅ Password entered")
+            print(" Password entered")
             self.debug_login_state(page, "after_password_input")
             return True
 
         except TimeoutError:
-            print("❌ Password input field not found")
+            print(" Password input field not found")
             return False
         except Exception as e:
-            print(f"❌ Error entering password: {e}")
+            print(f" Error entering password: {e}")
             return False
 
     def click_next_after_password(self, page):
@@ -262,16 +262,16 @@ class GoogleLoginService:
             next_btn.wait_for(timeout=8000)
             next_btn.click()
 
-            print("✅ Password Next button clicked", flush=True)
+            print(" Password Next button clicked", flush=True)
             page.wait_for_timeout(5000)  # Wait 5 seconds for login to complete
             self.debug_login_state(page, "after_password_next")
             return True
 
         except TimeoutError:
-            print("❌ Next button not found after password")
+            print(" Next button not found after password")
             return False
         except Exception as e:
-            print(f"❌ Error clicking Next after password: {e}")
+            print(f" Error clicking Next after password: {e}")
             return False
 
     def wait_for_login_completion(self, page, max_wait_seconds=30):
@@ -291,12 +291,12 @@ class GoogleLoginService:
                     'myaccount.google.com',
                     'accounts.google.com/ManageAccount'
                 ]):
-                    print("✅ Login appears successful - redirected")
+                    print(" Login appears successful - redirected")
                     return True
 
                 # Check if we're no longer on login page
                 if 'signin' not in current_url.lower() and 'login' not in current_url.lower():
-                    print("✅ Login completed - left login pages")
+                    print(" Login completed - left login pages")
                     return True
 
                 page.wait_for_timeout(2000)
@@ -347,44 +347,44 @@ class GoogleLoginService:
 
             # Step 1: Handle "Use another account" if present
             if not self.click_use_another_account(page):
-                print("❌ Failed to handle account selection")
+                print(" Failed to handle account selection")
                 return False
 
             # Step 2: Enter email
             if not self.enter_email(page, email):
-                print("❌ Failed to enter email")
+                print(" Failed to enter email")
                 return False
 
             # Step 3: Click Next after email
             if not self.click_next_after_email(page):
-                print("❌ Failed to proceed after email")
+                print(" Failed to proceed after email")
                 return False
 
             # Step 4: Enter password
             if not self.enter_password(page, password):
-                print("❌ Failed to enter password")
+                print(" Failed to enter password")
                 return False
 
             # Step 5: Click Next after password
             if not self.click_next_after_password(page):
-                print("❌ Failed to proceed after password")
+                print(" Failed to proceed after password")
                 return False
 
             # Step 6: Handle 2FA if needed
             if not self.handle_two_factor_auth(page):
-                print("❌ Failed to handle 2FA")
+                print(" Failed to handle 2FA")
                 return False
 
             # Step 7: Wait for login completion
             if not self.wait_for_login_completion(page):
-                print("❌ Login did not complete in time")
+                print(" Login did not complete in time")
                 return False
 
-            print("✅ Google login completed successfully!")
+            print(" Google login completed successfully!")
             return True
 
         except Exception as e:
-            print(f"❌ Login process error: {e}")
+            print(f" Login process error: {e}")
             return False
 
 def perform_google_login(page, email, password, debug_mode=False):
