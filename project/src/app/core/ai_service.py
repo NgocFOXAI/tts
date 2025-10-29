@@ -49,9 +49,7 @@ class AIService:
             # Prepare content for Gemini
             content_parts = []
 
-            # Add system prompt if provided
-            if system_prompt:
-                content_parts.append(f"System: {system_prompt}\n\n")
+            # System prompt will be set in model config, not in content
 
             # Process files if provided
             if files:
@@ -137,8 +135,17 @@ class AIService:
                 max_output_tokens=max_tokens,
             )
 
+            # Create model with system instruction if provided
+            if system_prompt:
+                model_instance = genai.GenerativeModel(
+                    model_name=model,
+                    system_instruction=system_prompt
+                )
+            else:
+                model_instance = genai.GenerativeModel(model_name=model)
+
             # Generate response
-            response = self.model.generate_content(
+            response = model_instance.generate_content(
                 content_parts,
                 generation_config=generation_config
             )
@@ -180,9 +187,7 @@ class AIService:
             # Prepare content for Gemini
             content_parts = []
 
-            # Add system prompt if provided
-            if system_prompt:
-                content_parts.append(f"System: {system_prompt}\n\n")
+            # System prompt will be set in model config, not in content
 
             # Add user prompt
             content_parts.append(f"User: {prompt}")
@@ -194,8 +199,17 @@ class AIService:
                 max_output_tokens=max_tokens,
             )
 
+            # Create model with system instruction if provided
+            if system_prompt:
+                model_instance = genai.GenerativeModel(
+                    model_name=model,
+                    system_instruction=system_prompt
+                )
+            else:
+                model_instance = genai.GenerativeModel(model_name=model)
+
             # Generate streaming response
-            response = self.model.generate_content(
+            response = model_instance.generate_content(
                 content_parts,
                 generation_config=generation_config,
                 stream=True

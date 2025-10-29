@@ -80,14 +80,13 @@ class ApiService {
   }
 
   // Text Generation endpoints
-  async generateText({ prompt, maxTokens = 100, stream = false, files = [], model = 'gpt-4o-mini', systemPrompt = 'text_generation', customSystemPrompt = '', temperature = 0.7, topP = 0.9 }) {
+  async generateText({ prompt, maxTokens = 100, stream = false, files = [], model = 'gpt-4o-mini', temperature = 0.7, topP = 0.9 }) {
     const formData = new FormData();
     formData.append('prompt', prompt);
     formData.append('max_tokens', maxTokens.toString());
     formData.append('stream', stream.toString());
     formData.append('model', model);
-    formData.append('system_prompt', systemPrompt);  // Fixed: use system_prompt instead of systemPrompt
-    formData.append('custom_system_prompt', customSystemPrompt);  // Fixed: use custom_system_prompt instead of customSystemPrompt
+    // System prompt đã được đặt cứng ở backend - không gửi từ frontend nữa
     formData.append('temperature', temperature.toString());
     formData.append('top_p', topP.toString());
 
@@ -112,15 +111,13 @@ class ApiService {
   }
 
   // Streaming text generation
-  async *generateTextStream({ prompt, maxTokens = 100, files = [], model = 'gpt-4o-mini', systemPrompt = 'text_generation', customSystemPrompt = '', temperature = 0.7, topP = 0.9 }) {
+  async *generateTextStream({ prompt, maxTokens = 100, files = [], model = 'gpt-4o-mini', temperature = 0.7, topP = 0.9 }) {
     const response = await this.generateText({
       prompt,
       maxTokens,
       stream: true,
       files,
       model,
-      systemPrompt,
-      customSystemPrompt,
       temperature,
       topP,
     });

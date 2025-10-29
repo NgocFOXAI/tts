@@ -21,8 +21,7 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
   const [temperature, setTemperature] = useState(0.7); // Mức độ sáng tạo - đã thay đổi từ 0.3 thành 0.7
   const [topP, setTopP] = useState(0.9); // Độ tập trung chủ đề - giữ nguyên 0.9
   const [maxTokens, setMaxTokens] = useState(30000000); // Độ dài phản hồi tối đa - đã thay đổi từ 16384 thành 3000000
-  const [systemPrompt, setSystemPrompt] = useState('business_analyst');
-  const [customSystemPrompt, setCustomSystemPrompt] = useState('');
+  // System prompt đã được đặt cứng thành FoxAI_Senior_DataAnalyst - không cho phép thay đổi
   const [showImageUpload, setShowImageUpload] = useState(false);
 
   const messagesEndRef = useRef(null);
@@ -151,8 +150,6 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
       maxTokens,
       files,
       model: selectedModel,
-      systemPrompt: systemPrompt,
-      customSystemPrompt: systemPrompt === 'custom' ? customSystemPrompt : '',
       temperature,
       topP: topP,
     };
@@ -289,34 +286,25 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
           */}
         </SettingsSection>
 
-        <SettingsSection title="Cài Đặt Prompt Hệ Thống">
+        <SettingsSection title="Chế Độ Chuyên Gia (Cố Định)">
           <div className={styles.settingGroup}>
-            <label htmlFor="systemPrompt">Chế Độ Chuyên Gia</label>
-            <Select
-              value={systemPrompt}
-              onChange={(e) => setSystemPrompt(e.target.value)}
-              options={[
-                { value: "text_generation", label: "Chuyên Gia Tạo Nội Dung" },
-                { value: "creative_writing", label: "Chuyên Gia Sáng Tạo" },
-                { value: "code_assistant", label: "Chuyên Gia Lập Trình" },
-                { value: "business_analyst", label: "Chuyên Gia Phân Tích Kinh Doanh" },
-                { value: "educational_tutor", label: "Chuyên Gia Giáo Dục" },
-                { value: "custom", label: "Tùy Chỉnh Chuyên Sâu" }
-              ]}
-            />
-          </div>
-
-          {systemPrompt === 'custom' && (
-            <div className={styles.settingGroup}>
-              <label htmlFor="customSystemPrompt">Prompt Chuyên Gia Tùy Chỉnh</label>
-              <Textarea
-                value={customSystemPrompt}
-                onChange={(e) => setCustomSystemPrompt(e.target.value)}
-                placeholder="Nhập prompt hệ thống chuyên sâu theo yêu cầu cụ thể của bạn..."
-                rows={3}
-              />
+            <div style={{ 
+              padding: '12px', 
+              backgroundColor: '#f0f9ff', 
+              border: '1px solid #0ea5e9', 
+              borderRadius: '8px',
+              color: '#0c4a6e',
+              fontSize: '14px',
+              lineHeight: '1.6'
+            }}>
+              <strong>🎯 FoxAI Senior Data Analyst</strong>
+              <p style={{ margin: '8px 0 0 0', fontSize: '13px' }}>
+                Chuyên gia phân tích dữ liệu cấp cao với hơn 10 năm kinh nghiệm.<br/>
+                Tạo báo cáo phân tích chuyên sâu bằng tiếng Việt với cấu trúc 7 phần:<br/>
+                Giới thiệu, Tóm tắt, Phân tích chuyên sâu, Insight, Dự báo, Đề xuất, Kết luận.
+              </p>
             </div>
-          )}
+          </div>
         </SettingsSection>
 
         <SettingsSection title="Thao Tác Quản Lý">
