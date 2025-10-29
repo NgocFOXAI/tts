@@ -6,14 +6,25 @@ from .api.audio_generation import router as audio_generation_router
 from .api.foxai import router as foxai_router
 from dotenv import load_dotenv
 import os
+from contextlib import asynccontextmanager
+from .utils.log_cleaner import LogCleaner
 
 # Load environment variables from .env file
 load_dotenv()
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Clean old logs
+    log_cleaner = LogCleaner(log_dir="logs", retention_days=3)
+    log_cleaner.clean_old_logs()
+    yield
+    # Shutdown: cleanup if needed
+
 app = FastAPI(
     title="Text-to-Speech & Text Generation API",
     description="API cho text generation và text-to-speech với user customization",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
 
 # Add CORS middleware - Allow all origins for maximum compatibility
