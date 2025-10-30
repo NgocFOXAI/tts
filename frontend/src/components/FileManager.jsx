@@ -292,6 +292,11 @@ const FileManager = ({ notify }) => {
         setGenerating(true);
         try {
             const url = `${API_BASE}/documents/generate-conversation`;
+            
+            // Create AbortController for custom timeout (50 minutes to match backend + buffer)
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3000000); // 50 minutes
+            
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -299,8 +304,11 @@ const FileManager = ({ notify }) => {
                 },
                 body: JSON.stringify({
                     filenames: selectedFiles
-                })
+                }),
+                signal: controller.signal
             });
+
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -320,7 +328,11 @@ const FileManager = ({ notify }) => {
             setShowResultModal(true);
             
         } catch (err) {
-            setResultMessage(`Lỗi khi tạo cuộc trò chuyện: ${err.message}`);
+            if (err.name === 'AbortError') {
+                setResultMessage(`Timeout: Quá trình tạo cuộc trò chuyện đã vượt quá thời gian chờ (50 phút). Vui lòng thử lại hoặc giảm số lượng tài liệu.`);
+            } else {
+                setResultMessage(`Lỗi khi tạo cuộc trò chuyện: ${err.message}`);
+            }
             setShowResultModal(true);
         } finally {
             setGenerating(false);
