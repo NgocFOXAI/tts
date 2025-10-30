@@ -21,6 +21,16 @@ class AuthSettings(BaseSettings):
     algorithm: str = Field(default="HS256", description="JWT algorithm")
     access_token_expire_minutes: int = Field(default=6000, description="Token expiration time in minutes")
 
+class ClaudeSettings(BaseSettings):
+    """Claude API settings"""
+    model_config = SettingsConfigDict(
+        env_prefix="CLAUDE__",
+        env_file=str(ENV_FILE),
+        case_sensitive=False,
+        extra="ignore"
+    )
+    
+    api_key: str = Field(default="dummy_claude_key", description="Claude API key")
 
 class OpenAISettings(BaseSettings):
     """OpenAI API settings"""
@@ -204,6 +214,7 @@ class Settings(BaseSettings):
     
     # Nested settings (initialized after main settings)
     auth: Optional[AuthSettings] = None
+    claude: Optional[ClaudeSettings] = None
     openai: Optional[OpenAISettings] = None
     postgres: Optional[PostgresSettings] = None
     qdrant: Optional[QdrantSettings] = None
@@ -218,6 +229,7 @@ class Settings(BaseSettings):
         super().__init__(**kwargs)
         # Initialize nested settings after main settings
         self.auth = AuthSettings()
+        self.claude = ClaudeSettings()
         self.openai = OpenAISettings()
         self.postgres = PostgresSettings()
         self.qdrant = QdrantSettings()

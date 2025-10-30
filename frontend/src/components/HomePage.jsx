@@ -5,6 +5,7 @@ import gioiThieuImg from '../assets/gioi-thieu.png';
 import aiChatImg from '../assets/ai-chat.png';
 import textToSpeechImg from '../assets/text-to-speech.png';
 import thuVienAmThanhImg from '../assets/thu-vien-am-thanh.png';
+import dashboardImg from '../assets/dashboard.png';
 
 const foxaiLogo = '/static/logo/foxai-logo-3.png';
 
@@ -87,6 +88,20 @@ function HomePage({ onNavigate }) {
             <h3 className={styles.featureTitle}>Quản lý file</h3>
             <p className={styles.featureDescription}>
               Quản lý tài liệu, tạo cuộc trò chuyện và lưu trữ file âm thanh.
+            </p>
+          </div>
+
+          {/* Báo cáo thông minh */}
+          <div 
+            className={`${styles.featureCard} ${styles.clickableCard} ${styles.animateFromLeft}`}
+            onClick={() => onNavigate('report')}
+          >
+            <div className={styles.featureImageBox}>
+              <img src={dashboardImg} alt="Báo cáo thông minh" className={styles.featureImage} />
+            </div>
+            <h3 className={styles.featureTitle}>Báo Cáo Thông Minh</h3>
+            <p className={styles.featureDescription}>
+              Tạo báo cáo trình chiếu chuyên nghiệp từ file PDF/DOCX với biểu đồ và phân tích AI.
             </p>
           </div>
         </div>

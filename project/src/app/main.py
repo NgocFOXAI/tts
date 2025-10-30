@@ -1,11 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from .api import config_router, generate_router, tts_router, audio_router, document_management_router
 from .api.models import router as models_router
 from .api.audio_generation import router as audio_generation_router
 from .api.foxai import router as foxai_router
+from .api.claude import router as claude_router
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 from contextlib import asynccontextmanager
 from .utils.log_cleaner import LogCleaner
 
@@ -36,6 +39,10 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+# Mount static files
+static_dir = Path(__file__).parent.parent / "static"
+app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+
 # Include routers with /api prefix
 app.include_router(config_router, prefix="/api")
 app.include_router(generate_router, prefix="/api")  # AI Chat with hardcoded config
@@ -45,3 +52,4 @@ app.include_router(audio_generation_router, prefix="/api")
 app.include_router(foxai_router, prefix="/api")
 app.include_router(audio_router, prefix="/api")
 app.include_router(document_management_router, prefix="/api")
+app.include_router(claude_router, prefix="/api")

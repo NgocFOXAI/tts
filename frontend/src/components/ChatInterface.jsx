@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import { useTextGeneration } from '../hooks/useApi';
 import { useImagePaste } from '../hooks/useImageUpload';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+import { useChatState } from '../hooks/useChatState';
 import env from '../config/environment';
 import styles from '../styles/ChatInterface.module.css';
 
@@ -14,8 +15,9 @@ import TypingAnimation from './common/TypingAnimation';
 import FileUploadZone from './FileUploadZone';
 
 const ChatInterface = ({ onTextGenerated, notify }) => {
-  const [messages, setMessages] = useState([]);
-  const [prompt, setPrompt] = useState('');
+  // Use chat state hook with localStorage persistence
+  const { messages, setMessages, inputMessage: prompt, setInputMessage: setPrompt, clearChat, addMessage } = useChatState('chatInterface_chatState');
+  
   const [files, setFiles] = useState([]);
   const [showImageUpload, setShowImageUpload] = useState(false);
 
@@ -197,7 +199,7 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
   };
 
   const handleClearChat = () => {
-    setMessages([]);
+    clearChat(); // Use hook's clearChat method
     setFiles([]);
     clearPastedImages();
     setShowImageUpload(false);

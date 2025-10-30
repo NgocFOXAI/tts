@@ -5,6 +5,7 @@ import HomePage from './components/HomePage';
 import ChatInterface from './components/ChatInterface';
 import PodcastGenerator from './components/PodcastGenerator';
 import FileManager from './components/FileManager';
+import SmartReport from './components/SmartReport';
 import NotificationManager, { useNotifications } from './components/common/NotificationManager';
 import styles from './styles/App.module.css';
 
@@ -40,7 +41,7 @@ function AppContent() {
         { id: 'files-audio', label: 'Âm Thanh', path: '/files?tab=audio' }
       ]
     },
-    { id: 'about', label: 'Giới Thiệu', url: 'https://fox.ai.vn' },
+    { id: 'report', label: 'Báo Cáo Thông Minh', path: '/report' },
   ];
 
   // Handle click outside to hide sub-tabs
@@ -126,6 +127,7 @@ function AppContent() {
           <Route path="/chat" element={<ChatInterface onTextGenerated={handleTextGenerated} notify={notify} />} />
           <Route path="/podcast" element={<PodcastGenerator notify={notify} />} />
           <Route path="/files" element={<FileManager notify={notify} />} />
+          <Route path="/report" element={<SmartReport notify={notify} />} />
         </Routes>
       </div>
     </div>
