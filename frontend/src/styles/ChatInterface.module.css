@@ -583,118 +583,52 @@
 
 .inputContainer {
   display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.75rem;
   padding: 0;
 }
 
 .fileButton {
-  background: transparent;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   border: none;
-  padding: 0.3rem;
-  border-radius: 10px;
+  padding: 0;
+  border-radius: 14px;
   cursor: pointer;
-  font-size: 1.1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   flex-shrink: 0;
-  min-width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .fileButton.active {
-  background: rgba(59, 130, 246, 0.1);
-  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
 .fileButton.active:hover:not(:disabled) {
-  background: rgba(59, 130, 246, 0.2);
-  transform: scale(1.1);
-}
-
-.fileButton::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(26, 26, 26, 0.05), transparent);
-  transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.fileButton:hover::before {
-  left: 100%;
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: scale(1.08);
 }
 
 .fileButton:hover:not(:disabled) {
-  background: rgba(26, 26, 26, 0.05);
-  transform: scale(1.1);
-  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+.fileButton:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .fileButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-/* Microphone Button */
-.micButton {
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid rgba(26, 26, 26, 0.15);
-  padding: 0.6rem;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 1.3rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
-  min-width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(10px);
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(26, 26, 26, 0.1);
-}
-
-.micButton:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 1);
-  border-color: #10b981;
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.2);
-}
-
-.micButton.listening {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border-color: #ef4444;
-  animation: pulse 1.5s ease-in-out infinite;
-}
-
-.micButton.listening:hover:not(:disabled) {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
-}
-
-.micButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-  }
-  50% {
-    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
-  }
 }
 
 /* Image Upload Hint */
@@ -718,11 +652,19 @@
   border: 1px solid rgba(2, 119, 189, 0.2);
 }
 
-.messageInput {
+/* Textarea Wrapper - contains textarea and mic buttons */
+.textareaWrapper {
   flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.messageInput {
+  width: 100%;
   min-height: 44px;
   max-height: 44px;
-  padding: 0.6rem 1rem;
+  padding: 0.6rem 2.8rem 0.6rem 1rem;
   border: 2px solid rgba(26, 26, 26, 0.15);
   border-radius: 12px;
   font-family: 'Faustina', serif;
@@ -754,6 +696,57 @@
 .messageInput:disabled {
   background: rgba(249, 250, 251, 0.7);
   opacity: 0.7;
+}
+
+/* Mic Button Inside Textarea */
+.micButtonInside {
+  position: absolute;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  z-index: 10;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.micButtonInside:hover:not(:disabled) {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.micButtonInside:active:not(:disabled) {
+  transform: scale(0.92);
+  transition: all 0.05s ease;
+}
+
+.micButtonInside.listening {
+  opacity: 1;
+  animation: pulseRed 1.5s ease-in-out infinite;
+}
+
+.micButtonInside:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+@keyframes pulseRed {
+  0%, 100% {
+    filter: drop-shadow(0 0 3px rgba(239, 68, 68, 0.7));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 1));
+  }
 }
 
 .sendButton {

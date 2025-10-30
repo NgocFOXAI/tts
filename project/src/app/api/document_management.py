@@ -221,11 +221,11 @@ async def generate_conversation_from_documents(request: ConversationGenerateRequ
         # Prepare content source - simple default
         content_source = f"Create an engaging conversation discussing the key points from these {len(files_content)} documents"
         
-        print(f"[INFO] Starting conversation generation for {len(files_content)} files...")
+        print(f"[INFO] Queuing conversation generation for {len(files_content)} files...")
         print(f"[INFO] Conversation ID: {conversation_id}")
         print(f"[INFO] Files: {[f[1] for f in files_content]}")
         
-        # Run automation with files
+        # Queue automation to run in background (don't block response)
         def run_automation():
             try:
                 result = run_notebooklm_automation(
@@ -234,40 +234,30 @@ async def generate_conversation_from_documents(request: ConversationGenerateRequ
                     max_wait_minutes=45,
                     files_content=files_content
                 )
+                print(f"[SUCCESS] Conversation generation completed with result: {result}")
                 return result
             except Exception as e:
                 print(f"[ERROR] Automation error: {e}")
                 return False
         
-        # Execute automation
+        # Start automation in background thread - don't wait for completion
         import asyncio
         from concurrent.futures import ThreadPoolExecutor
         
-        loop = asyncio.get_event_loop()
-        try:
-            with ThreadPoolExecutor() as executor:
-                future = loop.run_in_executor(executor, run_automation)
-                success = await asyncio.wait_for(future, timeout=2700)  # 45 minutes
-        except asyncio.TimeoutError:
-            print("[ERROR] Conversation generation timed out after 45 minutes", flush=True)
-            success = False
+        executor = ThreadPoolExecutor(max_workers=1)
+        executor.submit(run_automation)
         
+        # Return immediately to user
         processing_time = time.time() - start_time
         
-        if success:
-            return ConversationGenerateResponse(
-                success=True,
-                message=f"Conversation generated successfully from {len(files_content)} documents! Check the downloads folder for the audio file.",
-                conversation_id=conversation_id,
-                processing_time=processing_time
-            )
-        else:
-            return ConversationGenerateResponse(
-                success=False,
-                message=f"FOXAi Automation gặp lỗi khi tạo cuộc trò chuyện. Vui lòng liên hệ với đội phát triển FOXAi để được hỗ trợ.",
-                conversation_id=conversation_id,
-                processing_time=processing_time
-            )
+        return ConversationGenerateResponse(
+            success=True,
+            message=f" Đã gửi yêu cầu tạo cuộc trò chuyện từ {len(files_content)} tài liệu!\n\n"
+                    f" Hệ thống đang xử lý trong nền (dự kiến 15-40 phút).\n\n"
+                    f"File âm thanh sẽ xuất hiện trong phần 'Quản Lý File → Audio' sau khi hoàn tất.",
+            conversation_id=conversation_id,
+            processing_time=processing_time
+        )
         
     except HTTPException:
         raise

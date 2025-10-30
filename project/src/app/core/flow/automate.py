@@ -73,7 +73,7 @@ class NotebookLMAutomation:
         print(f"   Password: {'*' * 8}" if self.password else "   Password: Not set")
         print(f"   Auto-login: {self.auto_login}")
         print(f"   Debug mode: {self.debug_mode}")
-        print(f"📁 Folders setup:")
+        print(f"Folders setup:")
         print(f"   Downloads: {self.download_folder}")
         print(f"   Uploads: {self.upload_folder}")
         print(f"   Debug: {self.debug_folder}")
@@ -82,7 +82,7 @@ class NotebookLMAutomation:
     def perform_reload_and_try_download(self, page, elapsed_time) -> bool:
         """Reload page and try download."""
         try:
-            print("🔄 Reloading page...")
+            print(" Reloading page...")
             page.reload(wait_until="load", timeout=3000)
             page.wait_for_timeout(2000)
 
@@ -171,20 +171,49 @@ class NotebookLMAutomation:
     def save_temp_file(self, file_content: bytes, filename: str) -> str:
         """Save uploaded file to temporary upload folder and return path."""
         try:
-            # Generate safe filename
+            import hashlib
+            
+            # Generate safe filename (keep original name, just remove invalid chars)
             safe_filename = re.sub(r'[<>:"/\\|?*\x00-\x1f]', '_', filename)
-            timestamp = int(time.time())
-            unique_filename = f"{timestamp}_{safe_filename}"
             
-            file_path = os.path.join(self.upload_folder, unique_filename)
+            # Calculate file hash
+            file_hash = hashlib.md5(file_content).hexdigest()
             
+            # Check if exact same file already exists (by content hash)
+            base_path = os.path.join(self.upload_folder, safe_filename)
+            if os.path.exists(base_path):
+                # Check if content is identical
+                with open(base_path, 'rb') as f:
+                    existing_hash = hashlib.md5(f.read()).hexdigest()
+                if existing_hash == file_hash:
+                    print(f"♻️  File already exists with same content, reusing: {base_path}")
+                    return base_path
+            
+            # File doesn't exist or content is different - save with new name if needed
+            file_path = base_path
+            counter = 1
+            
+            # If file with this name exists but different content, add (1), (2), etc.
+            while os.path.exists(file_path):
+                # Check if this numbered version has same content
+                with open(file_path, 'rb') as f:
+                    existing_hash = hashlib.md5(f.read()).hexdigest()
+                if existing_hash == file_hash:
+                    print(f"♻️  File already exists with same content, reusing: {file_path}")
+                    return file_path
+                
+                name, ext = os.path.splitext(safe_filename)
+                file_path = os.path.join(self.upload_folder, f"{name} ({counter}){ext}")
+                counter += 1
+            
+            # Save new file
             with open(file_path, 'wb') as f:
                 f.write(file_content)
             
-            print(f"📁 File saved to: {file_path}")
+            print(f"New file saved to: {file_path}")
             return file_path
         except Exception as e:
-            print(f" Error saving file: {e}")
+            print(f"❌ Error saving file: {e}")
             return None
 
     def get_content(self, content_source: str) -> Optional[str]:
@@ -294,14 +323,14 @@ class NotebookLMAutomation:
                 return True
             
             # Fallback: Upload first file to create the notebook, then add others
-            print("🔄 Falling back to sequential upload...")
+            print(" Falling back to sequential upload...")
             first_file = file_paths[0]
             print(f"📎 Uploading first file: {os.path.basename(first_file)}...")
             if not self._upload_single_file_to_session(page, first_file):
                 return False
             
             # Wait for first file to process
-            print("⏳ Waiting for first file to process...")
+            print(" Waiting for first file to process...")
             self._wait_for_file_processing(page)
             
             # Upload remaining files one by one using "Add" button
@@ -312,11 +341,11 @@ class NotebookLMAutomation:
                     return False
                 
                 # Wait between file uploads
-                print("⏳ Waiting for file to process...")
+                print(" Waiting for file to process...")
                 page.wait_for_timeout(5000)  # 5 second wait between files
             
             # Final wait for all files to be processed
-            print("⏳ Final wait for all files to be processed...")
+            print(" Final wait for all files to be processed...")
             self._wait_for_file_processing(page, max_attempts=5)
             
             print(f" Successfully uploaded all {len(file_paths)} files to the same notebook!")
@@ -393,7 +422,7 @@ class NotebookLMAutomation:
 
             # If we got file chooser, set all files at once
             if file_chooser:
-                print(f"📁 Setting all {len(file_paths)} files at once...")
+                print(f"Setting all {len(file_paths)} files at once...")
                 print(f"   Files: {[os.path.basename(f) for f in file_paths]}")
                 
                 # Use set_files with multiple files
@@ -402,7 +431,7 @@ class NotebookLMAutomation:
                 self.debug_page_state(page, "03_after_multiple_file_select")
                 
                 # Wait for all files to process
-                print("⏳ Waiting for all files to process...")
+                print(" Waiting for all files to process...")
                 self._wait_for_file_processing(page, max_attempts=15)
                 
                 print(f" All files uploaded successfully: {[os.path.basename(f) for f in file_paths]}")
@@ -493,7 +522,7 @@ class NotebookLMAutomation:
             
             # Set the file using the file chooser
             if file_chooser:
-                print(f"📁 Setting additional file: {os.path.basename(file_path)}")
+                print(f"Setting additional file: {os.path.basename(file_path)}")
                 file_chooser.set_files(file_path)
                 page.wait_for_timeout(3000)
                 print(f" Additional file uploaded: {os.path.basename(file_path)}")
@@ -505,7 +534,7 @@ class NotebookLMAutomation:
         except Exception as e:
             print(f" Add additional file error: {e}")
             # Fallback to regular upload
-            print("🔄 Falling back to regular upload method...")
+            print(" Falling back to regular upload method...")
             return self._upload_single_file_to_session(page, file_path)
 
     def _upload_single_file_to_session(self, page, file_path: str) -> bool:
@@ -577,7 +606,7 @@ class NotebookLMAutomation:
 
             # If we got file chooser, set the file
             if file_chooser:
-                print(f"📁 Setting file: {os.path.basename(file_path)}")
+                print(f"Setting file: {os.path.basename(file_path)}")
                 
                 # Check if file chooser supports multiple files
                 try:
@@ -615,7 +644,7 @@ class NotebookLMAutomation:
 
     def _wait_for_file_processing(self, page, max_attempts: int = 20) -> bool:
         """Wait for NotebookLM to finish processing uploaded file with reload strategy."""
-        print(f"⏳ Waiting for file processing (max {max_attempts} attempts)...")
+        print(f" Waiting for file processing (max {max_attempts} attempts)...")
         
         for attempt in range(1, max_attempts + 1):
             print(f"📋 Attempt {attempt}/{max_attempts}")
@@ -625,7 +654,7 @@ class NotebookLMAutomation:
             page.wait_for_timeout(45000)  # 45 seconds
             
             # Reload page to check latest state
-            print("   🔄 Reloading page...")
+            print("    Reloading page...")
             try:
                 page.reload(wait_until="load", timeout=10000)
                 page.wait_for_timeout(3000)  # Wait for page to stabilize
@@ -822,7 +851,7 @@ class NotebookLMAutomation:
                 return False
 
             # Wait for UI to respond
-            print("⏳ Waiting for audio generation to start...", flush=True)
+            print(" Waiting for audio generation to start...", flush=True)
             page.wait_for_timeout(3000)
 
             self.debug_page_state(page, "10_after_audio_overview_click")
@@ -853,7 +882,7 @@ class NotebookLMAutomation:
 
     def wait_for_audio_completion(self, page, max_wait_minutes: int = 15) -> bool:
         """Simplified wait with reload + download retry."""
-        print(f"⏳ Waiting for audio (max {max_wait_minutes} min)...")
+        print(f" Waiting for audio (max {max_wait_minutes} min)...")
 
         max_wait_time = max_wait_minutes * 60
         elapsed_time = 0
@@ -886,7 +915,7 @@ class NotebookLMAutomation:
                     continue
 
             if is_generating:
-                print(f"   🔄 Still generating... ({elapsed_time//60}:{elapsed_time%60:02d})")
+                print(f"    Still generating... ({elapsed_time//60}:{elapsed_time%60:02d})")
             else:
                 # Check if audio ready using better approach
                 audio_found = False
@@ -1123,7 +1152,7 @@ class NotebookLMAutomation:
             # Handle file input if provided (multiple files or single file)
             file_paths = []
             if files_content:
-                print(f"📁 Processing {len(files_content)} uploaded files...")
+                print(f"Processing {len(files_content)} uploaded files...")
                 for file_bytes, file_name in files_content:
                     file_path = self.save_temp_file(file_bytes, file_name)
                     if not file_path:
@@ -1133,7 +1162,7 @@ class NotebookLMAutomation:
                     print(f"    Saved: {file_name}")
                 content = f"Multiple files uploaded ({len(files_content)} files)"
             elif file_content and filename:
-                print(f"📁 Processing uploaded file: {filename}")
+                print(f"Processing uploaded file: {filename}")
                 file_path = self.save_temp_file(file_content, filename)
                 if not file_path:
                     print(" Failed to save uploaded file")
@@ -1205,7 +1234,7 @@ class NotebookLMAutomation:
 
                         # If wait_for_audio_completion didn't succeed, try download one more time
                         if not download_success:
-                            print("🔄 Final download attempt...")
+                            print(" Final download attempt...")
                             download_success = self.download_audio(page)
 
                         # Summary

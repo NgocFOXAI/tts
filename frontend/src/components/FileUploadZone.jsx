@@ -41,10 +41,10 @@ const FileUploadZone = ({
       case 'gif':
       case 'bmp':
       case 'webp': return '🖼️';
-      case 'txt': return '📝';
+      case 'txt': return '';
       case 'doc':
       case 'docx': return '📋';
-      default: return '📁';
+      default: return '';
     }
   };
 

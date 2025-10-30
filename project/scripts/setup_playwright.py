@@ -75,7 +75,7 @@ def install_playwright():
 
 def main():
     """Main setup function"""
-    print("🎯 Playwright Setup for Automation")
+    print(" Playwright Setup for Automation")
     print("=" * 50)
     
     # Check current installation

@@ -4,6 +4,7 @@ Consolidates duplicate response creation logic across all services
 """
 from typing import Dict, Any, Optional
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 
 class ResponseBuilder:
@@ -12,9 +13,10 @@ class ResponseBuilder:
     @staticmethod
     def success_response(**kwargs) -> Dict[str, Any]:
         """Create a standardized success response"""
+        vn_tz = ZoneInfo("Asia/Ho_Chi_Minh")
         response = {
             "success": True,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now(tz=vn_tz).isoformat()
         }
         response.update(kwargs)
         return response
@@ -22,10 +24,11 @@ class ResponseBuilder:
     @staticmethod
     def error_response(error: str, **kwargs) -> Dict[str, Any]:
         """Create a standardized error response"""
+        vn_tz = ZoneInfo("Asia/Ho_Chi_Minh")
         response = {
             "success": False,
             "error": error,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now(tz=vn_tz).isoformat()
         }
         response.update(kwargs)
         return response

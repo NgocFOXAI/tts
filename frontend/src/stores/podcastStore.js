@@ -9,27 +9,48 @@ export const usePodcastStore = create(
       podcastMode: 'text',
       customText: '',
       uploadedFiles: [],
+      uploadedFileMetadata: [], // Serializable file info for persistence
       startTime: null,
+      generationId: null, // Track current generation request
       
       // Actions
-      startGeneration: (mode, text = '', files = []) => set({ 
-        isGenerating: true,
-        podcastMode: mode,
-        customText: text,
-        uploadedFiles: files,
-        startTime: Date.now() 
-      }),
+      startGeneration: (mode, text = '', files = []) => {
+        // Store file metadata for persistence
+        const fileMetadata = files.map(f => ({
+          name: f.name,
+          size: f.size,
+          type: f.type,
+          lastModified: f.lastModified
+        }));
+        
+        const generationId = Date.now().toString();
+        
+        set({ 
+          isGenerating: true,
+          podcastMode: mode,
+          customText: text,
+          uploadedFiles: files,
+          uploadedFileMetadata: fileMetadata,
+          startTime: Date.now(),
+          generationId
+        });
+        
+        return generationId;
+      },
       
-      completeGeneration: () => set({ 
+      completeGeneration: (result = null) => set({ 
         isGenerating: false,
-        startTime: null 
+        startTime: null,
+        generationId: null
       }),
       
       clearGeneration: () => set({ 
         isGenerating: false,
         customText: '',
         uploadedFiles: [],
-        startTime: null 
+        uploadedFileMetadata: [],
+        startTime: null,
+        generationId: null
       }),
       
       setPodcastMode: (mode) => set({ podcastMode: mode }),
@@ -40,15 +61,27 @@ export const usePodcastStore = create(
         const newFiles = typeof filesOrUpdater === 'function' 
           ? filesOrUpdater(state.uploadedFiles) 
           : filesOrUpdater;
-        return { uploadedFiles: Array.isArray(newFiles) ? newFiles : [] };
+        
+        // Update metadata too
+        const fileMetadata = Array.isArray(newFiles) ? newFiles.map(f => ({
+          name: f.name,
+          size: f.size,
+          type: f.type,
+          lastModified: f.lastModified
+        })) : [];
+        
+        return { 
+          uploadedFiles: Array.isArray(newFiles) ? newFiles : [],
+          uploadedFileMetadata: fileMetadata
+        };
       }),
       
-      // Check if generation has timed out (60 minutes for podcast)
+      // Check if generation has timed out (5 minutes since we return immediately now)
       isTimedOut: () => {
         const { startTime } = get();
         if (!startTime) return false;
         const elapsed = Date.now() - startTime;
-        return elapsed > 60 * 60 * 1000; // 60 minutes
+        return elapsed > 5 * 60 * 1000; // 5 minutes
       },
       
       // Get elapsed time in minutes
@@ -60,12 +93,14 @@ export const usePodcastStore = create(
     }),
     {
       name: 'podcast-generation-storage',
-      // Only persist these fields (exclude uploadedFiles as File objects can't be serialized)
+      // Persist serializable data (exclude uploadedFiles, include metadata)
       partialize: (state) => ({ 
         isGenerating: state.isGenerating,
         podcastMode: state.podcastMode,
         customText: state.customText,
-        startTime: state.startTime
+        uploadedFileMetadata: state.uploadedFileMetadata,
+        startTime: state.startTime,
+        generationId: state.generationId
       })
     }
   )

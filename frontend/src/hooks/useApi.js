@@ -23,21 +23,6 @@ export function useConfig() {
     }
   }, []);
 
-  const updateConfig = useCallback(async (newConfig) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await apiService.updateConfig(newConfig);
-      setConfig(result);
-      return result;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
     fetchConfig();
   }, [fetchConfig]);
@@ -47,39 +32,6 @@ export function useConfig() {
     loading,
     error,
     fetchConfig,
-    updateConfig,
-  };
-}
-
-export function useTemplates() {
-  const [templates, setTemplates] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const fetchTemplates = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await apiService.getTemplates();
-      setTemplates(result);
-      return result;
-    } catch (err) {
-      setError(err.message);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTemplates();
-  }, [fetchTemplates]);
-
-  return {
-    templates,
-    loading,
-    error,
-    fetchTemplates,
   };
 }
 
@@ -89,7 +41,7 @@ export function useTextGeneration() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const generateText = useCallback(async ({ prompt, maxTokens, files, model, temperature, topP }) => {
+  const generateText = useCallback(async ({ prompt, files }) => {
     setLoading(true);
     setError(null);
     setResult(null);
@@ -97,12 +49,7 @@ export function useTextGeneration() {
     try {
       const response = await apiService.generateText({
         prompt,
-        maxTokens,
-        stream: false,
         files,
-        model,
-        temperature,
-        topP,
       });
 
       setResult(response);
@@ -138,7 +85,7 @@ export function useStreamingTextGeneration() {
   const [error, setError] = useState(null);
   const [isComplete, setIsComplete] = useState(false);
 
-  const generateStream = useCallback(async ({ prompt, maxTokens, files, model, systemPrompt, customSystemPrompt, temperature, topP }) => {
+  const generateStream = useCallback(async ({ prompt, files }) => {
     setLoading(true);
     setError(null);
     setContent('');
@@ -149,13 +96,7 @@ export function useStreamingTextGeneration() {
     try {
       const stream = apiService.generateTextStream({
         prompt,
-        maxTokens,
         files,
-        model,
-        systemPrompt,
-        customSystemPrompt,
-        temperature,
-        topP,
       });
 
       for await (const event of stream) {

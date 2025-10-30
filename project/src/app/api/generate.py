@@ -10,22 +10,29 @@ class GenerateResponse(BaseModel):
 @router.post("/text")
 async def generate_text(
     prompt: str = Form(..., description="Text prompt for generation"),
-    max_tokens: int = Form(default=100, description="Maximum tokens to generate"),
-    model: str = Form(default="gemini-2.0-flash-exp", description="Model to use"),
-    temperature: float = Form(default=0.7, description="Temperature (0.0-2.0)"),
-    top_p: float = Form(default=0.9, description="Top-p (0.0-1.0)"),
     files: List[UploadFile] = File(default=[], description="Optional files to include in the prompt")
 ):
-    """Generate text từ prompt với FoxAI_Senior_DataAnalyst system prompt cố định"""
+    """
+    Generate text với CONFIG CỨNG - Frontend chỉ cần gửi prompt + files
+    Config (model, temperature, max_tokens, system_prompt) được lấy từ /api/config
+    """
     try:
         # Import services
         from ..core import ai_service
-        from ..utils.config_manager import ConfigManager
-
-        # Luôn sử dụng system prompt FoxAI_Senior_DataAnalyst (cố định, không cho thay đổi)
-        system_prompts = ConfigManager.get_system_prompts("default")
-        system_prompt_text = system_prompts.get("text_generation",
-            "Bạn là FoxAI_Senior_DataAnalyst, một chuyên gia phân tích dữ liệu cấp cao.")
+        from .config import current_config
+        
+        # Sử dụng config cứng từ current_config
+        model = current_config["model"]
+        temperature = current_config["model_parameters"].temperature
+        top_p = current_config["model_parameters"].top_p
+        max_tokens = current_config["model_parameters"].max_tokens
+        system_prompt_text = current_config["system_prompt"]
+        
+        print(f"[AI CHAT] Using hardcoded config:")
+        print(f"  Model: {model}")
+        print(f"  Temperature: {temperature}")
+        print(f"  Max Tokens: {max_tokens}")
+        print(f"  System Prompt: {system_prompt_text[:100]}...")
 
         # Process uploaded files
         processed_files = []
@@ -76,7 +83,7 @@ async def generate_text(
         if result["success"]:
             generated_text = result["generated_text"]
 
-            # ✨ Caching disabled - return response directly
+            #  Caching disabled - return response directly
             print(f" Text generation completed (caching disabled)")
             print(f"   Content length: {len(generated_text)} chars")
             

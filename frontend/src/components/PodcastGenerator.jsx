@@ -18,6 +18,8 @@ const PodcastGenerator = () => {
     podcastMode,
     customText,
     uploadedFiles,
+    uploadedFileMetadata,
+    generationId,
     startGeneration,
     completeGeneration,
     clearGeneration,
@@ -32,17 +34,15 @@ const PodcastGenerator = () => {
   const [notebookResult, setNotebookResult] = useState(null);
   const [notebookError, setNotebookError] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [currentGenerationId, setCurrentGenerationId] = useState(null);
 
   // Notifications
   const { notifications, removeNotification, notify } = useNotifications();
 
-  // Check for timed out generation on mount
+  // Clear any stuck generation state on mount (since backend returns immediately now)
   useEffect(() => {
-    if (isGeneratingNotebook && isTimedOut()) {
+    if (isGeneratingNotebook) {
       clearGeneration();
-      if (notify) {
-        notify.warning('Quá trình tạo podcast trước đó đã timeout (>60 phút)');
-      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -196,13 +196,19 @@ const PodcastGenerator = () => {
       return;
     }
 
-    // Start generation with Zustand store
-    startGeneration(podcastMode, customText, uploadedFiles);
+    // Start generation with Zustand store and get generation ID
+    const genId = startGeneration(podcastMode, customText, uploadedFiles);
+    setCurrentGenerationId(genId);
     
     setNotebookError(null);
     setNotebookResult(null);
 
     try {
+      // Show initial notification
+      notify.info('🚀 Đang gửi yêu cầu đến hệ thống...', {
+        duration: 2000
+      });
+
       // Prepare form data based on podcast mode
       let response;
       
@@ -223,20 +229,44 @@ const PodcastGenerator = () => {
         });
       }
 
-      setNotebookResult(response);
-      notify.success('Tạo podcast thành công!', {
-        title: 'Thành công',
-        duration: 5000
-      });
+      // API returns immediately, show fake progress then complete
+      if (currentGenerationId === genId) {
+        // Simulate processing with progress notifications
+        notify.info(' Đang xử lý yêu cầu...', { duration: 2000 });
+        
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        notify.info('📊 Đang phân tích nội dung...', { duration: 2000 });
+        
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Complete generation FIRST to clear the banner
+        completeGeneration(response);
+        
+        // Then show result
+        setNotebookResult(response);
+        
+        // Show success notification
+        notify.success(
+          ' Đã gửi yêu cầu thành công!\n\n' +
+          '🎧 Podcast sẽ được tạo trong 15-30 phút.\n' +
+          'Kiểm tra trong phần Quản Lý Âm Thanh sau.',
+          {
+            title: 'Yêu cầu đã được tiếp nhận',
+            duration: 10000
+          }
+        );
+      }
 
     } catch (error) {
-      setNotebookError(error.message);
-      notify.error(`Lỗi tạo podcast: ${error.message}`, {
-        title: 'Lỗi',
-        duration: 5000
-      });
-    } finally {
-      completeGeneration();
+      // Only show error if this is still the current generation
+      if (currentGenerationId === genId) {
+        setNotebookError(error.message);
+        notify.error(`❌ Lỗi gửi yêu cầu: ${error.message}`, {
+          title: 'Lỗi',
+          duration: 10000
+        });
+        completeGeneration();
+      }
     }
   };
 
@@ -272,35 +302,6 @@ const PodcastGenerator = () => {
           <h1 className={styles.contentTitle}>Nền Tảng Tổng Hợp Podcast Thông Minh</h1>
         </div>
 
-        {/* In-progress banner */}
-        {isGeneratingNotebook && (
-          <div style={{
-            backgroundColor: '#fff3cd',
-            border: '1px solid #ffc107',
-            borderRadius: '8px',
-            padding: '12px 16px',
-            marginBottom: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            <div style={{
-              width: '20px',
-              height: '20px',
-              border: '2px solid #ffc107',
-              borderTopColor: 'transparent',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite'
-            }} />
-            <div style={{ flex: 1 }}>
-              <strong>Đang tạo podcast...</strong>
-              <div style={{ fontSize: '0.9em', color: '#856404', marginTop: '4px' }}>
-                Thời gian đã trôi qua: {getElapsedMinutes()} phút
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className={styles.contentBody}>
           {/* Podcast Container */}
           <div className={styles.podcastContainer}>
@@ -321,8 +322,7 @@ Loại nội dung phù hợp:
 • Tài liệu hướng dẫn và giáo dục
 • Ghi chú cuộc họp quan trọng
 • Nội dung marketing và truyền thông
-
-AI Engine sẽ tạo ra cuộc hội thoại tự nhiên giữa hai chuyên gia thảo luận về nội dung của bạn với phong cách podcast chuyên nghiệp."
+"
                     rows={12}
                     className={styles.textarea}
                     disabled={isGeneratingNotebook}
@@ -341,7 +341,14 @@ AI Engine sẽ tạo ra cuộc hội thoại tự nhiên giữa hai chuyên gia 
               {/* Documents Upload Tab */}
               {podcastMode === 'documents' && (
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Tải Lên Tài Liệu Để Tạo Podcast</label>
+                  <label className={styles.label}>
+                    Tải Lên Tài Liệu
+                    {uploadedFileMetadata && uploadedFileMetadata.length > 0 && uploadedFiles.length === 0 && (
+                      <span style={{ marginLeft: '8px', fontSize: '0.9em', color: '#666' }}>
+                        ({uploadedFileMetadata.length} file đã chọn trước đó)
+                      </span>
+                    )}
+                  </label>
                   
                   {/* Drag and Drop Area */}
                   <div 
@@ -427,10 +434,10 @@ AI Engine sẽ tạo ra cuộc hội thoại tự nhiên giữa hai chuyên gia 
                   {isGeneratingNotebook ? (
                     <>
                       <span className={styles.loadingSpinner}></span>
-                      Đang Tạo Podcast... (Dự kiến 5-30 phút)
+                      Đang Gửi Yêu Cầu...
                     </>
                   ) : (
-                    'Khởi Tạo Podcast Thông Minh'
+                    'Gửi Yêu Cầu Tạo Podcast'
                   )}
                 </button>
               </div>
@@ -442,7 +449,7 @@ AI Engine sẽ tạo ra cuộc hội thoại tự nhiên giữa hai chuyên gia 
                 </div>
               </div>
               <div className={styles.alternativeBox}>
-                <span>Thời gian xử lý ước tính từ <strong>5-30 phút</strong> tùy thuộc độ dài nội dung</span>
+                <span>Thời gian xử lý ước tính từ <strong>15-50 phút</strong> tùy thuộc độ dài nội dung</span>
               </div>
             </form>
           </div>
@@ -452,30 +459,86 @@ AI Engine sẽ tạo ra cuộc hội thoại tự nhiên giữa hai chuyên gia 
             <div className={styles.resultContainer}>
               {notebookResult.success ? (
                 <div className={styles.successResult}>
-                  <h3>✅ Podcast Generation Successful!</h3>
+                  <h3> Yêu cầu đã được gửi thành công!</h3>
                   <div className={styles.resultInfo}>
-                    <div className={styles.processingDetails}>
-                      <h4>Processing Details:</h4>
-                      <div className={styles.infoGrid}>
-                        <div className={styles.infoItem}>
-                          <strong>Processing Time:</strong> {formatProcessingTime(notebookResult.processing_time)}
-                        </div>
-                        <div className={styles.infoItem}>
-                          <strong>Content Source:</strong> {podcastMode === 'documents' ? `${uploadedFiles.length} file(s)` : 'Custom Text'}
-                        </div>
+                    <div className={styles.convertedText} style={{ 
+                      whiteSpace: 'pre-line',
+                      background: '#f0f9ff',
+                      padding: '20px',
+                      borderRadius: '8px',
+                      border: '1px solid #0284c7'
+                    }}>
+                      <p style={{ fontSize: '1.1em', lineHeight: '1.8' }}>
+                        {notebookResult.message}
+                      </p>
+                      
+                      <div style={{ 
+                        marginTop: '20px', 
+                        padding: '15px',
+                        background: '#fff',
+                        borderRadius: '6px',
+                        border: '1px solid #e0e0e0'
+                      }}>
+                        <p style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#0284c7' }}>
+                          📍 Hướng dẫn tiếp theo:
+                        </p>
+                        <ul style={{ margin: 0, paddingLeft: '20px', lineHeight: '1.8' }}>
+                          <li>Hệ thống đang xử lý yêu cầu của bạn</li>
+                          <li>Thời gian hoàn thành: 15-30 phút</li>
+                          <li>File âm thanh sẽ được lưu tự động</li>
+                          <li>Kiểm tra trong phần <strong>Quản Lý Âm Thanh</strong></li>
+                        </ul>
                       </div>
-                    </div>
 
-                    {/* Text Display */}
-                    <div className={styles.convertedText}>
-                      <h4>Instructions Generated:</h4>
-                      <p>{notebookResult.message}</p>
+                      <div style={{ 
+                        marginTop: '20px',
+                        display: 'flex',
+                        gap: '10px',
+                        justifyContent: 'center'
+                      }}>
+                        <button
+                          onClick={() => window.location.href = '/'}
+                          style={{
+                            padding: '12px 24px',
+                            background: '#0284c7',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '1em',
+                            fontWeight: '500'
+                          }}
+                        >
+                          🏠 Về Trang Chủ
+                        </button>
+                        <button
+                          onClick={() => {
+                            setNotebookResult(null);
+                            setNotebookError(null);
+                            clearGeneration();
+                            setCustomText('');
+                            setUploadedFiles([]);
+                          }}
+                          style={{
+                            padding: '12px 24px',
+                            background: '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '1em',
+                            fontWeight: '500'
+                          }}
+                        >
+                          ➕ Tạo Podcast Mới
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
               ) : (
                 <div className={styles.errorResult}>
-                  Podcast Generation Failed: {notebookResult.message}
+                  ❌ Lỗi gửi yêu cầu: {notebookResult.message}
                 </div>
               )}
             </div>

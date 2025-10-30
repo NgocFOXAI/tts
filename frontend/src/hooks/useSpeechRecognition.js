@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 /**
- * Custom hook for Speech Recognition with auto-stop after 10 seconds
+ * Custom hook for Real-time Speech Recognition
  * @param {Function} onResult - Callback when speech is recognized
  * @param {Function} onError - Callback when error occurs
  * @returns {Object} - Speech recognition state and controls
@@ -12,7 +12,9 @@ export const useSpeechRecognition = (onResult, onError) => {
   const [isSupported, setIsSupported] = useState(false);
   
   const recognitionRef = useRef(null);
-  const autoStopTimerRef = useRef(null);
+  const finalTranscriptRef = useRef('');
+  const restartAfterClearRef = useRef(false);
+  const extractionJustCompletedRef = useRef(false);
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -38,47 +40,51 @@ export const useSpeechRecognition = (onResult, onError) => {
     recognition.onstart = () => {
       console.log('Speech recognition started');
       setIsListening(true);
-      
-      // Set auto-stop timer for 10 seconds
-      autoStopTimerRef.current = setTimeout(() => {
-        console.log('Auto-stopping speech recognition after 10 seconds');
-        recognition.stop();
-      }, 10000);
+
+      // Nếu vừa hoàn thành extraction, xóa transcript
+      if (extractionJustCompletedRef.current) {
+        finalTranscriptRef.current = '';
+        setTranscript('');
+        extractionJustCompletedRef.current = false;
+      } else {
+        // Giữ lại transcript hiện tại và thêm khoảng trắng nếu cần
+        if (finalTranscriptRef.current.length > 0 && !finalTranscriptRef.current.endsWith(' ')) {
+          finalTranscriptRef.current += ' ';
+        }
+      }
     };
 
     recognition.onresult = (event) => {
-      let interimTranscript = '';
-      let finalTranscript = '';
+      // Nếu cờ restart đang bật, PHỚT LỜ tất cả kết quả cũ
+      if (restartAfterClearRef.current) {
+        return;
+      }
 
+      let interimTranscript = '';
+      
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
+        const transcriptText = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
+          finalTranscriptRef.current += transcriptText + ' ';
         } else {
-          interimTranscript += transcript;
+          interimTranscript += transcriptText;
         }
       }
 
-      // Update transcript
-      const fullTranscript = (finalTranscript || interimTranscript).trim();
+      // Update transcript với cả final và interim
+      const fullTranscript = finalTranscriptRef.current + interimTranscript;
       setTranscript(fullTranscript);
 
-      // Call onResult with final transcript
-      if (finalTranscript && onResult) {
-        onResult(finalTranscript.trim());
+      // Call onResult với full transcript (bao gồm cả interim)
+      if (onResult) {
+        onResult(fullTranscript);
       }
     };
 
     recognition.onerror = (event) => {
       console.error('Speech recognition error:', event.error);
-      
-      // Clear auto-stop timer on error
-      if (autoStopTimerRef.current) {
-        clearTimeout(autoStopTimerRef.current);
-        autoStopTimerRef.current = null;
-      }
-      
       setIsListening(false);
+      restartAfterClearRef.current = false;
       
       if (onError) {
         onError(event.error);
@@ -87,14 +93,23 @@ export const useSpeechRecognition = (onResult, onError) => {
 
     recognition.onend = () => {
       console.log('Speech recognition ended');
-      
-      // Clear auto-stop timer
-      if (autoStopTimerRef.current) {
-        clearTimeout(autoStopTimerRef.current);
-        autoStopTimerRef.current = null;
-      }
-      
       setIsListening(false);
+
+      // Xử lý restart sau khi clear
+      if (restartAfterClearRef.current) {
+        restartAfterClearRef.current = false;
+        finalTranscriptRef.current = '';
+        setTranscript('');
+        
+        try {
+          recognition.start();
+        } catch (e) {
+          console.error('Lỗi khi tự động restart:', e);
+          if (onError) {
+            onError('Lỗi restart. Hãy nhấn nút.');
+          }
+        }
+      }
     };
 
     recognitionRef.current = recognition;
@@ -104,41 +119,56 @@ export const useSpeechRecognition = (onResult, onError) => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
       }
-      if (autoStopTimerRef.current) {
-        clearTimeout(autoStopTimerRef.current);
-      }
     };
   }, [onResult, onError]);
 
   // Start listening
   const startListening = useCallback(() => {
-    if (!recognitionRef.current || isListening) return;
+    if (!recognitionRef.current) return;
+
+    // Nếu đang listening rồi, bỏ qua
+    if (isListening) {
+      console.log('Already listening, skipping start');
+      return;
+    }
 
     try {
-      setTranscript('');
       recognitionRef.current.start();
+      setIsListening(true); // Set ngay để tránh double-click
     } catch (error) {
       console.error('Failed to start speech recognition:', error);
+      setIsListening(false);
       if (onError) {
         onError(error.message);
       }
     }
   }, [isListening, onError]);
 
-  // Stop listening
+  // Stop listening (dừng thủ công, không restart)
   const stopListening = useCallback(() => {
-    if (!recognitionRef.current || !isListening) return;
+    if (!recognitionRef.current) return;
 
+    // Không check isListening nữa - cứ gọi stop() để đảm bảo dừng
     try {
+      restartAfterClearRef.current = false; // Dừng thủ công, không restart
       recognitionRef.current.stop();
-      
-      // Clear auto-stop timer
-      if (autoStopTimerRef.current) {
-        clearTimeout(autoStopTimerRef.current);
-        autoStopTimerRef.current = null;
-      }
+      setIsListening(false); // Force update state
     } catch (error) {
       console.error('Failed to stop speech recognition:', error);
+      // Vẫn set state về false để UI consistent
+      setIsListening(false);
+    }
+  }, []);
+
+  // Clear transcript và restart nếu đang listening
+  const clearTranscript = useCallback(() => {
+    finalTranscriptRef.current = '';
+    setTranscript('');
+    extractionJustCompletedRef.current = false;
+
+    if (isListening && recognitionRef.current) {
+      restartAfterClearRef.current = true;
+      recognitionRef.current.stop();
     }
   }, [isListening]);
 
@@ -157,7 +187,8 @@ export const useSpeechRecognition = (onResult, onError) => {
     isSupported,
     startListening,
     stopListening,
-    toggleListening
+    toggleListening,
+    clearTranscript
   };
 };
 

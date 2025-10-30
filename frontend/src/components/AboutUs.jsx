@@ -110,7 +110,7 @@ const AboutUs = () => {
 
           {/* Vision & Mission */}
           <div className={styles.card}>
-            <h3>🎯 Tầm nhìn & Sứ mệnh</h3>
+            <h3> Tầm nhìn & Sứ mệnh</h3>
             <p className={styles.visionMission}>{foxaiInfo.vision_mission}</p>
           </div>
         </div>
@@ -130,7 +130,7 @@ const AboutUs = () => {
 
         {/* Target Industries */}
         <div className={styles.section}>
-          <h3>🎯 Lĩnh vực mục tiêu</h3>
+          <h3> Lĩnh vực mục tiêu</h3>
           <div className={styles.industriesList}>
             {foxaiInfo.target_industries.map((industry, index) => (
               <div key={index} className={styles.industryItem}>

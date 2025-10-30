@@ -270,15 +270,11 @@ const FileManager = ({ notify }) => {
     const confirmGenerate = async (localSelectedFiles) => {
         if (!localSelectedFiles || localSelectedFiles.length === 0) return;
 
-        // Start generation with Zustand store
+        // Start generation with Zustand store for UI feedback
         startGeneration(localSelectedFiles);
         
         try {
             const url = `${API_BASE}/documents/generate-conversation`;
-            
-            // Create AbortController for custom timeout (50 minutes to match backend + buffer)
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3000000); // 50 minutes
             
             const response = await fetch(url, {
                 method: 'POST',
@@ -287,11 +283,8 @@ const FileManager = ({ notify }) => {
                 },
                 body: JSON.stringify({
                     filenames: localSelectedFiles
-                }),
-                signal: controller.signal
+                })
             });
-
-            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -300,13 +293,13 @@ const FileManager = ({ notify }) => {
             const result = await response.json();
             setShowGenerateModal(false);
             
-            // Complete generation
+            // Complete generation immediately (backend returns right away now)
             completeGeneration();
             
             if (result.success) {
-                setResultMessage(`Đã tạo xong cuộc trò chuyện từ ${localSelectedFiles.length} tài liệu! Hãy kiểm tra thư mục Downloads.`);
+                setResultMessage(result.message);
                 if (notify) {
-                    notify.success('Đã tạo cuộc trò chuyện thành công!');
+                    notify.success(' Yêu cầu đã được gửi! Cuộc trò chuyện đang được tạo trong nền.');
                 }
             } else {
                 setResultMessage(`Tạo cuộc trò chuyện thất bại: ${result.message}`);
@@ -317,11 +310,7 @@ const FileManager = ({ notify }) => {
             // Clear generation on error
             completeGeneration();
             
-            if (err.name === 'AbortError') {
-                setResultMessage(`Timeout: Quá trình tạo cuộc trò chuyện đã vượt quá thời gian chờ (50 phút). Vui lòng thử lại hoặc giảm số lượng tài liệu.`);
-            } else {
-                setResultMessage(`Lỗi khi tạo cuộc trò chuyện: ${err.message}`);
-            }
+            setResultMessage(`Lỗi khi tạo cuộc trò chuyện: ${err.message}`);
             setShowResultModal(true);
         }
     };
@@ -368,18 +357,21 @@ const FileManager = ({ notify }) => {
 
     // Format date
     const formatDate = (isoString) => {
-        return new Date(isoString).toLocaleString();
+        return new Date(isoString).toLocaleString('vi-VN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
     };
 
-    // Check for timed out generation on mount
+    // Clear any stuck generation state on mount (since backend returns immediately now)
     useEffect(() => {
-        if (generating && isTimedOut()) {
+        if (generating) {
             clearGeneration();
-            if (notify) {
-                notify.warning('Quá trình tạo cuộc trò chuyện trước đó đã timeout');
-            }
         }
-        // Không hiển thị thông báo khi đang tạo - progress banner đã hiển thị
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);  // Run only on mount
 
@@ -416,20 +408,6 @@ const FileManager = ({ notify }) => {
 
     return (
         <div className="file-manager">
-            {/* Progress Banner - Persistent with Zustand */}
-            {generating && selectedFiles && selectedFiles.length > 0 && (
-                <div className="progress-banner">
-                    <div className="progress-banner-content">
-                        <div className="progress-spinner"></div>
-                        <div className="progress-info">
-                            <h4>🎙️ Đang tạo cuộc trò chuyện...</h4>
-                            <p>Đang xử lý {selectedFiles.length} tài liệu. Đã chạy {getElapsedMinutes()} phút.</p>
-                            <p className="progress-tip">💡 Bạn có thể đóng tab này, quá trình sẽ tiếp tục chạy ở backend.</p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Modals */}
             {showDeleteModal && (
                 <div className="modal-overlay">
@@ -477,7 +455,7 @@ const FileManager = ({ notify }) => {
                     <div className="modal-content">
                         <h3>Tạo cuộc trò chuyện</h3>
                         <p>Tạo cuộc trò chuyện âm thanh từ {showGenerateModal.files?.length || 0} tài liệu đã chọn</p>
-                        <p className="modal-warning">Quá trình tạo có thể mất 15-40 phút. Bạn có thể đóng tab này, quá trình sẽ tiếp tục ở backend.</p>
+                        <p className="modal-warning">Hệ thống sẽ xử lý yêu cầu trong nền (15-40 phút). File âm thanh sẽ xuất hiện trong mục Audio sau khi hoàn tất.</p>
                         <div className="modal-actions">
                             <button onClick={() => setShowGenerateModal(false)} className="modal-btn cancel" disabled={generating}>
                                 Hủy
@@ -490,7 +468,7 @@ const FileManager = ({ notify }) => {
                                 className="modal-btn confirm" 
                                 disabled={generating}
                             >
-                                {generating ? 'Đang tạo...' : 'Tạo cuộc trò chuyện'}
+                                {generating ? ' Đang gửi...' : 'Tạo cuộc trò chuyện'}
                             </button>
                         </div>
                     </div>
@@ -557,7 +535,7 @@ const FileManager = ({ notify }) => {
                             className="generate-btn"
                             disabled={documentFiles.length === 0 || generating}
                         >
-                            {generating ? '⏳ Đang tạo...' : `Tạo Cuộc Trò Chuyện ${documentFiles.length > 0 ? '▼' : ''}`}
+                            {generating ? ' Đang tạo...' : `Tạo Cuộc Trò Chuyện ${documentFiles.length > 0 ? '▼' : ''}`}
                         </button>
                         {showFileSelector && documentFiles.length > 0 && (
                             <FileSelector 
@@ -685,15 +663,17 @@ const FileManager = ({ notify }) => {
                                         </>
                                     )}
                                 </div>
+                                
+                                {/* Audio Player inside file-item */}
+                                {activeTab === 'audio' && file.is_audio && (
+                                    <div className="audio-player-container">
+                                        <audio controls className="audio-player">
+                                            <source src={`${API_BASE}${file.download_url}`} type={file.mime_type} />
+                                            Trình duyệt không hỗ trợ
+                                        </audio>
+                                    </div>
+                                )}
                             </div>
-                            {activeTab === 'audio' && file.is_audio && (
-                                <div style={{ padding: '0 20px 10px 20px', background: 'white' }}>
-                                    <audio controls className="audio-player">
-                                        <source src={`${API_BASE}${file.download_url}`} type={file.mime_type} />
-                                        Trình duyệt không hỗ trợ
-                                    </audio>
-                                </div>
-                            )}
                         </Fragment>
                     ))}
                 </div>

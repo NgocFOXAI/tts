@@ -13,11 +13,11 @@ const ProgressBar = ({
             case 'preparing': return '⚙️';
             case 'uploading': return '📤';
             case 'processing': return '🎵';
-            case 'generating': return '🔄';
+            case 'generating': return '';
             case 'downloading': return '⬇️';
             case 'completed': return '';
             case 'error': return '';
-            default: return '⏳';
+            default: return '';
         }
     };
 

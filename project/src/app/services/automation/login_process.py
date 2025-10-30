@@ -44,7 +44,7 @@ class GoogleLoginService:
     def click_use_another_account(self, page):
         """Click 'Use another account' button if present."""
         try:
-            print("🔄 Looking for 'Use another account' option...")
+            print(" Looking for 'Use another account' option...")
 
             # Debug: Show page content to understand structure
             if self.debug_mode:
@@ -276,7 +276,7 @@ class GoogleLoginService:
 
     def wait_for_login_completion(self, page, max_wait_seconds=30):
         """Wait for login to complete."""
-        print("⏳ Waiting for login completion...")
+        print(" Waiting for login completion...")
 
         start_time = time.time()
 

@@ -4,6 +4,7 @@ import base64
 import tempfile
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 import mimetypes
 import io
 
@@ -59,6 +60,7 @@ class FileHandler:
                 mime_type, _ = mimetypes.guess_type(filename)
                 mime_type = mime_type or 'application/octet-stream'
 
+            vn_tz = ZoneInfo("Asia/Ho_Chi_Minh")
             return {
                 'success': True,
                 'file_id': file_id,
@@ -67,7 +69,7 @@ class FileHandler:
                 'file_path': file_path,
                 'mime_type': mime_type,
                 'file_size': file_size,
-                'created_at': datetime.now().isoformat()
+                'created_at': datetime.now(tz=vn_tz).isoformat()
             }
 
         except Exception as e:
@@ -113,14 +115,15 @@ class FileHandler:
                         stat = os.stat(file_path)
                         mime_type, _ = mimetypes.guess_type(filename)
 
+                        vn_tz = ZoneInfo("Asia/Ho_Chi_Minh")
                         return {
                             'file_id': file_id,
                             'filename': filename,
                             'file_path': file_path,
                             'mime_type': mime_type or 'application/octet-stream',
                             'file_size': stat.st_size,
-                            'created_at': datetime.fromtimestamp(stat.st_ctime).isoformat(),
-                            'modified_at': datetime.fromtimestamp(stat.st_mtime).isoformat()
+                            'created_at': datetime.fromtimestamp(stat.st_ctime, tz=vn_tz).isoformat(),
+                            'modified_at': datetime.fromtimestamp(stat.st_mtime, tz=vn_tz).isoformat()
                         }
             return None
         except Exception as e:

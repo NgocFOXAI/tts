@@ -34,7 +34,7 @@ const Notification = ({ notification, onRemove }) => {
             case 'error': return '';
             case 'warning': return '⚠️';
             case 'info': return 'ℹ️';
-            case 'processing': return '🔄';
+            case 'processing': return '';
             default: return '📢';
         }
     };

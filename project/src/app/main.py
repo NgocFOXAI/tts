@@ -38,7 +38,7 @@ app.add_middleware(
 
 # Include routers with /api prefix
 app.include_router(config_router, prefix="/api")
-app.include_router(generate_router, prefix="/api")
+app.include_router(generate_router, prefix="/api")  # AI Chat with hardcoded config
 app.include_router(tts_router, prefix="/api")
 app.include_router(models_router, prefix="/api")
 app.include_router(audio_generation_router, prefix="/api")

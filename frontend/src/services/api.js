@@ -69,32 +69,10 @@ class ApiService {
     return response.json();
   }
 
-  async updateConfig(config) {
-    const response = await this.request('/config', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(config),
-    });
-    return response.json();
-  }
-
-  async getTemplates() {
-    const response = await this.request('/config/templates');
-    return response.json();
-  }
-
-  // Text Generation endpoints
-  async generateText({ prompt, maxTokens = 100, stream = false, files = [], model = 'gpt-4o-mini', temperature = 0.7, topP = 0.9 }) {
+  // Text Generation endpoints - Backend sử dụng config cứng từ models.json
+  async generateText({ prompt, stream = false, files = [] }) {
     const formData = new FormData();
     formData.append('prompt', prompt);
-    formData.append('max_tokens', maxTokens.toString());
-    formData.append('stream', stream.toString());
-    formData.append('model', model);
-    // System prompt đã được đặt cứng ở backend - không gửi từ frontend nữa
-    formData.append('temperature', temperature.toString());
-    formData.append('top_p', topP.toString());
 
     // Add files if any
     files.forEach(file => {
@@ -117,15 +95,11 @@ class ApiService {
   }
 
   // Streaming text generation
-  async *generateTextStream({ prompt, maxTokens = 100, files = [], model = 'gpt-4o-mini', temperature = 0.7, topP = 0.9 }) {
+  async *generateTextStream({ prompt, files = [] }) {
     const response = await this.generateText({
       prompt,
-      maxTokens,
       stream: true,
       files,
-      model,
-      temperature,
-      topP,
     });
 
     const reader = response.body.getReader();

@@ -9,7 +9,6 @@ import styles from '../styles/ChatInterface.module.css';
 
 import Sidebar from './common/Sidebar';
 import { SettingsSection } from './common/SettingsSection';
-import { Select, Input, Textarea, Slider } from './common/FormControls';
 import AutoResizeTextarea from './common/AutoResizeTextarea';
 import TypingAnimation from './common/TypingAnimation';
 import FileUploadZone from './FileUploadZone';
@@ -18,11 +17,6 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
   const [messages, setMessages] = useState([]);
   const [prompt, setPrompt] = useState('');
   const [files, setFiles] = useState([]);
-  const [selectedModel, setSelectedModel] = useState('gemini-2.5-pro');
-  const [temperature, setTemperature] = useState(0.7); // Mức độ sáng tạo - đã thay đổi từ 0.3 thành 0.7
-  const [topP, setTopP] = useState(0.9); // Độ tập trung chủ đề - giữ nguyên 0.9
-  const [maxTokens, setMaxTokens] = useState(30000000); // Độ dài phản hồi tối đa - đã thay đổi từ 16384 thành 3000000
-  // System prompt đã được đặt cứng thành FoxAI_Senior_DataAnalyst - không cho phép thay đổi
   const [showImageUpload, setShowImageUpload] = useState(false);
 
   const messagesEndRef = useRef(null);
@@ -48,11 +42,12 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
     isListening,
     transcript,
     isSupported,
-    toggleListening
+    toggleListening,
+    clearTranscript
   } = useSpeechRecognition(
-    (finalText) => {
-      // Khi có kết quả cuối cùng, thêm vào prompt
-      setPrompt(prev => prev ? `${prev} ${finalText}` : finalText);
+    (fullText) => {
+      // Cập nhật prompt realtime với cả final và interim transcript
+      setPrompt(fullText);
     },
     (error) => {
       // Xử lý lỗi
@@ -175,11 +170,7 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
 
     const params = {
       prompt: prompt.trim(),
-      maxTokens,
       files,
-      model: selectedModel,
-      temperature,
-      topP: topP,
     };
 
     try {
@@ -255,63 +246,7 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
             }}>
               FOXAi Assistant
             </div>
-            {/* Hidden select to maintain selectedModel state */}
-            <select 
-              value={selectedModel} 
-              onChange={(e) => setSelectedModel(e.target.value)}
-              style={{ display: 'none' }}
-            >
-              <option value="gemini-2.5-pro">gemini-2.5-pro</option>
-            </select>
           </div>
-
-          {/* Các cài đặt AI đã được ẩn - giá trị mặc định: maxTokens=3000000, temperature=0.7, topP=0.9 */}
-          {/*
-          <div className={styles.settingGroup}>
-            <label htmlFor="maxTokens">Độ Dài Phản Hồi Tối Đa</label>
-            <Input
-              type="number"
-              value={maxTokens}
-              onChange={(e) => setMaxTokens(parseInt(e.target.value))}
-              min="1"
-              max="65536"
-            />
-          </div>
-
-          <div className={styles.settingGroup}>
-            <label>Mức Độ Sáng Tạo ({temperature})</label>
-            <Slider
-              min={0}
-              max={2}
-              step={0.1}
-              value={temperature}
-              onChange={(e) => setTemperature(parseFloat(e.target.value))}
-            />
-          </div>
-
-          <div className={styles.settingGroup}>
-            <label>Độ Tập Trung Chủ Đề</label>
-            <Slider
-              min={0}
-              max={1}
-              step={0.1}
-              value={topP}
-              onChange={(e) => setTopP(parseFloat(e.target.value))}
-            />
-          </div>
-          */}
-
-          {/* Streaming mode hidden - always disabled */}
-          {/*
-          <div className={styles.settingGroup}>
-            <CheckboxLabel
-              checked={streamingMode}
-              onChange={(e) => setStreamingMode(e.target.checked)}
-            >
-              Bật streaming
-            </CheckboxLabel>
-          </div>
-          */}
         </SettingsSection>
 
         <SettingsSection title="Chế Độ Chuyên Gia (Cố Định)">
@@ -325,7 +260,7 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
               fontSize: '14px',
               lineHeight: '1.6'
             }}>
-              <strong>🎯 FoxAI Senior Data Analyst</strong>
+              <strong> FoxAI Senior Data Analyst</strong>
               <p style={{ margin: '8px 0 0 0', fontSize: '13px' }}>
                 Chuyên gia phân tích dữ liệu cấp cao với hơn 10 năm kinh nghiệm.<br/>
                 Tạo báo cáo phân tích chuyên sâu bằng tiếng Việt với cấu trúc 7 phần:<br/>
@@ -362,7 +297,14 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
                 {message.type === 'user' ? 'User' : message.type === 'assistant' ? 'AI' : 'Lỗi'}
               </span>
               <span className={styles.messageTime}>
-                {message.timestamp.toLocaleTimeString()}
+                {message.timestamp.toLocaleString('vi-VN', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                })}
               </span>
             </div>
 
@@ -379,7 +321,6 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
                     onClick={() => handleCopyMessage(message.content)}
                     title="Copy message"
                   >
-                    📋
                   </button>
                 </div>
               ) : (
@@ -450,44 +391,55 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
               <img src="./static/upload.png" alt="Upload" style={{ width: '32px', height: '32px' }} />
             </button>
 
-            {/* Speech Recognition Button */}
-            {isSupported && (
-              <button
-                type="button"
-                onClick={toggleListening}
-                className={`${styles.micButton} ${isListening ? styles.listening : ''}`}
-                disabled={loading}
-                title={isListening ? "Nhấn để dừng ghi âm (hoặc tự động dừng sau 10s)" : "Nhấn để bắt đầu nói"}
-              >
-                {isListening ? '🔴' : '🎤'}
-              </button>
-            )}
-
-            <AutoResizeTextarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder={showImageUpload ? 
-                "Mô tả yêu cầu phân tích chuyên sâu cho các tài liệu đã upload... (Shift+Enter để xuống dòng)" :
-                "Nhập câu hỏi hoặc yêu cầu của bạn tại đây... (Shift+Enter để xuống dòng)"
-              }
-              className={styles.messageInput}
-              disabled={loading}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
+            <div className={styles.textareaWrapper}>
+              <AutoResizeTextarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder={showImageUpload ? 
+                  "Mô tả yêu cầu phân tích chuyên sâu cho các tài liệu đã upload... (Shift+Enter để xuống dòng)" :
+                  "Nhập câu hỏi hoặc yêu cầu của bạn tại đây... (Shift+Enter để xuống dòng)"
                 }
-              }}
-              minRows={1}
-              maxRows={1}
-            />
+                className={styles.messageInput}
+                disabled={loading}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+                minRows={1}
+                maxRows={1}
+              />
+
+              {/* Speech Recognition Button - inside textarea */}
+              {isSupported && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Mic button clicked, isListening:', isListening);
+                    toggleListening();
+                  }}
+                  className={`${styles.micButtonInside} ${isListening ? styles.listening : ''}`}
+                  disabled={loading}
+                  title={isListening ? "Nhấn để dừng ghi âm" : "Nhấn để bắt đầu nói"}
+                >
+                  {isListening ? (
+                    <span style={{ fontSize: '24px', color: '#ef4444', lineHeight: 1 }}>⏹</span>
+                  ) : (
+                    <img src="./static/mic.png" alt="Mic" style={{ width: '24px', height: '24px' }} />
+                  )}
+                </button>
+              )}
+            </div>
 
             <button
               type="submit"
               disabled={loading || !prompt.trim()}
               className={styles.sendButton}
             >
-              {loading ? '⏳ Đang Xử Lý...' : 'Gửi Yêu Cầu'}
+              {loading ? 'Đang Xử Lý...' : 'Gửi Yêu Cầu'}
             </button>
           </div>
           {error && (
