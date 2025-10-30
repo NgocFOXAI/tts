@@ -712,13 +712,13 @@ const FileManager = ({ notify }) => {
                                 )}
                                 {activeTab === 'documents' && (
                                     <a
-                                        href={`${API_BASE}/documents/view/${encodeURIComponent(file.name || file.filename)}`}
+                                        href={`${API_BASE}${file.download_url || `/documents/download/${encodeURIComponent(file.name || file.filename)}`}`}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="view-btn"
-                                        title="Xem tài liệu"
+                                        className="download-btn"
+                                        title="Tải xuống tài liệu"
                                     >
-                                        Xem
+                                        Tải Xuống
                                     </a>
                                 )}
                                 <button

@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api import config_router, generate_router, tts_router, audio_router
+from .api import config_router, generate_router, tts_router, audio_router, document_management_router
 from .api.models import router as models_router
 from .api.audio_generation import router as audio_generation_router
 from .api.foxai import router as foxai_router
-from .api.document_management import router as document_management_router
 from dotenv import load_dotenv
 import os
 from contextlib import asynccontextmanager

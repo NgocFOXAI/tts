@@ -31,6 +31,7 @@ class DocumentInfo(BaseModel):
     file_type: str
     upload_time: str
     file_path: str
+    download_url: Optional[str] = None
 
 class DocumentListResponse(BaseModel):
     success: bool
@@ -107,7 +108,8 @@ def get_file_info(file_path: str) -> DocumentInfo:
         file_size=file_size,
         file_type=file_type,
         upload_time=upload_time,
-        file_path=file_path
+        file_path=file_path,
+        download_url=f"/api/documents/download/{filename}"
     )
 
 @router.get("/list", response_model=DocumentListResponse)
@@ -262,7 +264,7 @@ async def generate_conversation_from_documents(request: ConversationGenerateRequ
         else:
             return ConversationGenerateResponse(
                 success=False,
-                message=f"Failed to generate conversation from documents. This can happen due to NotebookLM automation issues or file processing errors.",
+                message=f"Failed to generate conversation from documents.",
                 conversation_id=conversation_id,
                 processing_time=processing_time
             )
@@ -273,6 +275,41 @@ async def generate_conversation_from_documents(request: ConversationGenerateRequ
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate conversation: {str(e)}"
+        )
+
+@router.get("/download/{filename}")
+async def download_document(filename: str):
+    """
+    Download a document file directly.
+    
+    Args:
+        filename: Name of the file to download
+    """
+    try:
+        upload_folder = get_upload_folder()
+        file_path = os.path.join(upload_folder, filename)
+        
+        # Security check
+        if not file_path.startswith(upload_folder):
+            raise HTTPException(status_code=400, detail="Invalid file path")
+        
+        if not os.path.exists(file_path) or not os.path.isfile(file_path):
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        # Return file for download
+        from fastapi.responses import FileResponse
+        return FileResponse(
+            path=file_path,
+            filename=filename,
+            media_type='application/octet-stream'
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to download document: {str(e)}"
         )
 
 @router.get("/view/{filename}")
@@ -319,7 +356,8 @@ async def view_document(filename: str):
             "message": "Document retrieved successfully",
             "document_info": doc_info,
             "content": content,
-            "content_preview": content[:1000] + "..." if content and len(content) > 1000 else content
+            "content_preview": content[:1000] + "..." if content and len(content) > 1000 else content,
+            "download_url": f"/api/documents/download/{filename}"
         }
         
     except HTTPException:
