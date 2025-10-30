@@ -117,3 +117,6 @@ upload_files/
 audio_downloads/
 *audio_downloads/
 **/audio_downloads/
+
+# Audio uploads
+project/src/static/audio_downloads/
