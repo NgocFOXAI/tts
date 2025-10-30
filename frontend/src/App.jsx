@@ -20,7 +20,6 @@ function AppContent() {
   const navRef = useRef(null);
 
   const tabs = [
-    { id: '/', label: 'Trang Chủ', path: '/' },
     { id: 'chat', label: 'Trí Tuệ Nhân Tạo', path: '/chat' },
     { 
       id: 'podcast', 
@@ -41,7 +40,15 @@ function AppContent() {
         { id: 'files-audio', label: 'Âm Thanh', path: '/files?tab=audio' }
       ]
     },
-    { id: 'report', label: 'Báo Cáo Thông Minh', path: '/report' },
+    { 
+      id: 'report', 
+      label: 'Báo Cáo Thông Minh', 
+      path: '/report',
+      subTabs: [
+        { id: 'report-create', label: 'Tạo Báo Cáo', path: '/report?mode=create' },
+        { id: 'report-manage', label: 'Quản Lý File', path: '/report?mode=manage' }
+      ]
+    },
   ];
 
   // Handle click outside to hide sub-tabs
