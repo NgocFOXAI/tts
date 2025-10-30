@@ -75,7 +75,7 @@ def install_playwright():
 
 def main():
     """Main setup function"""
-    print("🎯 Playwright Setup for NotebookLM Automation")
+    print("🎯 Playwright Setup for Automation")
     print("=" * 50)
     
     # Check current installation
@@ -93,7 +93,7 @@ def main():
         # Verify installation
         if check_playwright():
             print(" Installation verified successfully")
-            print("💡 You can now use NotebookLM automation features")
+            print("💡 You can now use automation features")
         else:
             print(" Installation verification failed")
             print("💡 Please try running manually:")
