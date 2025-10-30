@@ -1,7 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Fragment } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import env from '../config/environment';
+import { useConversationStore } from '../stores/conversationStore';
+
+import FileSelector from './FileSelector';
+
 import './FileManager.css';
 
 const FileManager = ({ notify }) => {
@@ -25,27 +29,23 @@ const FileManager = ({ notify }) => {
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [selectedFile, setSelectedFile] = useState(null);
-    const [selectedFiles, setSelectedFiles] = useState([]);
-    const [modalMessage, setModalMessage] = useState('');
     const [resultMessage, setResultMessage] = useState('');
     const [uploadFiles, setUploadFiles] = useState([]);
     const [uploading, setUploading] = useState(false);
-    const [generating, setGenerating] = useState(false);
     const [showFileSelector, setShowFileSelector] = useState(false);
-    const [availableModels, setAvailableModels] = useState([]);
-    const [selectedModel, setSelectedModel] = useState('');
-    const [isLoadingModels, setIsLoadingModels] = useState(false);
+
+    // Use Zustand store for conversation generation state
+    const { 
+        generating, 
+        selectedFiles, 
+        startGeneration, 
+        completeGeneration, 
+        clearGeneration,
+        isTimedOut,
+        getElapsedMinutes
+    } = useConversationStore();
 
     const API_BASE = env.api.baseUrl;
-
-    // Handle tab change and update URL
-    const handleTabChange = (newTab) => {
-        setActiveTab(newTab);
-        const params = new URLSearchParams(window.location.search);
-        params.set('tab', newTab);
-        const newUrl = `${window.location.pathname}?${params.toString()}`;
-        window.history.pushState({ tab: newTab }, '', newUrl);
-    };
 
     // Listen for browser back/forward navigation
     useEffect(() => {
@@ -55,11 +55,13 @@ const FileManager = ({ notify }) => {
 
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Listen for URL changes (when sub-tabs are clicked from header)
     useEffect(() => {
         setActiveTab(getTabFromUrl());
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location.search]);
 
     // Close dropdown when clicking outside
@@ -96,6 +98,7 @@ const FileManager = ({ notify }) => {
     const fetchAudioFiles = useCallback(async () => {
         try {
             const url = `${API_BASE}/audio/files`;
+            // eslint-disable-next-line no-console
             console.log('🔍 Fetching audio files from:', url);
             const response = await fetch(url, {
                 headers: {
@@ -109,6 +112,7 @@ const FileManager = ({ notify }) => {
             const data = await response.json();
             setAudioFiles(data);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching audio files:', err);
             if (activeTab === 'audio') {
                 setError(`Failed to fetch audio files: ${err.message}`);
@@ -117,9 +121,10 @@ const FileManager = ({ notify }) => {
     }, [API_BASE, activeTab]);
 
     // Fetch document files
-    const fetchDocumentFiles = useCallback(async () => {
+        const fetchDocumentFiles = useCallback(async () => {
         try {
             const url = `${API_BASE}/documents/list`;
+            // eslint-disable-next-line no-console
             console.log('🔍 Fetching documents from:', url);
             const response = await fetch(url, {
                 headers: {
@@ -131,23 +136,13 @@ const FileManager = ({ notify }) => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const data = await response.json();
-            console.log('📄 Documents response:', data);
-            
-            // Handle different response formats
-            if (data.success && data.documents) {
-                console.log('📄 Using data.documents:', data.documents);
-                setDocumentFiles(data.documents);
-            } else if (data.files) {
-                console.log('📄 Using data.files:', data.files);
-                setDocumentFiles(data.files);
-            } else if (Array.isArray(data)) {
-                console.log('📄 Using array data:', data);
-                setDocumentFiles(data);
-            } else {
-                console.log('📄 No files found, setting empty array. Full response:', data);
-                setDocumentFiles([]);
-            }
+            // eslint-disable-next-line no-console
+            console.log('📄 Documents received:', data);
+            // API returns { documents: [...] } format
+            const documents = data.documents || data;
+            setDocumentFiles(Array.isArray(documents) ? documents : []);
         } catch (err) {
+            // eslint-disable-next-line no-console
             console.error('Error fetching documents:', err);
             if (activeTab === 'documents') {
                 setError(`Failed to fetch documents: ${err.message}`);
@@ -255,8 +250,8 @@ const FileManager = ({ notify }) => {
             
             if (result.success) {
                 setResultMessage(`Đã tải lên thành công ${result.uploaded_files?.length || uploadFiles.length} tài liệu!`);
-                if (notify && typeof notify === 'function') {
-                    notify(`Đã tải lên ${result.uploaded_files?.length || uploadFiles.length} tài liệu`, 'success');
+                if (notify) {
+                    notify.success(`Đã tải lên ${result.uploaded_files?.length || uploadFiles.length} tài liệu`);
                 }
             } else {
                 setResultMessage(`Tải lên thất bại: ${result.message}`);
@@ -272,24 +267,12 @@ const FileManager = ({ notify }) => {
         }
     };
 
-    // Generate conversation from documents
-    const generateConversation = () => {
-        if (documentFiles.length === 0) {
-            setResultMessage('Không có tài liệu nào để tạo cuộc trò chuyện!');
-            setShowResultModal(true);
-            return;
-        }
-        // Only reset if no files selected yet
-        if (selectedFiles.length === 0) {
-            setSelectedFiles([]);
-        }
-        setShowFileSelector(true);
-    };
+    const confirmGenerate = async (localSelectedFiles) => {
+        if (!localSelectedFiles || localSelectedFiles.length === 0) return;
 
-    const confirmGenerate = async () => {
-        if (selectedFiles.length === 0) return;
-
-        setGenerating(true);
+        // Start generation with Zustand store
+        startGeneration(localSelectedFiles);
+        
         try {
             const url = `${API_BASE}/documents/generate-conversation`;
             
@@ -303,7 +286,7 @@ const FileManager = ({ notify }) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    filenames: selectedFiles
+                    filenames: localSelectedFiles
                 }),
                 signal: controller.signal
             });
@@ -317,10 +300,13 @@ const FileManager = ({ notify }) => {
             const result = await response.json();
             setShowGenerateModal(false);
             
+            // Complete generation
+            completeGeneration();
+            
             if (result.success) {
-                setResultMessage(`Bắt đầu tạo cuộc trò chuyện từ ${selectedFiles.length} tài liệu! Quá trình có thể mất 15-40 phút. Hãy kiểm tra thư mục Downloads khi hoàn thành.`);
-                if (notify && typeof notify === 'function') {
-                    notify('Đang tạo cuộc trò chuyện...', 'info');
+                setResultMessage(`Đã tạo xong cuộc trò chuyện từ ${localSelectedFiles.length} tài liệu! Hãy kiểm tra thư mục Downloads.`);
+                if (notify) {
+                    notify.success('Đã tạo cuộc trò chuyện thành công!');
                 }
             } else {
                 setResultMessage(`Tạo cuộc trò chuyện thất bại: ${result.message}`);
@@ -328,14 +314,15 @@ const FileManager = ({ notify }) => {
             setShowResultModal(true);
             
         } catch (err) {
+            // Clear generation on error
+            completeGeneration();
+            
             if (err.name === 'AbortError') {
                 setResultMessage(`Timeout: Quá trình tạo cuộc trò chuyện đã vượt quá thời gian chờ (50 phút). Vui lòng thử lại hoặc giảm số lượng tài liệu.`);
             } else {
                 setResultMessage(`Lỗi khi tạo cuộc trò chuyện: ${err.message}`);
             }
             setShowResultModal(true);
-        } finally {
-            setGenerating(false);
         }
     };
 
@@ -384,6 +371,18 @@ const FileManager = ({ notify }) => {
         return new Date(isoString).toLocaleString();
     };
 
+    // Check for timed out generation on mount
+    useEffect(() => {
+        if (generating && isTimedOut()) {
+            clearGeneration();
+            if (notify) {
+                notify.warning('Quá trình tạo cuộc trò chuyện trước đó đã timeout');
+            }
+        }
+        // Không hiển thị thông báo khi đang tạo - progress banner đã hiển thị
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);  // Run only on mount
+
     // Load data based on active tab
     useEffect(() => {
         setLoading(true);
@@ -417,6 +416,20 @@ const FileManager = ({ notify }) => {
 
     return (
         <div className="file-manager">
+            {/* Progress Banner - Persistent with Zustand */}
+            {generating && selectedFiles && selectedFiles.length > 0 && (
+                <div className="progress-banner">
+                    <div className="progress-banner-content">
+                        <div className="progress-spinner"></div>
+                        <div className="progress-info">
+                            <h4>🎙️ Đang tạo cuộc trò chuyện...</h4>
+                            <p>Đang xử lý {selectedFiles.length} tài liệu. Đã chạy {getElapsedMinutes()} phút.</p>
+                            <p className="progress-tip">💡 Bạn có thể đóng tab này, quá trình sẽ tiếp tục chạy ở backend.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Modals */}
             {showDeleteModal && (
                 <div className="modal-overlay">
@@ -463,31 +476,20 @@ const FileManager = ({ notify }) => {
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h3>Tạo cuộc trò chuyện</h3>
-                        <p>Tạo cuộc trò chuyện âm thanh từ các tài liệu đã chọn:</p>
-                        <div className="selected-files">
-                            {selectedFiles.map((filename, index) => (
-                                <label key={index} className="file-checkbox">
-                                    <input
-                                        type="checkbox"
-                                        checked={true}
-                                        onChange={(e) => {
-                                            if (e.target.checked) {
-                                                setSelectedFiles([...selectedFiles, filename]);
-                                            } else {
-                                                setSelectedFiles(selectedFiles.filter(f => f !== filename));
-                                            }
-                                        }}
-                                    />
-                                    {filename}
-                                </label>
-                            ))}
-                        </div>
-                        <p className="modal-warning">Quá trình tạo có thể mất 15-40 phút.</p>
+                        <p>Tạo cuộc trò chuyện âm thanh từ {showGenerateModal.files?.length || 0} tài liệu đã chọn</p>
+                        <p className="modal-warning">Quá trình tạo có thể mất 15-40 phút. Bạn có thể đóng tab này, quá trình sẽ tiếp tục ở backend.</p>
                         <div className="modal-actions">
                             <button onClick={() => setShowGenerateModal(false)} className="modal-btn cancel" disabled={generating}>
                                 Hủy
                             </button>
-                            <button onClick={confirmGenerate} className="modal-btn confirm" disabled={generating || selectedFiles.length === 0}>
+                            <button 
+                                onClick={() => {
+                                    confirmGenerate(showGenerateModal.files);
+                                    setShowGenerateModal(false);
+                                }} 
+                                className="modal-btn confirm" 
+                                disabled={generating}
+                            >
                                 {generating ? 'Đang tạo...' : 'Tạo cuộc trò chuyện'}
                             </button>
                         </div>
@@ -553,80 +555,19 @@ const FileManager = ({ notify }) => {
                         <button 
                             onClick={() => setShowFileSelector(!showFileSelector)} 
                             className="generate-btn"
-                            disabled={documentFiles.length === 0}
+                            disabled={documentFiles.length === 0 || generating}
                         >
-                            Tạo Cuộc Trò Chuyện {documentFiles.length > 0 && '▼'}
+                            {generating ? '⏳ Đang tạo...' : `Tạo Cuộc Trò Chuyện ${documentFiles.length > 0 ? '▼' : ''}`}
                         </button>
                         {showFileSelector && documentFiles.length > 0 && (
-                            <div className="simple-dropdown">
-                                <div className="dropdown-content">
-                                    <div className="file-selection">
-                                        <p><strong>Chọn tài liệu ({documentFiles.length} files):</strong></p>
-                                        {documentFiles.map((file, index) => {
-                                            const fileName = file.name || file.filename;
-                                            const isSelected = selectedFiles.includes(fileName);
-                                            return (
-                                                <div key={index} className="file-selection-item">
-                                                    <input
-                                                        type="checkbox"
-                                                        id={`file-${index}`}
-                                                        checked={isSelected}
-                                                        onChange={(e) => {
-                                                            if (e.target.checked) {
-                                                                setSelectedFiles([...selectedFiles, fileName]);
-                                                            } else {
-                                                                setSelectedFiles(selectedFiles.filter(f => f !== fileName));
-                                                            }
-                                                        }}
-                                                    />
-                                                    <label htmlFor={`file-${index}`} className="file-selection-name">
-                                                        {fileName}
-                                                    </label>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                    <div className="dropdown-buttons">
-                                        <button 
-                                            onClick={() => {
-                                                if (selectedFiles.length > 0) {
-                                                    setShowGenerateModal(true);
-                                                    setShowFileSelector(false);
-                                                }
-                                            }}
-                                            disabled={selectedFiles.length === 0}
-                                            className="start-btn"
-                                        >
-                                            Bắt đầu ({selectedFiles.length})
-                                        </button>
-                                        <button 
-                                            onClick={() => {
-                                                const allFileNames = documentFiles.map(f => f.name || f.filename);
-                                                console.log('Select all clicked, files:', allFileNames);
-                                                setSelectedFiles(allFileNames);
-                                            }}
-                                            className="select-all"
-                                        >
-                                            Chọn tất cả
-                                        </button>
-                                        <button 
-                                            onClick={() => {
-                                                console.log('Current selectedFiles:', selectedFiles);
-                                                alert(`Selected: ${selectedFiles.length} files: ${selectedFiles.join(', ')}`);
-                                            }}
-                                            className="test-btn"
-                                        >
-                                            Test Selection
-                                        </button>
-                                        <button 
-                                            onClick={() => setSelectedFiles([])}
-                                            className="clear-all"
-                                        >
-                                            Bỏ chọn
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
+                            <FileSelector 
+                                documentFiles={documentFiles}
+                                onConfirm={(files) => {
+                                    setShowGenerateModal({ files });
+                                    setShowFileSelector(false);
+                                }}
+                                onCancel={() => setShowFileSelector(false)}
+                            />
                         )}
                         <button onClick={fetchDocumentFiles} className="refresh-btn">
                             Làm Mới
@@ -692,56 +633,68 @@ const FileManager = ({ notify }) => {
                         <div className="col-actions">Thao Tác</div>
                     </div>
                     {currentFiles.map((file, index) => (
-                        <div key={index} className={`file-item ${file.is_audio || activeTab === 'audio' ? 'audio-file' : 'document-file'}`}>
-                            <div className="file-name-col">
-                                <strong>{file.name || file.filename}</strong>
-                                {activeTab === 'documents' && (file.type || file.file_type) && (
-                                    <span className="file-type">{file.type || file.file_type}</span>
-                                )}
+                        <Fragment key={index}>
+                            <div className={`file-item ${file.is_audio || activeTab === 'audio' ? 'audio-file' : 'document-file'}`}>
+                                <div className="file-name-col">
+                                    <strong>{file.name || file.filename}</strong>
+                                    {activeTab === 'documents' && (file.type || file.file_type) && (
+                                        <span className="file-type">{file.type || file.file_type}</span>
+                                    )}
+                                </div>
+                                <div className="file-info-col">
+                                    <span className="file-size">{formatFileSize(file.size || file.file_size)}</span>
+                                    <span className="file-date">{formatDate(file.modified || file.upload_time)}</span>
+                                </div>
+                                <div className="file-actions-col">
+                                    {activeTab === 'audio' && (
+                                        <>
+                                            <a
+                                                href={`${API_BASE}${file.download_url}`}
+                                                download
+                                                className="download-btn"
+                                                title="Tải xuống"
+                                            >
+                                                Tải Xuống
+                                            </a>
+                                            <button
+                                                onClick={() => deleteFile(file.name || file.filename, activeTab)}
+                                                className="delete-btn"
+                                                title="Xóa file"
+                                            >
+                                                Xóa
+                                            </button>
+                                        </>
+                                    )}
+                                    {activeTab === 'documents' && (
+                                        <>
+                                            <a
+                                                href={`${API_BASE}${file.download_url || `/documents/download/${encodeURIComponent(file.name || file.filename)}`}`}
+                                                download={file.name || file.filename}
+                                                className="download-btn"
+                                                title="Tải xuống tài liệu"
+                                            >
+                                                Tải Xuống
+                                            </a>
+                                            <button
+                                                onClick={() => deleteFile(file.name || file.filename, activeTab)}
+                                                className="delete-btn"
+                                                title="Xóa file"
+                                            >
+                                                Xóa
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                            <div className="file-info-col">
-                                <span className="file-size">{formatFileSize(file.size || file.file_size)}</span>
-                                <span className="file-date">{formatDate(file.modified || file.upload_time)}</span>
-                            </div>
-                            <div className="file-actions-col">
-                                {activeTab === 'audio' && (
-                                    <>
-                                        <a
-                                            href={`${API_BASE}${file.download_url}`}
-                                            download
-                                            className="download-btn"
-                                            title="Tải xuống"
-                                        >
-                                            Tải Xuống
-                                        </a>
-                                        {file.is_audio && (
-                                            <audio controls className="audio-player">
-                                                <source src={`${API_BASE}${file.download_url}`} type={file.mime_type} />
-                                                Trình duyệt không hỗ trợ
-                                            </audio>
-                                        )}
-                                    </>
-                                )}
-                                {activeTab === 'documents' && (
-                                    <a
-                                        href={`${API_BASE}${file.download_url || `/documents/download/${encodeURIComponent(file.name || file.filename)}`}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="download-btn"
-                                        title="Tải xuống tài liệu"
-                                    >
-                                        Tải Xuống
-                                    </a>
-                                )}
-                                <button
-                                    onClick={() => deleteFile(file.name || file.filename, activeTab)}
-                                    className="delete-btn"
-                                    title="Xóa file"
-                                >
-                                    Xóa
-                                </button>
-                            </div>
-                        </div>
+                            {activeTab === 'audio' && file.is_audio && (
+                                <div style={{ padding: '0 20px 10px 20px', background: 'white' }}>
+                                    <audio controls className="audio-player">
+                                        <source src={`${API_BASE}${file.download_url}`} type={file.mime_type} />
+                                        Trình duyệt không hỗ trợ
+                                    </audio>
+                                </div>
+                            )}
+                        </Fragment>
                     ))}
                 </div>
             )}

@@ -1,40 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { usePodcastStore } from '../stores/podcastStore';
 import { apiService } from '../services/api';
 import styles from '../styles/TextToSpeech.module.css';
 
 import Sidebar from './common/Sidebar';
 import { SettingsSection } from './common/SettingsSection';
-import ProgressBar from './common/ProgressBar';
 import NotificationManager, { useNotifications } from './common/NotificationManager';
 
 const PodcastGenerator = () => {
   const location = useLocation();
   
-  // Podcast states
-  const [isGeneratingNotebook, setIsGeneratingNotebook] = useState(false);
+  // Use Zustand store for persistent state
+  const { 
+    isGenerating: isGeneratingNotebook,
+    podcastMode,
+    customText,
+    uploadedFiles,
+    startGeneration,
+    completeGeneration,
+    clearGeneration,
+    setPodcastMode,
+    setCustomText,
+    setUploadedFiles,
+    isTimedOut,
+    getElapsedMinutes
+  } = usePodcastStore();
+  
+  // Local states
   const [notebookResult, setNotebookResult] = useState(null);
   const [notebookError, setNotebookError] = useState(null);
-  const [customText, setCustomText] = useState('');
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [podcastMode, setPodcastMode] = useState('text'); // 'text' or 'documents'
   const [isDragOver, setIsDragOver] = useState(false);
-
-  // Progress states
-  const [progress, setProgress] = useState(0);
-  const [progressStatus, setProgressStatus] = useState('idle');
-  const [currentStep, setCurrentStep] = useState('');
-  const [estimatedTime, setEstimatedTime] = useState('');
 
   // Notifications
   const { notifications, removeNotification, notify } = useNotifications();
+
+  // Check for timed out generation on mount
+  useEffect(() => {
+    if (isGeneratingNotebook && isTimedOut()) {
+      clearGeneration();
+      if (notify) {
+        notify.warning('Quá trình tạo podcast trước đó đã timeout (>60 phút)');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // URL parameter handling
   useEffect(() => {
     const urlParams = new URLSearchParams(location.search);
     const mode = urlParams.get('mode');
     
+    // eslint-disable-next-line no-console
     console.log('PodcastGenerator URL params:', mode);
     
     if (mode === 'documents') {
@@ -42,6 +60,7 @@ const PodcastGenerator = () => {
     } else {
       setPodcastMode('text');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.search]); // Listen to URL changes
 
   // Listen for URL changes (when sub-tabs are clicked from header)
@@ -78,17 +97,7 @@ const PodcastGenerator = () => {
       window.removeEventListener('popstate', handlePopState);
       clearInterval(interval);
     };
-  }, []);
-
-  const updateURL = (mode) => {
-    const url = new URL(window.location);
-    if (mode === 'documents') {
-      url.searchParams.set('mode', 'documents');
-    } else {
-      url.searchParams.delete('mode');
-    }
-    window.history.replaceState({}, '', url);
-  };
+  }, [setPodcastMode]);
 
   // Drag and drop handlers
   const handleDragOver = (e) => {
@@ -187,34 +196,13 @@ const PodcastGenerator = () => {
       return;
     }
 
-    setIsGeneratingNotebook(true);
+    // Start generation with Zustand store
+    startGeneration(podcastMode, customText, uploadedFiles);
+    
     setNotebookError(null);
     setNotebookResult(null);
-    setProgress(10);
-    setProgressStatus('preparing');
-    setCurrentStep('Preparing content for processing...');
-    setEstimatedTime('Please wait, processing may take several minutes...');
-
-    // Show initial notification
-    const processingNotificationId = notify.processing('Starting audio generation...', {
-      title: 'Audio Generation',
-      persistent: true
-    });
 
     try {
-      console.log('🚀 Starting advanced audio generation...');
-      
-      if (podcastMode === 'documents') {
-        console.log('📁 Using uploaded files:', uploadedFiles.length, 'files');
-      } else {
-        console.log('📝 Using custom text (length:', customText.trim().length, 'chars)');
-      }
-
-      // Update progress to show we're calling the API
-      setProgress(20);
-      setProgressStatus('processing');
-      setCurrentStep('Sending request to server...');
-
       // Prepare form data based on podcast mode
       let response;
       
@@ -228,47 +216,27 @@ const PodcastGenerator = () => {
 
         // Call API with files
         response = await apiService.generateAdvancedAudioWithFiles(formData);
-        console.log('✅ Advanced audio generation with files completed:', response);
       } else {
         // Call API with text only for text mode
         response = await apiService.generateAdvancedAudio({
           custom_text: customText.trim()
         });
-        console.log('✅ Advanced audio generation completed:', response);
       }
 
-      // Final progress - API completed successfully
-      setProgress(100);
-      setProgressStatus('completed');
-      setCurrentStep('Audio generation completed successfully!');
-      setEstimatedTime('');
-
       setNotebookResult(response);
-
-      // Remove processing notification and show success
-      removeNotification(processingNotificationId);
-      notify.success('Audio generation completed successfully!', {
-        title: 'Success',
-        duration: 30000
+      notify.success('Tạo podcast thành công!', {
+        title: 'Thành công',
+        duration: 5000
       });
 
     } catch (error) {
-      console.error('❌ Error generating advanced audio:', error);
-      
-      setProgress(0);
-      setProgressStatus('error');
-      setCurrentStep('Audio generation failed');
-      setEstimatedTime('');
       setNotebookError(error.message);
-
-      // Remove processing notification and show error
-      removeNotification(processingNotificationId);
-      notify.error(`Audio generation failed: ${error.message}`, {
-        title: 'Generation Failed',
-        duration: 30000
+      notify.error(`Lỗi tạo podcast: ${error.message}`, {
+        title: 'Lỗi',
+        duration: 5000
       });
     } finally {
-      setIsGeneratingNotebook(false);
+      completeGeneration();
     }
   };
 
@@ -303,6 +271,35 @@ const PodcastGenerator = () => {
         <div className={styles.contentHeader}>
           <h1 className={styles.contentTitle}>Nền Tảng Tổng Hợp Podcast Thông Minh</h1>
         </div>
+
+        {/* In-progress banner */}
+        {isGeneratingNotebook && (
+          <div style={{
+            backgroundColor: '#fff3cd',
+            border: '1px solid #ffc107',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              border: '2px solid #ffc107',
+              borderTopColor: 'transparent',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+            <div style={{ flex: 1 }}>
+              <strong>Đang tạo podcast...</strong>
+              <div style={{ fontSize: '0.9em', color: '#856404', marginTop: '4px' }}>
+                Thời gian đã trôi qua: {getElapsedMinutes()} phút
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className={styles.contentBody}>
           {/* Podcast Container */}
@@ -449,16 +446,6 @@ AI Engine sẽ tạo ra cuộc hội thoại tự nhiên giữa hai chuyên gia 
               </div>
             </form>
           </div>
-
-          {/* Progress Bar */}
-          {isGeneratingNotebook && (
-            <ProgressBar 
-              progress={progress} 
-              status={progressStatus}
-              currentStep={currentStep}
-              estimatedTime={estimatedTime}
-            />
-          )}
 
           {/* Results */}
           {notebookResult && (

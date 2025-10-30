@@ -81,7 +81,7 @@ def main():
     # Check current installation
     if check_playwright():
         print("\n Playwright is already properly installed!")
-        print("💡 You can now use automation features")
+        print(" You can now use automation features")
         return
     
     # Install if needed
@@ -93,15 +93,15 @@ def main():
         # Verify installation
         if check_playwright():
             print(" Installation verified successfully")
-            print("💡 You can now use automation features")
+            print(" You can now use automation features")
         else:
             print(" Installation verification failed")
-            print("💡 Please try running manually:")
+            print(" Please try running manually:")
             print("   pip install playwright")
             print("   playwright install chromium")
     else:
         print("\n Playwright installation failed")
-        print("💡 Please try running manually:")
+        print(" Please try running manually:")
         print("   pip install playwright")
         print("   playwright install chromium")
 

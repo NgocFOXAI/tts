@@ -59,7 +59,6 @@ const FileUploadZone = ({
         className={`${styles.dropZone} ${isDragOver ? styles.dragOver : ''}`}
         {...dragProps}
       >
-        <img src="./static/upload.png" alt="Upload" className={styles.dropIcon} style={{ width: '24px', height: '24px' }} />
         <span>Kéo thả file hoặc </span>
         <button 
           type="button" 

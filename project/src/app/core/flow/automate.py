@@ -196,7 +196,7 @@ class NotebookLMAutomation:
             return content_source.strip()
 
         print(f"Invalid content source (too short or not text): {content_source}")
-        print("💡 Content must be at least 10 characters long")
+        print(" Content must be at least 10 characters long")
         return None
 
     def upload_content_to_notebooklm(self, page, content: str, file_paths: list = None) -> bool:

@@ -236,7 +236,7 @@ def format_config_for_user():
                 }
             },
             "quick_templates": {
-                "💡 How to Use": "Choose a template below, or create custom settings",
+                " How to Use": "Choose a template below, or create custom settings",
                 "📝 Text Only": {
                     "basic": "Simple assistant (temp=0.7, 100 tokens)",
                     "creative": "Creative writing (temp=1.2, 500 tokens)",
@@ -256,7 +256,7 @@ def format_config_for_user():
                     "3️⃣ Change Voice": "POST /config/ with {'tts_parameters': {...}}",
                     "4️⃣ Use Template": "GET /config/templates, then POST the template data"
                 },
-                "💡 Pro Tips": {
+                " Pro Tips": {
                     "🌡️ Temperature": "Lower = more focused, Higher = more creative",
                     "🎯 Top-P": "0.9 = balanced, 0.8 = focused, 0.95 = diverse",
                     "📝 Tokens": "1 token ≈ 0.75 words in English",
@@ -292,7 +292,7 @@ def format_config_for_user():
                 }
             },
             "quick_templates": {
-                "💡 How to Use": "Choose a template below, or create custom settings",
+                " How to Use": "Choose a template below, or create custom settings",
                 "📝 Text Only": {
                     "basic": "Simple assistant (temp=0.7, 100 tokens)",
                     "creative": "Creative writing (temp=1.2, 500 tokens)",
@@ -312,7 +312,7 @@ def format_config_for_user():
                     "3️⃣ Change Voice": "POST /config/ with {'tts_parameters': {...}}",
                     "4️⃣ Use Template": "GET /config/templates, then POST the template data"
                 },
-                "💡 Pro Tips": {
+                " Pro Tips": {
                     "🌡️ Temperature": "Lower = more focused, Higher = more creative",
                     "🎯 Top-P": "0.9 = balanced, 0.8 = focused, 0.95 = diverse",
                     "📝 Tokens": "1 token ≈ 0.75 words in English",

@@ -46,7 +46,7 @@
     "web-vitals": "3.5.0",
     "zmp-sdk": "^2.48.2",
     "zmp-ui": "^1.11.11",
-    "zustand": "4.4.6"
+    "zustand": "^4.4.6"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "0.4.2",

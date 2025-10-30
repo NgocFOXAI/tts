@@ -109,7 +109,7 @@ def get_file_info(file_path: str) -> DocumentInfo:
         file_type=file_type,
         upload_time=upload_time,
         file_path=file_path,
-        download_url=f"/api/documents/download/{filename}"
+        download_url=f"/documents/download/{filename}"
     )
 
 @router.get("/list", response_model=DocumentListResponse)
@@ -275,6 +275,44 @@ async def generate_conversation_from_documents(request: ConversationGenerateRequ
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate conversation: {str(e)}"
+        )
+
+@router.get("/serve/{filename}")
+async def serve_document(filename: str):
+    """
+    Serve a document file for viewing in browser (without forcing download).
+    
+    Args:
+        filename: Name of the file to serve
+    """
+    try:
+        upload_folder = get_upload_folder()
+        file_path = os.path.join(upload_folder, filename)
+        
+        # Security check
+        if not file_path.startswith(upload_folder):
+            raise HTTPException(status_code=400, detail="Invalid file path")
+        
+        if not os.path.exists(file_path) or not os.path.isfile(file_path):
+            raise HTTPException(status_code=404, detail="File not found")
+        
+        # Get MIME type for proper display
+        mime_type = mimetypes.guess_type(file_path)[0] or 'application/octet-stream'
+        
+        # Return file for viewing in browser
+        from fastapi.responses import FileResponse
+        return FileResponse(
+            path=file_path,
+            media_type=mime_type,
+            filename=filename
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to serve document: {str(e)}"
         )
 
 @router.get("/download/{filename}")

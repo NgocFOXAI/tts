@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 
 import { useTextGeneration } from '../hooks/useApi';
 import { useImagePaste } from '../hooks/useImageUpload';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import env from '../config/environment';
 import styles from '../styles/ChatInterface.module.css';
 
@@ -41,6 +42,33 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
       });
     }
   });
+
+  // Speech recognition hook
+  const {
+    isListening,
+    transcript,
+    isSupported,
+    toggleListening
+  } = useSpeechRecognition(
+    (finalText) => {
+      // Khi có kết quả cuối cùng, thêm vào prompt
+      setPrompt(prev => prev ? `${prev} ${finalText}` : finalText);
+    },
+    (error) => {
+      // Xử lý lỗi
+      if (notify) {
+        const errorMessages = {
+          'no-speech': 'Không nghe thấy giọng nói nào',
+          'audio-capture': 'Không thể truy cập microphone',
+          'not-allowed': 'Quyền truy cập microphone bị từ chối',
+          'network': 'Lỗi kết nối mạng'
+        };
+        notify.error(errorMessages[error] || `Lỗi nhận diện giọng nói: ${error}`, {
+          duration: 3000
+        });
+      }
+    }
+  );
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
@@ -419,8 +447,21 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
               disabled={!env.features.fileUpload || loading}
               title={showImageUpload ? "Ẩn khu vực upload tài liệu" : "Hiện khu vực upload tài liệu"}
             >
-              <img src="./static/upload.png" alt="Upload" style={{ width: '16px', height: '16px' }} />
+              <img src="./static/upload.png" alt="Upload" style={{ width: '32px', height: '32px' }} />
             </button>
+
+            {/* Speech Recognition Button */}
+            {isSupported && (
+              <button
+                type="button"
+                onClick={toggleListening}
+                className={`${styles.micButton} ${isListening ? styles.listening : ''}`}
+                disabled={loading}
+                title={isListening ? "Nhấn để dừng ghi âm (hoặc tự động dừng sau 10s)" : "Nhấn để bắt đầu nói"}
+              >
+                {isListening ? '🔴' : '🎤'}
+              </button>
+            )}
 
             <AutoResizeTextarea
               value={prompt}
@@ -449,14 +490,6 @@ const ChatInterface = ({ onTextGenerated, notify }) => {
               {loading ? '⏳ Đang Xử Lý...' : 'Gửi Yêu Cầu'}
             </button>
           </div>
-
-          {/* Upload Hint */}
-          {showImageUpload && (
-            <div className={styles.imageUploadHint}>
-              💡 Bạn có thể <strong>paste tài liệu</strong> từ clipboard bằng <kbd>Ctrl+V</kbd> hoặc <strong>kéo thả</strong> file vào khu vực bên trên
-            </div>
-          )}
-
           {error && (
             <div className={styles.error}>
               Lỗi: {error}
