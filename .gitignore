@@ -110,7 +110,7 @@ debug_*.jpg
 # Package lock files (use package.json only)
 package-lock.json
 
-# Static assets (uncommit if needed)
-# Uncomment below if you want to ignore all static folders
-# static/
-# */static/
+# Static assets and upload files
+upload_files/
+*/upload_files/
+**/upload_files/
