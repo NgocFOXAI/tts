@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-NotebookLM Automation API endpoint
+FOXAi Automation API endpoint
 """
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
@@ -29,7 +29,7 @@ from automate import run_notebooklm_automation
 
 router = APIRouter(
     prefix="/audio-generation",
-    tags=["NotebookLM Audio Generation"],
+    tags=["FOXAi Audio Generation"],
     responses={404: {"description": "Not found"}},
 )
 
@@ -48,7 +48,7 @@ async def generate_audio_from_text(
     files: Optional[List[UploadFile]] = File(None)
 ):
     """
-    Generate audio using NotebookLM automation from custom text or uploaded files.
+    Generate audio using FOXAi Automation from custom text or uploaded files.
     Audio files will be saved to the static/audio_downloads folder.
     
     Note: This feature requires manual browser interaction due to Google's automation restrictions.
@@ -78,7 +78,7 @@ async def generate_audio_from_text(
                     file_content_bytes = await file.read()
                     filename = file.filename
                     
-                    # Define supported file types based on NotebookLM capabilities
+                    # Define supported file types
                     supported_types = {
                         # Text files
                         "text/plain": ['.txt'],
@@ -89,7 +89,7 @@ async def generate_audio_from_text(
                         "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ['.docx'],
                         "application/msword": ['.doc'],
                         
-                        # Audio files (NotebookLM can process these)
+                        # Audio files
                         "audio/mpeg": ['.mp3'],
                         "audio/mp4": ['.m4a'],
                         "audio/wav": ['.wav'],
@@ -168,7 +168,7 @@ async def generate_audio_from_text(
         if content:
             content = content.strip()
         
-        print(f"[INFO] Using {content_source} for NotebookLM", flush=True)
+        print(f"[INFO] Using {content_source} for FOXAi Automation", flush=True)
         
         text_info = {
             'source': content_source,
@@ -179,7 +179,7 @@ async def generate_audio_from_text(
         }
         
         # Run automation in thread pool to avoid sync/async conflict
-        print(f"[INFO] Starting NotebookLM automation with {content_source}", flush=True)
+        print(f"[INFO] Starting FOXAi Automation with {content_source}", flush=True)
 
         def run_automation():
             try:
@@ -215,7 +215,7 @@ async def generate_audio_from_text(
                 
                 # Validate content length (only for text input)
                 if not files_content and len(content.strip()) < 50:
-                    raise Exception(f"Content too short ({len(content.strip())} chars). Minimum 50 characters required for NotebookLM.")
+                    raise Exception(f"Nội dung quá ngắn ({len(content.strip())} ký tự). Cần tối thiểu 50 ký tự để tạo audio.")
                 
                 if files_content:
                     content_desc = f"{len(files_content)} files: {', '.join([f[1] for f in files_content])}"
@@ -282,18 +282,8 @@ async def generate_audio_from_text(
             return NotebookLMResponse(
                 success=False,
                 message=(
-                    f"NotebookLM automation failed ({error_type}). This can happen due to:\n"
-                    "• Browser automation restrictions\n"
-                    "• Playwright not properly installed\n"
-                    "• Changes in Google's NotebookLM interface\n"
-                    "• Network connectivity issues\n"
-                    "• Daily usage limits reached\n\n"
-                    f"{setup_instructions}"
-                    "1. Visit https://notebooklm.google.com/\n"
-                    "2. Create a new notebook\n"
-                    "3. Add your text as 'Copied text'\n"
-                    "4. Generate an 'Audio Overview'\n"
-                    "5. Download the generated audio file"
+                    f"FOXAi Automation gặp lỗi ({error_type}). "
+                    "Vui lòng liên hệ với đội phát triển FOXAi để được hỗ trợ."
                 ),
                 text_info=text_info,
                 processing_time=processing_time

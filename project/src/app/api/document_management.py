@@ -153,7 +153,7 @@ async def list_uploaded_documents():
 @router.post("/generate-conversation", response_model=ConversationGenerateResponse)
 async def generate_conversation_from_documents(request: ConversationGenerateRequest):
     """
-    Generate audio conversation from uploaded documents using NotebookLM.
+    Generate audio conversation from uploaded documents using FOXAi Automation.
     
     Args:
         request: Contains filenames and conversation settings
@@ -201,7 +201,7 @@ async def generate_conversation_from_documents(request: ConversationGenerateRequ
         except ImportError as e:
             raise HTTPException(
                 status_code=500,
-                detail=f"NotebookLM automation module not available: {str(e)}"
+                detail=f"FOXAi Automation module không khả dụng. Vui lòng liên hệ với đội phát triển FOXAi."
             )
         
         # Prepare files content for automation
@@ -262,7 +262,7 @@ async def generate_conversation_from_documents(request: ConversationGenerateRequ
         else:
             return ConversationGenerateResponse(
                 success=False,
-                message=f"Failed to generate conversation from documents. This can happen due to NotebookLM automation issues or file processing errors.",
+                message=f"FOXAi Automation gặp lỗi khi tạo cuộc trò chuyện. Vui lòng liên hệ với đội phát triển FOXAi để được hỗ trợ.",
                 conversation_id=conversation_id,
                 processing_time=processing_time
             )

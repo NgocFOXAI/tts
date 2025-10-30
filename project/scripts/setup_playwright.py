@@ -81,7 +81,7 @@ def main():
     # Check current installation
     if check_playwright():
         print("\n Playwright is already properly installed!")
-        print("💡 You can now use NotebookLM automation features")
+        print("💡 You can now use automation features")
         return
     
     # Install if needed
