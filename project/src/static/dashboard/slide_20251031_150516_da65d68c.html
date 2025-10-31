@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo KT-XH Phường Hồng Hà - Tháng 8/2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .slide {
+            width: 297mm;
+            height: 210mm;
+            padding: 20mm;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            page-break-after: always;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.03)"/></svg>');
+            opacity: 0.5;
+        }
+        
+        .slide-content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .slide h1 {
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            border-bottom: 3px solid rgba(255,255,255,0.3);
+            padding-bottom: 10px;
+        }
+        
+        .slide h2 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-box {
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s;
+        }
+        
+        .kpi-box:hover {
+            transform: translateY(-5px);
+        }
+        
+        .kpi-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .chart-container {
+            flex: 1;
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+            position: relative;
+            height: 300px;
+        }
+        
+        .insights {
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .insights ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .insights li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #333;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        .insights li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .slide:nth-child(1) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide:nth-child(2) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .slide:nth-child(3) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .slide:nth-child(4) { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .slide:nth-child(5) { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+            margin-top: auto;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- SLIDE 1: Tổng Quan Hoạt Động Tháng 8/2025 -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>📊 Báo Cáo KT-XH Phường Hồng Hà - Tháng 8/2025</h1>
+        
+        <div class="kpi-container">
+            <div class="kpi-box">
+                <div class="kpi-value">381</div>
+                <div class="kpi-label">Văn bản ban hành</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">2.715</div>
+                <div class="kpi-label">Hồ sơ TTHC xử lý</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">95,3%</div>
+                <div class="kpi-label">Tỷ lệ giải quyết đúng hạn</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="chart1"></canvas>
+        </div>
+        
+        <div class="insights">
+            <ul>
+                <li>Triển khai thành công mô hình chính quyền 2 cấp với 381 văn bản chỉ đạo</li>
+                <li>Hoàn thành xuất sắc tổ chức Đại hội Đảng bộ phường lần thứ I (11-12/8)</li>
+                <li>Đảm bảo tuyệt đối an ninh cho các sự kiện kỷ niệm 80 năm Quốc khánh</li>
+                <li>Duy trì nghiêm túc quy chế làm việc theo phương châm "5 rõ"</li>
+            </ul>
+        </div>
+        
+        <div class="footer">Phường Hồng Hà - Thành phố Hà Nội | Tháng 8/2025</div>
+    </div>
+</div>
+
+<!-- SLIDE 2: Thu Ngân Sách & Phát Triển Kinh Tế -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>💰 Thu Ngân Sách & Hoạt Động Kinh Tế</h1>
+        
+        <div class="kpi-container">
+            <div class="kpi-box">
+                <div class="kpi-value">25,87 tỷ</div>
+                <div class="kpi-label">Thu NSNN 8 tháng</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">34,67%</div>
+                <div class="kpi-label">% so với dự toán</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">228</div>
+                <div class="kpi-label">Hồ sơ hộ kinh doanh</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="chart2"></canvas>
+        </div>
+        
+        <div class="insights">
+            <ul>
+                <li>Thu ngân sách 8 tháng đạt 25,866 tỷ đồng, dự kiến cả năm 2025 đạt 100% kế hoạch (74,597 tỷ)</li>
+                <li>Xử lý 211/228 hồ sơ đăng ký hộ kinh doanh (tỷ lệ 92,54%), đúng quy trình thời hạn</li>
+                <li>Phối hợp Thuế cơ sở số 7 xác minh 45 doanh nghiệp và 150 hộ kinh doanh không hoạt động</li>
+                <li>Thị trường hàng hóa ổn định, không biến động giá, đảm bảo ANTT tại chợ</li>
+            </ul>
+        </div>
+        
+        <div class="footer">Nguồn: Phòng Kinh tế - Hạ tầng & Đô thị</div>
+    </div>
+</div>
+
+<!-- SLIDE 3: Quản Lý Đô Thị & Môi Trường -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>🏙️ Quản Lý Đô Thị & Bảo Vệ Môi Trường</h1>
+        
+        <div class="kpi-container">
+            <div class="kpi-box">
+                <div class="kpi-value">94</div>
+                <div class="kpi-label">Hồ sơ đất đai tiếp nhận</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">04</div>
+                <div class="kpi-label">Công trình cưỡng chế</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">05 tấn</div>
+                <div class="kpi-label">Rác thải thu gom</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="chart3"></canvas>
+        </div>
+        
+        <div class="insights">
+            <ul>
+                <li>Ra quân vệ sinh môi trường (2/8): Phá dỡ 19 bục bệ, tháo 22 biển quảng cáo, xử lý 09 điểm chân rác</li>
+                <li>Cưỡng chế tháo dỡ 04 công trình vi phạm TTXD, thông báo 20 chủ đầu tư tự phá dỡ</li>
+                <li>Hoàn thiện điều tra GPMB cho 148 trường hợp thuộc Dự án cầu Tứ Liên</li>
+                <li>Đẩy nhanh tiến độ 02 dự án cải tạo trường Mầm non An Dương và Tiểu học Chương Dương</li>
+            </ul>
+        </div>
+        
+        <div class="footer">Kế hoạch số 31/KH-UBND ngày 01/8/2025</div>
+    </div>
+</div>
+
+<!-- SLIDE 4: An Ninh Trật Tự & Quốc Phòng -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>🛡️ An Ninh Trật Tự & Công Tác Quốc Phòng</h1>
+        
+        <div class="kpi-container">
+            <div class="kpi-box">
+                <div class="kpi-value">63</div>
+                <div class="kpi-label">Chốt đảm bảo ANTT</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">764</div>
+                <div class="kpi-label">Lượt cán bộ CSCA</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">20</div>
+                <div class="kpi-label">Vụ vi phạm ma túy</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="chart4"></canvas>
+        </div>
+        
+        <div class="insights">
+            <ul>
+                <li>Bố trí 63 chốt ANTT, 18 chốt phân luồng TTATGT, huy động 764 lượt CSCA và 1496 lượt ANTTO cơ sở</li>
+                <li>Phát hiện xử lý 10 vụ trật tự xã hội, 20 vụ ma túy, 173 vi phạm TTATGT (thu 90,8 triệu đồng)</li>
+                <li>Xử phạt 06 vụ kinh tế (95,9 triệu đồng), 04 vụ môi trường (7,5 triệu đồng)</li>
+                <li>Giảm 03 vụ cháy so với tháng trước, thiệt hại tài sản khoảng 180 triệu đồng</li>
+            </ul>
+        </div>
+        
+        <div class="footer">Báo cáo Công an phường & Ban Chỉ huy Quân sự</div>
+    </div>
+</div>
+
+<!-- SLIDE 5: Văn Hóa - Xã Hội & Định Hướng Tháng 9 -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>🎯 Văn Hóa - Xã Hội & Nhiệm Vụ Trọng Tâm Tháng 9</h1>
+        
+        <div class="kpi-container">
+            <div class="kpi-box">
+                <div class="kpi-value">300</div>
+                <div class="kpi-label">Người tham gia nghệ thuật</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">123</div>
+                <div class="kpi-label">Hồ sơ trợ cấp hưu trí</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-value">86</div>
+                <div class="kpi-label">Lượt trẻ tiêm chủng</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="chart5"></canvas>
+        </div>
+        
+        <div class="insights">
+            <ul>
+                <li><strong>Văn hóa:</strong> Tổ chức thành công các hoạt động kỷ niệm 80 năm Quốc khánh với 300 người tham gia</li>
+                <li><strong>Y tế:</strong> Khám chữa bệnh 78 lượt, tiêm chủng 86 lượt trẻ, kiểm soát tốt dịch bệnh (06 ca SXH)</li>
+                <li><strong>Giáo dục:</strong> Hoàn thiện chuẩn bị năm học 2025-2026, kiểm tra các trường MN, TH, THCS</li>
+                <li><strong>Tháng 9:</strong> Tập trung vận hành thông suốt bộ máy 2 cấp, cụ thể hóa Nghị quyết Đảng bộ phường</li>
+            </ul>
+        </div>
+        
+        <div class="footer">Phường Hồng Hà - "Đoàn kết - Dân chủ - Kỷ cương - Sáng tạo - Phát triển"</div>
+    </div>
+</div>
+
+<script>
+// Chart 1: Tổng quan hoạt động
+const ctx1 = document.getElementById('chart1').getContext('2d');
+new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: ['Văn bản', 'Hồ sơ TTHC', 'Tiếp công dân', 'Đơn thư', 'Ban/Hội đồng'],
+        datasets: [{
+            label: 'Số lượng',
+            data: [381, 2715, 22, 42, 12],
+            backgroundColor: [
+                'rgba(102, 126, 234, 0.8)',
+                'rgba(118, 75, 162, 0.8)',
+                'rgba(237, 100, 166, 0.8)',
+                'rgba(255, 154, 158, 0.8)',
+                'rgba(250, 208, 196, 0.8)'
+            ],
+            borderColor: [
+                'rgba(102, 126, 234, 1)',
+                'rgba(118, 75, 162, 1)',
+                'rgba(237, 100, 166, 1)',
+                'rgba(255, 154, 158, 1)',
+                'rgba(250, 208, 196, 1)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Tổng Quan Hoạt Động Chỉ Đạo Điều Hành', font: { size: 16 } }
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }
+        }
+    }
+});
+
+// Chart 2: Thu ngân sách
+const ctx2 = document.getElementById('chart2').getContext('2d');
+new Chart(ctx2, {
+    type: 'line',
+    data: {
+        labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8'],
+        datasets: [{
+            label: 'Thu NSNN (tỷ đồng)',
+            data: [2.8, 2.9, 3.1, 3.4, 3.2, 3.3, 3.5, 10.76],
+            borderColor: 'rgba(245, 87, 108, 1)',
+            backgroundColor: 'rgba(245, 87, 108, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true, position: 'top' },
+            title: { display: true, text: 'Xu Hướng Thu Ngân Sách 8 Tháng Đầu Năm 2025', font: { size: 16 } }
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } }
+        }
+    }
+});
+
+// Chart 3: Quản lý đô thị
+const ctx3 = document.getElementById('chart3').getContext('2d');
+new Chart(ctx3, {
+    type: 'doughnut',
+    data: {
+        labels: ['Hồ sơ đã giải quyết', 'Đang giải quyết', 'Quá hạn'],
+        datasets: [{
+            data: [3, 91, 0],
+            backgroundColor: [
+                'rgba(79, 172, 254, 0.8)',
+                'rgba(0, 242, 254, 0.8)',
+                'rgba(255, 99, 132, 0.8)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'right' },
+            title: { display: true, text: 'Tình Hình Giải Quyết Hồ Sơ Đất Đai (94 hồ sơ)', font: { size: 16 } }
+        }
+    }
+});
+
+// Chart 4: An ninh trật tự
+const ctx4 = document.getElementById('chart4').getContext('2d');
+new Chart(ctx4, {
+    type: 'bar',
+    data: {
+        labels: ['Trật tự XH', 'Kinh tế', 'Ma túy', 'Môi trường', 'TTATGT', 'Cháy nổ'],
+        datasets: [{
+            label: 'Số vụ phát hiện/xử lý',
+            data: [10, 7, 20, 4, 173, 4],
+            backgroundColor: [
+                'rgba(67, 233, 123, 0.8)',
+                'rgba(56, 249, 215, 0.8)',
+                'rgba(255, 195, 113, 0.8)',
+                'rgba(131, 149, 167, 0.8)',
+                'rgba(234, 84, 85, 0.8)',
+                'rgba(253, 114, 114, 0.8)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Công Tác Đấu Tranh Phòng Chống Tội Phạm', font: { size: 16 } }
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Chart 5: Văn hóa xã hội
+const ctx5 = document.getElementById('chart5').getContext('2d');
+new Chart(ctx5, {
+    type: 'pie',
+    data: {
+        labels: ['Y tế', 'Giáo dục', 'Văn hóa', 'Chính sách XH'],
+        datasets: [{
+            data: [164, 4, 300, 123],
+            backgroundColor: [
+                'rgba(250, 112, 154, 0.8)',
+                'rgba(254, 225, 64, 0.8)',
+                'rgba(168, 85, 247, 0.8)',
+                'rgba(56, 178, 172, 0.8)'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'right' },
+            title: { display: true, text: 'Phân Bổ Hoạt Động Văn Hóa - Xã Hội (Số lượng)', font: { size: 16 } }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
