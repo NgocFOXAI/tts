@@ -98,13 +98,32 @@ class PDFGenerator:
             
             # Wait a bit more after restructuring
             await page.wait_for_timeout(1500)
-            
-            # Generate PDF in landscape mode
+
+            # Inject explicit A4 page CSS so CSS sizes (vw/vh or mm) map to A4 correctly.
+            # This helps when the HTML/CSS uses viewport units (100vw/100vh) or expects
+            # a full-page slide size. We prefer the CSS page size so the PDF matches
+            # the CSS layout instead of Playwright auto-scaling to the paper format.
+            await page.add_style_tag(content='''
+                @page { size: A4 landscape; margin: 0 }
+                html, body { width: 297mm; height: 210mm; margin: 0; padding: 0; }
+                /* Force slide elements to match the page box */
+                .slide, section, [class*="slide"] {
+                    width: 297mm !important;
+                    height: 210mm !important;
+                    min-height: 210mm !important;
+                    max-height: 210mm !important;
+                    box-sizing: border-box !important;
+                }
+            ''')
+
+            # Generate PDF using the CSS page size (preferred) so the output matches
+            # the injected @page and fixed mm sizes above.
             pdf_bytes = await page.pdf(
                 format="A4",
                 landscape=True,
                 print_background=True,
-                prefer_css_page_size=False,
+                prefer_css_page_size=True,
+                scale=1.0,
                 margin={
                     "top": "0mm",
                     "right": "0mm",

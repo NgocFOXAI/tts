@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo KPI Phường Hồng Hà - Tháng 7/2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            width: 100vw;
+            height: 100vh;
+            padding: 40px 60px;
+            display: none;
+            background: white;
+        }
+        .slide.active {
+            display: flex;
+            flex-direction: column;
+        }
+        .slide-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #1e40af;
+        }
+        .slide-header h1 {
+            font-size: 2.5em;
+            color: #1e40af;
+            margin-bottom: 10px;
+        }
+        .slide-header h2 {
+            font-size: 1.8em;
+            color: #3b82f6;
+            font-weight: 500;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            flex: 1;
+        }
+        .kpi-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 25px;
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .kpi-box h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        .kpi-box .value {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .chart-container {
+            height: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(30, 64, 175, 0.9);
+            color: white;
+            border: none;
+            font-size: 3em;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        .nav-btn:hover {
+            background: rgba(59, 130, 246, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+        #prevBtn {
+            left: 20px;
+        }
+        #nextBtn {
+            right: 20px;
+        }
+        .slide-number {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(30, 64, 175, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        th {
+            background: #1e40af;
+            color: white;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #f3f4f6;
+        }
+        .highlight {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: TỔNG QUAN KPI -->
+<div class="slide active">
+    <div class="slide-header">
+        <h1>📊 BÁO CÁO KẾT QUẢ THÁNG 7/2025</h1>
+        <h2>Phường Hồng Hà - Chỉ số hoạt động chính</h2>
+    </div>
+    <div class="content-grid">
+        <div>
+            <div class="kpi-box" style="margin-bottom: 20px;">
+                <h3>📄 Văn bản tiếp nhận</h3>
+                <div class="value">2,038</div>
+                <p>Văn bản đến / Ban hành: 357</p>
+            </div>
+            <div class="kpi-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <h3>💰 Thu ngân sách tháng 7</h3>
+                <div class="value">2+ tỷ</div>
+                <p>Dự kiến cả năm: 74.597 tỷ đồng</p>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="overviewChart"></canvas>
+        </div>
+    </div>
+    <div class="content-grid" style="margin-top: 20px;">
+        <div class="kpi-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <h3>📋 Thủ tục hành chính</h3>
+            <div class="value">1,899</div>
+            <p>Đã giải quyết: 1,774 (93.4%)</p>
+        </div>
+        <div class="kpi-box" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+            <h3>🏫 Học sinh hỗ trợ bán trú</h3>
+            <div class="value">4,945</div>
+            <p>Kinh phí: 8.343 tỷ đồng</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 2: QUẢN LÝ ĐẤT ĐAI & XÂY DỰNG -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>🏗️ QUẢN LÝ ĐẤT ĐAI & XÂY DỰNG</h1>
+        <h2>Hoạt động thủ tục và xử lý vi phạm</h2>
+    </div>
+    <div class="content-grid">
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Loại hồ sơ</th>
+                        <th>Số lượng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🔄 Chuyển mục đích sử dụng đất</td>
+                        <td class="highlight">1</td>
+                    </tr>
+                    <tr>
+                        <td>📜 Cấp GCNQSDĐ</td>
+                        <td class="highlight">18</td>
+                    </tr>
+                    <tr>
+                        <td>✏️ Đính chính giấy chứng nhận</td>
+                        <td class="highlight">13</td>
+                    </tr>
+                    <tr>
+                        <td>💳 Kê khai thuế đất phi NN</td>
+                        <td class="highlight">11</td>
+                    </tr>
+                    <tr>
+                        <td>🏠 Biển số nhà (cấp + đính chính)</td>
+                        <td class="highlight">5</td>
+                    </tr>
+                    <tr style="background: #fef3c7;">
+                        <td><strong>TỔNG</strong></td>
+                        <td class="highlight"><strong>48</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="kpi-box" style="margin-top: 20px; background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);">
+                <h3>⚠️ Xử lý vi phạm TTXD</h3>
+                <div class="value" style="font-size: 2em;">28 công trình</div>
+                <p>20 nhà tạm + 8 móng bê tông (3.500m²)</p>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="landChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 3: AN NINH & PCCC -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>🚨 AN NINH & PHÒNG CHÁY CHỮA CHÁY</h1>
+        <h2>Tình hình đảm bảo trật tự an toàn</h2>
+    </div>
+    <div class="content-grid">
+        <div>
+            <div class="kpi-box" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); margin-bottom: 20px;">
+                <h3>🔥 Vụ cháy trong tháng</h3>
+                <div class="value">9 vụ</div>
+                <p>✅ Dập tắt: 4 vụ bởi PCCC + 5 vụ lực lượng tại chỗ</p>
+            </div>
+            <div class="kpi-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <h3>🌊 Cứu nạn sông Hồng</h3>
+                <div class="value">5 vụ</div>
+                <p>✅ Cứu sống: 3 người | ❌ Không cứu được: 2 vụ</p>
+            </div>
+            <table style="margin-top: 20px;">
+                <thead>
+                    <tr>
+                        <th>Loại tội phạm</th>
+                        <th>Số vụ/Đối tượng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🔓 Trộm cắp tài sản</td>
+                        <td class="highlight">7 vụ / 8 đối tượng</td>
+                    </tr>
+                    <tr>
+                        <td>💊 Mua bán ma túy</td>
+                        <td class="highlight">7 vụ / 8 đối tượng</td>
+                    </tr>
+                    <tr>
+                        <td>🚗 Vi phạm TTĐT, TTATGT</td>
+                        <td class="highlight">105 trường hợp</td>
+                    </tr>
+                    <tr style="background: #fee2e2;">
+                        <td><strong>💰 Tổng tiền phạt</strong></td>
+                        <td class="highlight"><strong>57.780.000đ</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-container">
+            <canvas id="securityChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Y TẾ & AN SINH XÃ HỘI -->
+<div class="slide">
+    <div class="slide-header">
+        <h1>🏥 Y TẾ & AN SINH XÃ HỘI</h1>
+        <h2>Chăm sóc sức khỏe và phúc lợi cộng đồng</h2>
+    </div>
+    <div class="content-grid">
+        <div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Loại dịch bệnh</th>
+                        <th>Số ca</th>
+                        <th>Tình trạng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🦟 Sốt xuất huyết</td>
+                        <td class="highlight">4</td>
+                        <td style="color: #10b981;">✅ Đã khỏi</td>
+                    </tr>
+                    <tr>
+                        <td>👶 Tay chân miệng</td>
+                        <td class="highlight">4</td>
+                        <td style="color: #10b981;">✅ Đã khỏi</td>
+                    </tr>
+                    <tr>
+                        <td>😷 Sởi</td>
+                        <td class="highlight">3</td>
+                        <td style="color: #10b981;">✅ Đã khỏi</td>
+                    </tr>
+                    <tr style="background: #dbeafe;">
+                        <td><strong>👨‍⚕️ Khám chữa bệnh</strong></td>
+                        <td class="highlight"><strong>248</strong></td>
+                        <td><strong>lượt người</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="kpi-box" style="margin-top: 20px; background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                <h3>🎗️ Đối tượng chính sách</h3>
+                <div class="value" style="font-size: 2em;">180 người</div>
+                <p>Khám, phát thuốc ngày Thương binh Liệt sĩ</p>
+            </div>
+            <div class="kpi-box" style="margin-top: 20px; background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
+                <h3>👴 Trợ cấp hưu trí xã hội</h3>
+                <div class="value" style="font-size: 2em;">320 hồ sơ</div>
+                <p>Tiếp nhận kê khai theo NĐ 176/2025/NĐ-CP</p>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="healthChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)">◀</button>
+<button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">▶</button>
+<div class="slide-number"><span id="currentSlide">1</span> / 4</div>
+
+<script>
+let currentSlide = 0;
+const slides = document.querySelectorAll('.slide');
+
+function showSlide(n) {
+    slides[currentSlide].classList.remove('active');
+    currentSlide = (n + slides.length) % slides.length;
+    slides[currentSlide].classList.add('active');
+    document.getElementById('currentSlide').textContent = currentSlide + 1;
+}
+
+function changeSlide(direction) {
+    showSlide(currentSlide + direction);
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') changeSlide(-1);
+    if (e.key === 'ArrowRight') changeSlide(1);
+});
+
+// Chart 1: Tổng quan
+new Chart(document.getElementById('overviewChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Văn bản đến', 'Văn bản ban hành', 'TTHC tiếp nhận', 'TTHC giải quyết'],
+        datasets: [{
+            label: 'Số lượng',
+            data: [2038, 357, 1899, 1774],
+            backgroundColor: ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Tổng quan hoạt động tháng 7', font: { size: 16 } }
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Chart 2: Đất đai
+new Chart(document.getElementById('landChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Cấp GCNQSDĐ', 'Đính chính', 'Kê khai thuế', 'Biển số nhà', 'Chuyển mục đích'],
+        datasets: [{
+            data: [18, 13, 11, 5, 1],
+            backgroundColor: ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd', '#dbeafe']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' },
+            title: { display: true, text: 'Phân bổ hồ sơ đất đai (48 hồ sơ)', font: { size: 16 } }
+        }
+    }
+});
+
+// Chart 3: An ninh
+new Chart(document.getElementById('securityChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Vụ cháy', 'Nhảy cầu', 'Trộm cắp', 'Ma túy', 'Vi phạm GT'],
+        datasets: [{
+            label: 'Số vụ/trường hợp',
+            data: [9, 5, 7, 7, 105],
+            backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#8b5cf6', '#6b7280']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Tình hình an ninh trật tự', font: { size: 16 } }
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Chart 4: Y tế
+new Chart(document.getElementById('healthChart'), {
+    type: 'pie',
+    data: {
+        labels: ['Sốt xuất huyết', 'Tay chân miệng', 'Sởi', 'Khám chữa bệnh (x10)', 'Đối tượng CS', 'Trợ cấp hưu trí'],
+        datasets: [{
+            data: [4, 4, 3, 248, 180, 320],
+            backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'right' },
+            title: { display: true, text: 'Hoạt động Y tế & Chính sách xã hội', font: { size: 16 } }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

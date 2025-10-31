@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Kết quả Công tác Tháng 8/2025 - Phường Hồng Hà</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .slide {
+            width: 297mm;
+            height: 210mm;
+            padding: 20mm;
+            background: white;
+            position: relative;
+            page-break-after: always;
+            page-break-inside: avoid;
+            display: block;
+        }
+        
+        .slide:last-child {
+            page-break-after: auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #1e40af;
+        }
+        
+        .header h1 {
+            color: #1e40af;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        
+        .header .subtitle {
+            color: #64748b;
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .section-title {
+            color: #1e40af;
+            font-size: 22px;
+            font-weight: 700;
+            margin: 20px 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            padding: 20px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-card .label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+        
+        .kpi-card .value {
+            font-size: 32px;
+            font-weight: 700;
+        }
+        
+        .kpi-card .unit {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        
+        table th {
+            background: #1e40af;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        table tr:nth-child(even) {
+            background: #f8fafc;
+        }
+        
+        table tr:hover {
+            background: #f1f5f9;
+        }
+        
+        .highlight-number {
+            color: #1e40af;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 15mm;
+            left: 20mm;
+            right: 20mm;
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 15px 0;
+        }
+        
+        .metric-box {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .metric-box .title {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        
+        .metric-box .number {
+            font-size: 24px;
+            color: #1e40af;
+            font-weight: 700;
+        }
+        
+        ul.key-points {
+            list-style: none;
+            padding: 0;
+        }
+        
+        ul.key-points li {
+            padding: 10px 0 10px 30px;
+            position: relative;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        ul.key-points li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #1e40af;
+            font-weight: 700;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- SLIDE 1: TRANG BÌA -->
+<div class="slide">
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center;">
+        <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 40px 60px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <div style="font-size: 16px; margin-bottom: 15px; opacity: 0.9;">ỦY BAN NHÂN DÂN PHƯỜNG HỒNG HÀ</div>
+            <h1 style="font-size: 38px; font-weight: 700; margin: 20px 0; line-height: 1.3;">BÁO CÁO KẾT QUẢ CÔNG TÁC<br/>THÁNG 8/2025</h1>
+            <div style="font-size: 18px; margin-top: 20px; opacity: 0.95;">Phát triển KT-XH, Đảm bảo AN-QP,<br/>Xây dựng Chính quyền, Thực hiện Pháp luật</div>
+        </div>
+        <div style="margin-top: 40px; font-size: 16px; color: #64748b;">
+            <strong>Phường Hồng Hà - Hà Nội</strong><br/>
+            Tháng 8 năm 2025
+        </div>
+    </div>
+</div>
+
+<!-- SLIDE 2: TỔNG QUAN CHUNG -->
+<div class="slide">
+    <div class="header">
+        <h1>TỔNG QUAN KẾT QUẢ THÁNG 8/2025</h1>
+        <div class="subtitle">Các chỉ số hoạt động chính</div>
+    </div>
+    
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="label">Văn bản ban hành</div>
+            <div class="value">381</div>
+            <div class="unit">văn bản</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Thu ngân sách tháng 8</div>
+            <div class="value">10.758</div>
+            <div class="unit">tỷ đồng</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Lũy kế 8 tháng</div>
+            <div class="value">25.866</div>
+            <div class="unit">tỷ đồng (34.67%)</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Hồ sơ hành chính</div>
+            <div class="value">2.715</div>
+            <div class="unit">hồ sơ tiếp nhận</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Hồ sơ đất đai</div>
+            <div class="value">94</div>
+            <div class="unit">hồ sơ xử lý</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Hộ kinh doanh</div>
+            <div class="value">228</div>
+            <div class="unit">hồ sơ đăng ký</div>
+        </div>
+    </div>
+    
+    <div class="section-title">Hoạt động nổi bật</div>
+    <div class="two-col">
+        <div class="metric-box">
+            <div class="title">Công tác chỉ đạo</div>
+            <div class="number">04 Ban chỉ đạo<br/>06 Hội đồng</div>
+        </div>
+        <div class="metric-box">
+            <div class="title">Trợ cấp xã hội</div>
+            <div class="number">123 hồ sơ</div>
+        </div>
+        <div class="metric-box">
+            <div class="title">Y tế - Tiêm chủng</div>
+            <div class="number">86 lượt trẻ</div>
+        </div>
+        <div class="metric-box">
+            <div class="title">Khám sức khỏe ĐTCS</div>
+            <div class="number">180/275 đối tượng</div>
+        </div>
+    </div>
+    
+    <div class="footer">Phường Hồng Hà - Báo cáo tháng 8/2025</div>
+</div>
+
+<!-- SLIDE 3: NGÂN SÁCH VÀ KINH TẾ -->
+<div class="slide">
+    <div class="header">
+        <h1>THU NGÂN SÁCH & HOẠT ĐỘNG KINH TẾ</h1>
+        <div class="subtitle">Phân tích chi tiết thu chi ngân sách và kinh doanh</div>
+    </div>
+    
+    <div class="two-col" style="margin-bottom: 20px;">
+        <div>
+            <div class="section-title">Thu Ngân sách Nhà nước</div>
+            <table>
+                <tr>
+                    <th>Kỳ</th>
+                    <th>Số tiền (tỷ đồng)</th>
+                    <th>% So dự toán</th>
+                </tr>
+                <tr>
+                    <td>Tháng 8/2025</td>
+                    <td class="highlight-number">10.758</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>Lũy kế 8 tháng</td>
+                    <td class="highlight-number">25.866</td>
+                    <td class="highlight-number">34.67%</td>
+                </tr>
+                <tr>
+                    <td>Dự kiến 4 tháng cuối</td>
+                    <td class="highlight-number">48.731</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>Tổng cả năm 2025</strong></td>
+                    <td class="highlight-number"><strong>74.597</strong></td>
+                    <td class="highlight-number"><strong>100%</strong></td>
+                </tr>
+            </table>
+        </div>
+        
+        <div>
+            <div class="section-title">Hộ Kinh Doanh</div>
+            <table>
+                <tr>
+                    <th>Chỉ tiêu</th>
+                    <th>Số lượng</th>
+                </tr>
+                <tr>
+                    <td>Hồ sơ tiếp nhận</td>
+                    <td class="highlight-number">228</td>
+                </tr>
+                <tr>
+                    <td>Đã giải quyết</td>
+                    <td class="highlight-number">211</td>
+                </tr>
+                <tr>
+                    <td>Tỷ lệ giải quyết</td>
+                    <td class="highlight-number">92.54%</td>
+                </tr>
+                <tr>
+                    <td>Đang giải quyết</td>
+                    <td class="highlight-number">17</td>
+                </tr>
+                <tr>
+                    <td>DN/HKD không hoạt động</td>
+                    <td class="highlight-number">195</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <canvas id="budgetChart"></canvas>
+    </div>
+    
+    <div class="footer">Phường Hồng Hà - Báo cáo tháng 8/2025</div>
+</div>
+
+<!-- SLIDE 4: ĐẤT ĐAI & ĐÔ THỊ -->
+<div class="slide">
+    <div class="header">
+        <h1>QUẢN LÝ ĐẤT ĐAI & ĐÔ THỊ</h1>
+        <div class="subtitle">Công tác xây dựng, giải phóng mặt bằng và trật tự đô thị</div>
+    </div>
+    
+    <div class="two-col">
+        <div>
+            <div class="section-title">Hồ sơ Đất đai</div>
+            <table>
+                <tr>
+                    <th>Loại hồ sơ</th>
+                    <th>Số lượng</th>
+                </tr>
+                <tr>
+                    <td>Tổng tiếp nhận</td>
+                    <td class="highlight-number">94</td>
+                </tr>
+                <tr>
+                    <td>Đã giải quyết</td>
+                    <td class="highlight-number">3</td>
+                </tr>
+                <tr>
+                    <td>Đang giải quyết</td>
+                    <td class="highlight-number">91</td>
+                </tr>
+                <tr>
+                    <td>Hồ sơ quá hạn</td>
+                    <td class="highlight-number">0</td>
+                </tr>
+            </table>
+            
+            <div class="section-title" style="margin-top: 20px;">Giải phóng mặt bằng</div>
+            <div class="metric-box">
+                <div class="title">Dự án Cầu Tứ Liên</div>
+                <div class="number">148 trường hợp</div>
+                <div style="font-size: 12px; margin-top: 5px; color: #64748b;">Hoàn thiện biên bản điều tra</div>
+            </div>
+        </div>
+        
+        <div>
+            <div class="section-title">Xử lý Vi phạm TTXD</div>
+            <table>
+                <tr>
+                    <th>Hoạt động</th>
+                    <th>Số lượng</th>
+                </tr>
+                <tr>
+                    <td>Thông báo khởi công</td>
+                    <td class="highlight-number">02</td>
+                </tr>
+                <tr>
+                    <td>Cưỡng chế tháo dỡ</td>
+                    <td class="highlight-number">04</td>
+                </tr>
+                <tr>
+                    <td>Yêu cầu tự phá dỡ</td>
+                    <td class="highlight-number">20</td>
+                </tr>
+            </table>
+            
+            <div class="section-title" style="margin-top: 20px;">Ra quân vệ sinh MT</div>
+            <table>
+                <tr>
+                    <th>Hạng mục</th>
+                    <th>Số lượng</th>
+                </tr>
+                <tr>
+                    <td>Phá dỡ bục bệ, cầu dẫn</td>
+                    <td class="highlight-number">19</td>
+                </tr>
+                <tr>
+                    <td>Tháo dỡ biển quảng cáo</td>
+                    <td class="highlight-number">22</td>
+                </tr>
+                <tr>
+                    <td>Bóc xóa quảng cáo</td>
+                    <td class="highlight-number">150</td>
+                </tr>
+                <tr>
+                    <td>Thu gom rác thải</td>
+                    <td class="highlight-number">~5 tấn</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="footer">Phường Hồng Hà - Báo cáo tháng 8/2025</div>
+</div>
+
+<!-- SLIDE 5: AN NINH - TRẬT TỰ -->
+<div class="slide">
+    <div class="header">
+        <h1>AN NINH TRẬT TỰ & QUỐC PHÒNG</h1>
+        <div class="subtitle">Công tác đảm bảo ANTT và phòng chống tội phạm</div>
+    </div>
+    
+    <div class="section-title">Bảo vệ An ninh Lễ Kỷ niệm A80</div>
+    <div class="kpi-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="kpi-card">
+            <div class="label">Chốt ANTT</div>
+            <div class="value">63</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Chốt phân luồng</div>
+            <div class="value">18</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Chốt điểm cao</div>
+            <div class="value">12</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Tổ tuần tra</div>
+            <div class="value">04</div>
+        </div>
+    </div>
+    
+    <div class="two-col" style="margin-top: 20px;">
+        <div>
+            <div class="section-title">Lực lượng tham gia (2 ngày)</div>
+            <table>
+                <tr>
+                    <th>Lực lượng</th>
+                    <th>Số lượt</th>
+                </tr>
+                <tr>
+                    <td>Cán bộ chiến sỹ CA phường</td>
+                    <td class="highlight-number">764</td>
+                </tr>
+                <tr>
+                    <td>Cán bộ ANTT cơ sở</td>
+                    <td class="highlight-number">1.496</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div>
+            <div class="section-title">Tội phạm & Vi phạm</div>
+            <table>
+                <tr>
+                    <th>Loại tội phạm</th>
+                    <th>Số vụ</th>
+                    <th>Tỷ lệ</th>
+                </tr>
+                <tr>
+                    <td>Trật tự xã hội</td>
+                    <td class="highlight-number">10</td>
+                    <td>40% khám phá</td>
+                </tr>
+                <tr>
+                    <td>Kinh tế, tham nhũng</td>
+                    <td class="highlight-number">07/20</td>
+                    <td class="highlight-number">35%</td>
+                </tr>
+                <tr>
+                    <td>Ma túy</td>
+                    <td class="highlight-number">20</td>
+                    <td>25 đối tượng</td>
+                </tr>
+                <tr>
+                    <td>Vi phạm môi trường</td>
+                    <td class="highlight-number">04/20</td>
+                    <td>20%</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="chart-container" style="height: 200px; margin-top: 20px;">
+        <canvas id="securityChart"></canvas>
+    </div>
+    
+    <div class="footer">Phường Hồng Hà - Báo cáo tháng 8/2025</div>
+</div>
+
+<!-- SLIDE 6: VĂN HÓA - XÃ HỘI -->
+<div class="slide">
+    <div class="header">
+        <h1>VĂN HÓA - XÃ HỘI & GIÁO DỤC</h1>
+        <div class="subtitle">Hoạt động văn hóa, y tế, giáo dục và chính sách xã hội</div>
+    </div>
+    
+    <div class="two-col">
+        <div>
+            <div class="section-title">Y tế & Phòng dịch</div>
+            <table>
+                <tr>
+                    <th>Hoạt động</th>
+                    <th>Số lượng</th>
+                </tr>
+                <tr>
+                    <td>Tiêm chủng mở rộng</td>
+                    <td class="highlight-number">86 lượt trẻ</td>
+                </tr>
+                <tr>
+                    <td>Khám chữa bệnh</td>
+                    <td class="highlight-number">78 lượt</td>
+                </tr>
+                <tr>
+                    <td>Ca sốt xuất huyết</td>
+                    <td class="highlight-number">06 ca</td>
+                </tr>
+                <tr>
+                    <td>Ca bệnh tay chân miệng</td>
+                    <td class="highlight-number">06 ca</td>
+                </tr>
+                <tr>
+                    <td>Ca bệnh sởi</td>
+                    <td class="highlight-number">01 ca</td>
+                </tr>
+                <tr>
+                    <td>Ca viêm gan B</td>
+                    <td class="highlight-number">01 ca</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div>
+            <div class="section-title">Chính sách Xã hội</div>
+            <table>
+                <tr>
+                    <th>Chương trình</th>
+                    <th>Số lượng</th>
+                </tr>
+                <tr>
+                    <td>Trợ cấp hưu trí xã hội</td>
+                    <td class="highlight-number">123 hồ sơ</td>
+                </tr>
+                <tr>
+                    <td>Thẻ BHYT miễn phí (70-80 tuổi)</td>
+                    <td class="highlight-number">+74 thẻ</td>
+                </tr>
+                <tr>
+                    <td>Khám sức khỏe ĐTCS</td>
+                    <td class="highlight-number">180/275</td>
+                </tr>
+                <tr>
+                    <td>Chuyển quà ĐTCS</td>
+                    <td class="highlight-number">95</td>
+                </tr>
+                <tr>
+                    <td>Đối tượng người có công</td>
+                    <td class="highlight-number">13</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="section-title">Văn hóa & Giáo dục</div>
+    <ul class="key-points">
+        <li><strong>Tổ chức thành công Đại hội Đảng bộ phường Hồng Hà lần thứ I</strong> (11-12/8/2025)</li>
+        <li><strong>Huy động 300 người</strong> tham gia chương trình nghệ thuật kỷ niệm 80 năm Quốc khánh</li>
+        <li><strong>Đăng tải 86 tin bài</strong> tuyên truyền trên trang thông tin điện tử và fanpage</li>
+        <li>Kiểm tra chuẩn bị năm học mới 2025-2026 tại các trường Mầm non, Tiểu học, THCS</li>
+        <li>Hoàn thiện 04 hồ sơ chuyển trường THCS trên hệ thống dịch vụ công</li>
+        <li>Tiếp nhận và xử lý 05 hồ sơ nhập khẩu xuất bản phẩm văn hóa</li>
+    </ul>
+    
+    <div class="footer">Phường Hồng Hà - Báo cáo tháng 8/2025</div>
+</div>
+
+<!-- SLIDE 7: THỦ TỤC HÀNH CHÍNH & KẾT LUẬN -->
+<div class="slide">
+    <div class="header">
+        <h1>THỦ TỤC HÀNH CHÍNH & ĐỊNH HƯỚNG</h1>
+        <div class="subtitle">Hiệu quả giải quyết TTHC và nhiệm vụ trọng tâm tháng 9/2025</div>
+    </div>
+    
+    <div class="section-title">Kết quả Giải quyết TTHC</div>
+    <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 20px;">
+        <div class="kpi-card">
+            <div class="label">Tổng hồ sơ tiếp nhận</div>
+            <div class="value">2.715</div>
+            <div class="unit">Trực tiếp: 2.110 | Trực tuyến: 905</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Đã giải quyết</div>
+            <div class="value">2.588</div>
+            <div class="unit">Tỷ lệ: 95.32%</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Đang giải quyết</div>
+            <div class="value">127</div>
+            <div class="unit">Trong thời hạn</div>
+        </div>
+    </div>
+    
+    <div class="two-col">
+        <div>
+            <div class="section-title">Tiếp công dân & Đơn thư</div>
+            <table>
+                <tr>
+                    <th>Hoạt động</th>
+                    <th>Số lượng</th>
+                </tr>
+                <tr>
+                    <td>Chủ tịch tiếp công dân</td>
+                    <td class="highlight-number">03 buổi / 18 CD</td>
+                </tr>
+                <tr>
+                    <td>Cán bộ tiếp công dân</td>
+                    <td class="highlight-number">22 lượt / 22 CD</td>
+                </tr>
+                <tr>
+                    <td>Tổng đơn tiếp nhận</td>
+                    <td class="highlight-number">42 đơn</td>
+                </tr>
+                <tr>
+                    <td>Đã giải quyết</td>
+                    <td class="highlight-number">09 đơn</td>
+                </tr>
+                <tr>
+                    <td>Đang giải quyết</td>
+                    <td class="highlight-number">32 đơn</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div>
+            <div class="section-title">Phản ánh qua iHaNoi</div>
+            <table>
+                <tr>
+                    <th>Trạng thái</th>
+                    <th>Số lượng</th>
+                </tr>
+                <tr>
+                    <td>Tiếp nhận</td>
+                    <td class="highlight-number">138</td>
+                </tr>
+                <tr>
+                    <td>Đã xử lý</td>
+                    <td class="highlight-number">18</td>
+                </tr>
+                <tr>
+                    <td>Đang xử lý</td>
+                    <td class="highlight-number">120</td>
+                </tr>
+                <tr>
+                    <td style="color: #dc2626;">Quá thời hạn</td>
+                    <td class="highlight-number" style="color: #dc2626;">01</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    
+    <div class="section-title">Nhiệm vụ Trọng tâm Tháng 9/2025</div>
+    <ul class="key-points">
+        <li><strong>Tiếp tục vận hành thông suốt</strong> mô hình chính quyền hai cấp, rút kinh nghiệm sau 2 tháng</li>
+        <li><strong>Tổ chức thành công</strong> Lễ kỷ niệm 80 năm Quốc khánh 2/9, đảm bảo an ninh an toàn tuyệt đối</li>
+        <li><strong>Xây dựng Kế hoạch đầu tư công</strong> trung hạn 2026-2030 và năm 2026</li>
+        <li><strong>Triển khai Lễ khai giảng</strong> năm học 2025-2026 tại các trường trên địa bàn</li>
+        <li><strong>Đẩy mạnh thu ngân sách</strong> 6 tháng cuối năm, phấn đấu đạt 100% kế hoạch</li>
+        <li><strong>Tăng cường xử lý</strong> đơn thư, phản ánh kiến nghị qua hệ thống iHaNoi đúng hạn</li>
+    </ul>
+    
+    <div class="footer">Phường Hồng Hà - Báo cáo tháng 8/2025</div>
+</div>
+
+<script>
+// BIỂU ĐỒ THU NGÂN SÁCH
+const budgetCtx = document.getElementById('budgetChart');
+if (budgetCtx) {
+    new Chart(budgetCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Tháng 8/2025', 'Lũy kế 8 tháng', 'Dự kiến 4 tháng cuối', 'Tổng cả năm'],
+            datasets: [{
+                label: 'Thu ngân sách (tỷ đồng)',
+                data: [10.758, 25.866, 48.731, 74.597],
+                backgroundColor: ['#3b82f6', '#1e40af', '#60a5fa', '#2563eb'],
+                borderColor: ['#2563eb', '#1e3a8a', '#3b82f6', '#1d4ed8'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, position: 'top' },
+                title: { display: true, text: 'Tình hình thu ngân sách năm 2025', font: { size: 16, weight: 'bold' } }
+            },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: 'Tỷ đồng' } }
+            }
+        }
+    });
+}
+
+// BIỂU ĐỒ AN NINH TRẬT TỰ
+const securityCtx = document.getElementById('securityChart');
+if (securityCtx) {
+    new Chart(securityCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Trật tự XH (10)', 'Kinh tế (7/20)', 'Ma túy (20)', 'Môi trường (4/20)'],
+            datasets: [{
+                data: [10, 7, 20, 4],
+                backgroundColor: ['#3b82f6', '#1e40af', '#60a5fa', '#93c5fd'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'right' },
+                title: { display: true, text: 'Phân loại tội phạm & vi phạm tháng 8', font: { size: 14, weight: 'bold' } }
+            }
+        }
+    });
+}
+</script>
+
+</body>
+</html>

@@ -564,14 +564,6 @@ const SmartReport = ({ notify }) => {
                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                               <button
                                 className={styles.generateButton}
-                                onClick={() => handleViewReport(`${env.api.baseUrl.replace('/api', '')}${report.html_url}`)}
-                                title="Xem trước"
-                                style={{ fontSize: '13px', padding: '6px 12px' }}
-                              >
-                                Xem trước
-                              </button>
-                              <button
-                                className={styles.generateButton}
                                 onClick={() => handleViewReport(`${env.api.baseUrl.replace('/api', '')}${report.pdf_url}`)}
                                 title="Xem PDF"
                                 style={{ fontSize: '13px', padding: '6px 12px' }}
