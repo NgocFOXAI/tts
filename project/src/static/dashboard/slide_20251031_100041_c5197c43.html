@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo cáo Kinh tế - Xã hội Phường Việt Hưng Q3/2025</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@page {
+    size: 297mm 210mm;
+    margin: 0;
+}
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+}
+.slide {
+    width: 297mm;
+    height: 210mm;
+    padding: 40px;
+    box-sizing: border-box;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+.slide::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+}
+h1, h2 {
+    color: white;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    margin: 0 0 20px 0;
+    position: relative;
+    z-index: 1;
+}
+h1 { font-size: 42px; border-bottom: 4px solid white; padding-bottom: 15px; }
+h2 { font-size: 32px; margin-top: 30px; }
+.content {
+    background: rgba(255,255,255,0.95);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
+}
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 20px 0;
+}
+.kpi-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.kpi-value {
+    font-size: 36px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+.kpi-label {
+    font-size: 14px;
+    opacity: 0.9;
+}
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 15px 0;
+}
+li {
+    padding: 10px;
+    margin: 8px 0;
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin: 20px 0;
+}
+canvas {
+    max-height: 400px;
+}
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: TỔNG QUAN -->
+<div class="slide">
+<h1>BÁO CÁO TÌNH HÌNH KINH TẾ - XÃ HỘI</h1>
+<div class="content">
+<h2 style="color: #667eea; text-shadow: none;">Phường Việt Hưng - Quý III/2025</h2>
+<div class="kpi-grid">
+<div class="kpi-box">
+<div class="kpi-label">Diện tích</div>
+<div class="kpi-value">12.8 km²</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Dân số</div>
+<div class="kpi-value">121,436</div>
+<div class="kpi-label">người</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Tổ dân phố</div>
+<div class="kpi-value">62</div>
+</div>
+</div>
+<ul>
+<li><strong>Thành lập:</strong> 01/7/2025 (Nghị quyết 1656/NQ-UBTVQH15)</li>
+<li><strong>Hình thành:</strong> Sáp nhập Thượng Thanh, Đức Giang, Giang Biên, Việt Hưng và một phần Gia Thụy, Phúc Đồng, Phúc Lợi</li>
+<li><strong>Văn bản ban hành:</strong> 1,644 văn bản (100% ký số, trao đổi điện tử)</li>
+<li><strong>Nhiệm vụ TP giao:</strong> 13/13 nhiệm vụ (100% hoàn thành)</li>
+</ul>
+</div>
+</div>
+
+<!-- SLIDE 2: KẾT QUẢ KINH TẾ - TÀI CHÍNH -->
+<div class="slide">
+<h1>KẾT QUẢ KINH TẾ - TÀI CHÍNH Q3/2025</h1>
+<div class="content">
+<div class="kpi-grid">
+<div class="kpi-box">
+<div class="kpi-label">Thu ngân sách</div>
+<div class="kpi-value">48.4 tỷ</div>
+<div class="kpi-label">đạt 77% KH</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Chi ngân sách</div>
+<div class="kpi-value">257.1 tỷ</div>
+<div class="kpi-label">đạt 65% KH</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Văn bản xử lý</div>
+<div class="kpi-value">5,473</div>
+</div>
+</div>
+<div class="chart-container">
+<canvas id="chart1"></canvas>
+</div>
+<ul>
+<li><strong>Nông nghiệp:</strong> Vụ mùa đạt 100% KH (32 ha lúa, 60 tạ/ha)</li>
+<li><strong>Công thương:</strong> 2,000 hộ KD, 3,000 DN, 10 chợ, 20 siêu thị</li>
+<li><strong>Giấy phép XD:</strong> 56 giấy phép, 193 vi phạm xử lý (98.6 triệu đồng)</li>
+</ul>
+</div>
+</div>
+
+<!-- SLIDE 3: ĐẤT ĐAI & HẠ TẦNG -->
+<div class="slide">
+<h1>QUẢN LÝ ĐẤT ĐAI & HẠ TẦNG ĐÔ THỊ</h1>
+<div class="content">
+<div class="kpi-grid">
+<div class="kpi-box">
+<div class="kpi-label">Cấp GCN đất</div>
+<div class="kpi-value">133</div>
+<div class="kpi-label">giấy chứng nhận</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Hồ sơ TTHC</div>
+<div class="kpi-value">1,979</div>
+<div class="kpi-label">tiếp nhận & giải quyết</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Dự án GPMB</div>
+<div class="kpi-value">22</div>
+<div class="kpi-label">đang triển khai</div>
+</div>
+</div>
+<div class="chart-container">
+<canvas id="chart2"></canvas>
+</div>
+<ul>
+<li><strong>Đất công:</strong> 152 vị trí rà soát (40 HĐ còn hiệu lực, 70 hết hạn)</li>
+<li><strong>Vi phạm xử lý:</strong> 36 QĐ xử phạt (181.9 triệu đồng)</li>
+<li><strong>Thoát nước:</strong> Nạo vét 1,945 m³, sửa 30 bộ nắp ga</li>
+<li><strong>Môi trường:</strong> Kiểm tra 21 cơ sở, xử phạt 48.25 triệu đồng</li>
+</ul>
+</div>
+</div>
+
+<!-- SLIDE 4: XÃ HỘI & GIÁO DỤC - Y TẾ -->
+<div class="slide">
+<h1>PHÁT TRIỂN XÃ HỘI - GIÁO DỤC - Y TẾ</h1>
+<div class="content">
+<div class="kpi-grid">
+<div class="kpi-box">
+<div class="kpi-label">Người có công</div>
+<div class="kpi-value">2,119</div>
+<div class="kpi-label">lượt tặng quà</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Khám chữa bệnh</div>
+<div class="kpi-value">8,130</div>
+<div class="kpi-label">lượt khám</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Hiến máu</div>
+<div class="kpi-value">426</div>
+<div class="kpi-label">đơn vị (133% KH)</div>
+</div>
+</div>
+<div class="chart-container">
+<canvas id="chart3"></canvas>
+</div>
+<ul>
+<li><strong>Giáo dục:</strong> 23 trường (tuyển sinh: Mầm non 101.2%, TH 105.6%, THCS 93.8%)</li>
+<li><strong>Y tế:</strong> 11,654 xét nghiệm, 817 siêu âm, 694 X-quang</li>
+<li><strong>Dân số:</strong> Sàng lọc trước sinh 90.3%, sơ sinh 95.4%</li>
+<li><strong>Văn hóa:</strong> 06 đêm văn nghệ, 04 giải thể thao, Tuần lễ văn hóa - thương mại</li>
+</ul>
+</div>
+</div>
+
+<!-- SLIDE 5: AN NINH & NHIỆM VỤ 2025 -->
+<div class="slide">
+<h1>AN NINH - QUỐC PHÒNG & NHIỆM VỤ Q4/2025</h1>
+<div class="content">
+<div class="kpi-grid">
+<div class="kpi-box">
+<div class="kpi-label">Vi phạm xử lý</div>
+<div class="kpi-value">31</div>
+<div class="kpi-label">vụ hình sự</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Tiếp dân</div>
+<div class="kpi-value">86</div>
+<div class="kpi-label">đơn thư</div>
+</div>
+<div class="kpi-box">
+<div class="kpi-label">Tuyển quân</div>
+<div class="kpi-value">05</div>
+<div class="kpi-label">QĐ nhập ngũ</div>
+</div>
+</div>
+<div class="chart-container">
+<canvas id="chart4"></canvas>
+</div>
+<h2 style="color: #667eea; text-shadow: none;">15 Nhiệm vụ trọng tâm Q4/2025:</h2>
+<ul style="columns: 2; column-gap: 20px;">
+<li>Triển khai 04 chương trình công tác Đảng ủy 2025-2030</li>
+<li>Hoàn thành 12 chỉ tiêu KTXH năm 2025</li>
+<li>Quản lý chặt quỹ đất công, đất nông nghiệp</li>
+<li>Đánh giá phường Đô thị văn minh 2025</li>
+<li>Tổ chức Tết Nguyên đán Bính Ngọ 2026</li>
+<li>Tổng kết chuyển đổi số, khen thưởng</li>
+</ul>
+</div>
+</div>
+
+<script>
+Chart.defaults.font.family = 'Arial';
+Chart.defaults.font.size = 14;
+
+// CHART 1: Thu ngân sách theo nguồn
+new Chart(document.getElementById('chart1'), {
+    type: 'bar',
+    data: {
+        labels: ['Lệ phí trước bạ', 'Thuế đất phi NN', 'Phí, lệ phí', 'Quỹ đất CI'],
+        datasets: [{
+            label: 'Thực hiện (tỷ đồng)',
+            data: [36.914, 6.685, 0.827, 3.985],
+            backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Cơ cấu thu ngân sách Q3/2025', font: { size: 18 } },
+            legend: { display: false }
+        },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Tỷ đồng' } }
+        }
+    }
+});
+
+// CHART 2: Tiến độ xử lý hồ sơ đất đai
+new Chart(document.getElementById('chart2'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Đã giải quyết', 'Đang giải quyết'],
+        datasets: [{
+            data: [246, 7],
+            backgroundColor: ['#667eea', '#e0e0e0']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Tiến độ xử lý hồ sơ TTHC đất đai (97.2%)', font: { size: 18 } }
+        }
+    }
+});
+
+// CHART 3: Tuyển sinh đầu cấp
+new Chart(document.getElementById('chart3'), {
+    type: 'line',
+    data: {
+        labels: ['Mầm non', 'Tiểu học', 'THCS'],
+        datasets: [{
+            label: 'Thực hiện',
+            data: [165, 1952, 1848],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4,
+            fill: true
+        }, {
+            label: 'Kế hoạch',
+            data: [163, 1849, 1970],
+            borderColor: '#764ba2',
+            borderDash: [5, 5],
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Tuyển sinh đầu cấp năm học 2025-2026', font: { size: 18 } }
+        },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Học sinh' } }
+        }
+    }
+});
+
+// CHART 4: Tình hình vi phạm & xử lý
+new Chart(document.getElementById('chart4'), {
+    type: 'bar',
+    data: {
+        labels: ['Hình sự', 'Ma túy', 'Vi phạm MT', 'An ninh KT'],
+        datasets: [{
+            label: 'Số vụ',
+            data: [31, 12, 46, 1],
+            backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+            title: { display: true, text: 'Vi phạm pháp luật xử lý Q3/2025', font: { size: 18 } },
+            legend: { display: false }
+        },
+        scales: {
+            x: { beginAtZero: true, title: { display: true, text: 'Số vụ' } }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

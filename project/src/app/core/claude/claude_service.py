@@ -95,24 +95,29 @@ class ClaudeService:
         """
         # Default system prompt for HTML slide generation
         if system is None:
-            system = f"""Phân tích file và tạo {max_slides} slides HTML báo cáo. Mỗi slide kết hợp số liệu, biểu đồ và text.
+            system = f"""Phân tích file và tạo CHÍNH XÁC {max_slides} slides HTML báo cáo. Mỗi slide kết hợp số liệu, biểu đồ và text.
 
-QUY TẮC:
-- Đúng {max_slides} slides, không thêm không bớt
-- Mỗi slide: tiêu đề + biểu đồ Chart.js + KPI numbers + bullet points insight
-- Chọn chart type phù hợp data: Line (xu hướng), Bar (so sánh), Pie (tỷ lệ), Combo
-- Layout tự do, không bắt buộc format cứng
-- Màu sắc professional, không quá màu mè
+QUY TẮC BẮT BUỘC:
+- ĐẾM CHÍNH XÁC: Tạo ĐÚNG {max_slides} slides, KHÔNG ĐƯỢC thêm hoặc bớt
+- Mỗi slide GỌN GÀNG: tiêu đề ngắn + 1 biểu đồ Chart.js + 2-3 KPI numbers + 3-5 bullet points insight
+- GIỚI HẠN NỘI DUNG: Mỗi slide tối đa 800 từ, bullet points tối đa 2 dòng mỗi điểm
+- Chọn chart type phù hợp: Line (xu hướng), Bar (so sánh), Pie (tỷ lệ), Doughnut (tỷ lệ phần trăm)
+- Data points trong chart: tối đa 8 điểm để dễ đọc
+- Layout responsive: flex/grid, tự động căn chỉnh
+- Màu sắc professional: 3-5 màu chủ đạo, tương phản rõ ràng
 - KHÔNG tạo slide trống hoặc chỉ có tiêu đề
+- KHÔNG dùng quá nhiều animation hoặc effect phức tạp
 
-HTML format:
-- A4 landscape (297mm x 210mm)
-- Class "slide" cho mỗi slide
+HTML format CHUẨN:
+- A4 landscape (297mm x 210mm) - PHẢI fit vừa trong 1 trang A4
+- Class "slide" cho mỗi slide với style: width: 297mm; height: 210mm; padding: 20mm;
 - @page size: A4 landscape, margin: 0
-- page-break-after: always
-- Chart.js CDN + responsive config
+- page-break-after: always; page-break-inside: avoid;
+- Font-size: 14-18px cho text chính, 24-32px cho tiêu đề
+- Chart.js CDN v4 + config responsive: maintainAspectRatio: false
+- KIỂM TRA: Đảm bảo nội dung không vượt quá chiều cao 210mm của slide
 
-Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>)"""
+Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>) với ĐÚNG {max_slides} slides"""
         
         messages = [
             {"role": "user", "content": user_message}
@@ -131,6 +136,15 @@ Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>)"""
         for block in response["content"]:
             if block["type"] == "text" and block["text"]:
                 text_content += block["text"]
+        
+        # Validate slide count
+        import logging
+        logger = logging.getLogger(__name__)
+        slide_count = text_content.count('<div class="slide"')
+        if slide_count != max_slides:
+            logger.warning(f"Expected {max_slides} slides but got {slide_count}. HTML may need adjustment.")
+        else:
+            logger.info(f"Validated: Generated exactly {max_slides} slides as requested")
         
         return text_content
     
@@ -157,24 +171,29 @@ Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>)"""
             Text response from Claude
         """
         # Default system prompt for HTML slide generation - use same as send_simple_message
-        system = f"""Phân tích file và tạo {max_slides} slides HTML báo cáo. Mỗi slide kết hợp số liệu, biểu đồ và text.
+        system = f"""Phân tích file và tạo CHÍNH XÁC {max_slides} slides HTML báo cáo. Mỗi slide kết hợp số liệu, biểu đồ và text.
 
-QUY TẮC:
-- Đúng {max_slides} slides, không thêm không bớt
-- Mỗi slide: tiêu đề + biểu đồ Chart.js + KPI numbers + bullet points insight
-- Chọn chart type phù hợp data: Line (xu hướng), Bar (so sánh), Pie (tỷ lệ), Combo
-- Layout tự do, không bắt buộc format cứng
-- Màu sắc professional, không quá màu mè
+QUY TẮC BẮT BUỘC:
+- ĐẾM CHÍNH XÁC: Tạo ĐÚNG {max_slides} slides, KHÔNG ĐƯỢC thêm hoặc bớt
+- Mỗi slide GỌN GÀNG: tiêu đề ngắn + 1 biểu đồ Chart.js + 2-3 KPI numbers + 3-5 bullet points insight
+- GIỚI HẠN NỘI DUNG: Mỗi slide tối đa 800 từ, bullet points tối đa 2 dòng mỗi điểm
+- Chọn chart type phù hợp: Line (xu hướng), Bar (so sánh), Pie (tỷ lệ), Doughnut (tỷ lệ phần trăm)
+- Data points trong chart: tối đa 8 điểm để dễ đọc
+- Layout responsive: flex/grid, tự động căn chỉnh
+- Màu sắc professional: 3-5 màu chủ đạo, tương phản rõ ràng
 - KHÔNG tạo slide trống hoặc chỉ có tiêu đề
+- KHÔNG dùng quá nhiều animation hoặc effect phức tạp
 
-HTML format:
-- A4 landscape (297mm x 210mm)
-- Class "slide" cho mỗi slide
+HTML format CHUẨN:
+- A4 landscape (297mm x 210mm) - PHẢI fit vừa trong 1 trang A4
+- Class "slide" cho mỗi slide với style: width: 297mm; height: 210mm; padding: 20mm;
 - @page size: A4 landscape, margin: 0
-- page-break-after: always
-- Chart.js CDN + responsive config
+- page-break-after: always; page-break-inside: avoid;
+- Font-size: 14-18px cho text chính, 24-32px cho tiêu đề
+- Chart.js CDN v4 + config responsive: maintainAspectRatio: false
+- KIỂM TRA: Đảm bảo nội dung không vượt quá chiều cao 210mm của slide
 
-Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>)"""
+Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>) với ĐÚNG {max_slides} slides"""
         
         messages = [
             {
@@ -209,6 +228,15 @@ Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>)"""
         for block in response["content"]:
             if block["type"] == "text" and block["text"]:
                 text_content += block["text"]
+        
+        # Validate slide count
+        import logging
+        logger = logging.getLogger(__name__)
+        slide_count = text_content.count('<div class="slide"')
+        if slide_count != max_slides:
+            logger.warning(f"⚠️ Expected {max_slides} slides but got {slide_count}. HTML may need adjustment.")
+        else:
+            logger.info(f" Validated: Generated exactly {max_slides} slides as requested")
         
         return text_content
 

@@ -25,8 +25,9 @@ async def chat_with_claude(
     Allows specifying max_slides to control the number of slides generated (3-5).
     """
     try:
-        # Validate max_slides
-        max_slides = max(3, min(5, max_slides))  # Clamp between 3-5
+        # Validate and clamp max_slides between 3-5
+        max_slides = max(3, min(5, max_slides))
+        logger.info(f"📊 Requesting {max_slides} slides generation")
         # If file is provided, send with document
         if file:
             # Validate file type

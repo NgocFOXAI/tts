@@ -91,7 +91,8 @@ class PDFGenerator:
                     
                     console.log(`[PDF Gen] First slide: ${slideWidth} x ${slideHeight}, position: ${position}`);
                     
-                    // Make all slides visible for PDF printing (KHÔNG thay đổi kích thước)
+                    // Make all slides visible for PDF printing and check overflow
+                    const overflowWarnings = [];
                     slides.forEach((slide, index) => {
                         // Only ensure visibility - DO NOT touch dimensions
                         if (slide.style.display === 'none' || computedStyle.display === 'none') {
@@ -99,6 +100,22 @@ class PDFGenerator:
                         }
                         slide.style.visibility = 'visible';
                         slide.style.opacity = '1';
+                        
+                        // Check for content overflow
+                        const slideHeight = slide.offsetHeight;
+                        const maxHeight = 793; // A4 landscape height in pixels at 96 DPI (210mm)
+                        if (slideHeight > maxHeight) {
+                            console.warn(`[PDF Gen] ⚠️ Slide ${index + 1} overflow: ${slideHeight}px > ${maxHeight}px (may be cut off)`);
+                            overflowWarnings.push({
+                                slideIndex: index + 1,
+                                actualHeight: slideHeight,
+                                maxHeight: maxHeight
+                            });
+                            
+                            // Add CSS to try to contain content
+                            slide.style.maxHeight = `${maxHeight}px`;
+                            slide.style.overflow = 'hidden';
+                        }
                         
                         // Ensure page breaks (if not already set)
                         if (!slide.style.pageBreakAfter) {
@@ -125,12 +142,20 @@ class PDFGenerator:
                         slideWidth: slideWidth,
                         slideHeight: slideHeight,
                         position: position,
-                        format: 'detected'
+                        format: 'detected',
+                        overflowWarnings: overflowWarnings
                     };
                 }
             """)
             
             logger.info(f"📐 Detected format: {format_info['slideCount']} slides, {format_info.get('slideWidth', 'unknown')} x {format_info.get('slideHeight', 'unknown')}")
+            
+            # Log overflow warnings if any
+            if format_info.get('overflowWarnings'):
+                for warning in format_info['overflowWarnings']:
+                    logger.warning(f"⚠️ Slide {warning['slideIndex']} overflow: {warning['actualHeight']}px > {warning['maxHeight']}px (content will be truncated)")
+            else:
+                logger.info(" All slides fit within A4 landscape dimensions")
             
             # Wait a bit more after ensuring visibility
             await page.wait_for_timeout(500)
@@ -153,7 +178,7 @@ class PDFGenerator:
             
             await browser.close()
             
-            logger.info(f"✅ PDF generated: {len(pdf_bytes):,} bytes")
+            logger.info(f" PDF generated: {len(pdf_bytes):,} bytes")
             return pdf_bytes
     
     async def save_dashboard_file(self, html_content: str, filename: str = None) -> dict:
@@ -188,18 +213,18 @@ class PDFGenerator:
         # Save HTML first (always succeeds)
         with open(html_path, 'w', encoding='utf-8') as f:
             f.write(html_content)
-        logger.info(f"✅ HTML saved: {html_path}")
+        logger.info(f" HTML saved: {html_path}")
         
         # Generate and save PDF
         try:
             logger.info(f"🔄 Starting PDF generation...")
             pdf_bytes = await self.html_to_pdf(html_content)
             pdf_size = len(pdf_bytes)
-            logger.info(f"✅ PDF generated: {pdf_size:,} bytes")
+            logger.info(f" PDF generated: {pdf_size:,} bytes")
             
             with open(pdf_path, 'wb') as f:
                 f.write(pdf_bytes)
-            logger.info(f"✅ PDF saved: {pdf_path}")
+            logger.info(f" PDF saved: {pdf_path}")
             
         except Exception as e:
             logger.error(f"❌ PDF generation failed: {e}")
