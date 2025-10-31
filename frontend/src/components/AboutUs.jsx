@@ -41,7 +41,7 @@ const AboutUs = () => {
     return (
       <div className={styles.aboutUs}>
         <div className={styles.error}>
-          <h3>⚠️ Lỗi tải thông tin</h3>
+          <h3> Lỗi tải thông tin</h3>
           <p>{error}</p>
           <button
             onClick={() => window.location.reload()}

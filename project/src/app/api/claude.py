@@ -60,8 +60,12 @@ async def chat_with_claude(
         slide_count = html_content.count('<div class="slide"')
         logger.info(f"📊 Generated {slide_count} slides with A4 landscape format")
         
-        # Save to dashboard
-        file_info = await pdf_generator.save_dashboard_file(html_content)
+        # Save to dashboard with Gemini-generated meaningful filename
+        # Pass the user message as context for filename generation
+        file_info = await pdf_generator.save_dashboard_file(
+            html_content=html_content,
+            content_context=message
+        )
         
         # Return based on format
         if output_format.lower() == "pdf":

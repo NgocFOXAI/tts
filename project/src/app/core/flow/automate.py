@@ -660,7 +660,7 @@ class NotebookLMAutomation:
                 page.wait_for_timeout(3000)  # Wait for page to stabilize
                 print("    Page reloaded successfully")
             except Exception as e:
-                print(f"   ⚠️ Reload warning: {e}")
+                print(f"    Reload warning: {e}")
                 continue
             
             # Check if file processing is complete by looking for Audio Overview button
@@ -693,7 +693,7 @@ class NotebookLMAutomation:
                     print(f"    Audio Overview not available yet (attempt {attempt})")
                     
             except Exception as e:
-                print(f"   ⚠️ Error checking Audio Overview: {e}")
+                print(f"    Error checking Audio Overview: {e}")
             
             # If not the last attempt, continue waiting
             if attempt < max_attempts:
@@ -701,7 +701,7 @@ class NotebookLMAutomation:
             else:
                 print(f"   ⏰ Max attempts reached, proceeding anyway...")
         
-        print(f"⚠️ File processing timeout after {max_attempts} attempts, continuing anyway...")
+        print(f" File processing timeout after {max_attempts} attempts, continuing anyway...")
         return True  # Continue even if we can't confirm processing is done
 
     def _upload_text_to_notebooklm(self, page, content: str) -> bool:

@@ -32,7 +32,7 @@ const Notification = ({ notification, onRemove }) => {
         switch (type) {
             case 'success': return '';
             case 'error': return '';
-            case 'warning': return '⚠️';
+            case 'warning': return '';
             case 'info': return 'ℹ️';
             case 'processing': return '';
             default: return '📢';

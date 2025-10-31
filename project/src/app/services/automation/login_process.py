@@ -39,7 +39,7 @@ class GoogleLoginService:
                 print(f"   Screenshot: {screenshot_path}")
 
         except Exception as e:
-            print(f"⚠️ Login debug error: {e}")
+            print(f" Login debug error: {e}")
 
     def click_use_another_account(self, page):
         """Click 'Use another account' button if present."""
@@ -111,13 +111,13 @@ class GoogleLoginService:
                         page.wait_for_timeout(2000)
                         return True
             except Exception as e:
-                print(f"⚠️ Final attempt failed: {e}")
+                print(f" Final attempt failed: {e}")
 
             print("ℹ️ 'Use another account' button not found - proceeding")
             return True
 
         except Exception as e:
-            print(f"⚠️ Error clicking 'Use another account': {e}")
+            print(f" Error clicking 'Use another account': {e}")
             return True  # Continue anyway
 
     def enter_email(self, page, email):
@@ -302,10 +302,10 @@ class GoogleLoginService:
                 page.wait_for_timeout(2000)
 
             except Exception as e:
-                print(f"⚠️ Error checking login status: {e}")
+                print(f" Error checking login status: {e}")
                 break
 
-        print("⚠️ Login completion timeout")
+        print(" Login completion timeout")
         return False
 
     def handle_two_factor_auth(self, page):
@@ -324,7 +324,7 @@ class GoogleLoginService:
 
             for selector in two_fa_selectors:
                 if page.locator(selector).count() > 0:
-                    print("⚠️ 2FA required - manual intervention needed")
+                    print(" 2FA required - manual intervention needed")
                     print("Please complete 2FA manually in the browser")
 
                     # Wait for user to complete 2FA
@@ -336,7 +336,7 @@ class GoogleLoginService:
             return True
 
         except Exception as e:
-            print(f"⚠️ Error handling 2FA: {e}")
+            print(f" Error handling 2FA: {e}")
             return True
 
     def login_to_google(self, page, email, password):

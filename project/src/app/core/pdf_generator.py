@@ -105,7 +105,7 @@ class PDFGenerator:
                         const slideHeight = slide.offsetHeight;
                         const maxHeight = 793; // A4 landscape height in pixels at 96 DPI (210mm)
                         if (slideHeight > maxHeight) {
-                            console.warn(`[PDF Gen] ⚠️ Slide ${index + 1} overflow: ${slideHeight}px > ${maxHeight}px (may be cut off)`);
+                            console.warn(`[PDF Gen]  Slide ${index + 1} overflow: ${slideHeight}px > ${maxHeight}px (may be cut off)`);
                             overflowWarnings.push({
                                 slideIndex: index + 1,
                                 actualHeight: slideHeight,
@@ -153,7 +153,7 @@ class PDFGenerator:
             # Log overflow warnings if any
             if format_info.get('overflowWarnings'):
                 for warning in format_info['overflowWarnings']:
-                    logger.warning(f"⚠️ Slide {warning['slideIndex']} overflow: {warning['actualHeight']}px > {warning['maxHeight']}px (content will be truncated)")
+                    logger.warning(f" Slide {warning['slideIndex']} overflow: {warning['actualHeight']}px > {warning['maxHeight']}px (content will be truncated)")
             else:
                 logger.info(" All slides fit within A4 landscape dimensions")
             
@@ -181,22 +181,60 @@ class PDFGenerator:
             logger.info(f" PDF generated: {len(pdf_bytes):,} bytes")
             return pdf_bytes
     
-    async def save_dashboard_file(self, html_content: str, filename: str = None) -> dict:
+    async def save_dashboard_file(self, html_content: str, filename: str = None, content_context: str = None) -> dict:
         """
         Save HTML and PDF to dashboard directory
         
         Args:
             html_content: HTML string to save
             filename: Optional filename (without extension), generates UUID if not provided
+            content_context: Optional context to generate meaningful filename using Gemini
             
         Returns:
             Dict with file info: {filename, html_path, pdf_path, created_at}
         """
         # Generate filename if not provided
         if not filename:
-            filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+            if content_context:
+                # Use Gemini to generate meaningful filename
+                try:
+                    from app.core.gemini_service import GeminiService
+                    gemini = GeminiService()
+                    
+                    # Create prompt for Gemini to generate short, meaningful filename
+                    prompt = f"""Based on the following content, generate a SHORT, meaningful filename (max 50 characters) for a presentation slide dashboard.
+Use only lowercase letters, numbers, hyphens, and underscores. No spaces or special characters.
+Be concise and descriptive. Focus on the main topic or key insight.
+
+Content context:
+{content_context[:500]}
+
+Return ONLY the filename (without extension), nothing else."""
+                    
+                    logger.info(" Asking Gemini to generate meaningful filename...")
+                    gemini_filename = await gemini.generate_text(prompt=prompt)
+                    
+                    # Clean up the response
+                    gemini_filename = gemini_filename.strip().lower()
+                    gemini_filename = "".join(c for c in gemini_filename if c.isalnum() or c in ('-', '_'))
+                    
+                    # Validate length and use if valid
+                    if gemini_filename and len(gemini_filename) <= 50:
+                        filename = gemini_filename
+                        logger.info(f"Gemini generated filename: {filename}")
+                    else:
+                        # Fallback to timestamp
+                        filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+                        logger.warning(f"Gemini filename invalid, using fallback: {filename}")
+                except Exception as e:
+                    # Fallback to timestamp if Gemini fails
+                    logger.error(f"Failed to generate filename with Gemini: {e}")
+                    filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+            else:
+                # Default timestamp-based filename
+                filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
         
-        # Sanitize filename
+        # Sanitize filename (extra safety)
         filename = "".join(c for c in filename if c.isalnum() or c in ('-', '_'))
         
         # Paths
@@ -206,9 +244,9 @@ class PDFGenerator:
         # Log HTML stats
         html_length = len(html_content)
         slide_count = html_content.count('<section') + html_content.count('<div class="slide"')
-        logger.info(f"💾 Saving HTML: {filename}")
-        logger.info(f"📊 HTML length: {html_length:,} chars")
-        logger.info(f"📄 Detected slides: {slide_count}")
+        logger.info(f"Saving HTML: {filename}")
+        logger.info(f"HTML length: {html_length:,} chars")
+        logger.info(f"Detected slides: {slide_count}")
         
         # Save HTML first (always succeeds)
         with open(html_path, 'w', encoding='utf-8') as f:
@@ -217,7 +255,7 @@ class PDFGenerator:
         
         # Generate and save PDF
         try:
-            logger.info(f"🔄 Starting PDF generation...")
+            logger.info(f"Starting PDF generation...")
             pdf_bytes = await self.html_to_pdf(html_content)
             pdf_size = len(pdf_bytes)
             logger.info(f" PDF generated: {pdf_size:,} bytes")
@@ -227,7 +265,7 @@ class PDFGenerator:
             logger.info(f" PDF saved: {pdf_path}")
             
         except Exception as e:
-            logger.error(f"❌ PDF generation failed: {e}")
+            logger.error(f"PDF generation failed: {e}")
             logger.error(f"HTML was saved, but PDF could not be generated")
             # Continue anyway, HTML is saved
         

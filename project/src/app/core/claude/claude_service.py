@@ -171,18 +171,15 @@ Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>) với ĐÚNG {max_
             Text response from Claude
         """
         # Default system prompt for HTML slide generation - use same as send_simple_message
-        system = f"""Phân tích file và tạo CHÍNH XÁC {max_slides} slides HTML báo cáo. Mỗi slide kết hợp số liệu, biểu đồ và text.
+        system = f"""Phân tích file và tạo CHÍNH XÁC {max_slides} slides HTML báo cáo. Mỗi slide kết hợp hài hòa số liệu, biểu đồ và text.
 
 QUY TẮC BẮT BUỘC:
-- ĐẾM CHÍNH XÁC: Tạo ĐÚNG {max_slides} slides, KHÔNG ĐƯỢC thêm hoặc bớt
-- Mỗi slide GỌN GÀNG: tiêu đề ngắn + 1 biểu đồ Chart.js + 2-3 KPI numbers + 3-5 bullet points insight
-- GIỚI HẠN NỘI DUNG: Mỗi slide tối đa 800 từ, bullet points tối đa 2 dòng mỗi điểm
+- Mỗi slide GỌN GÀNG: tiêu đề ngắn + Biểu đồ Chart.js + KPI numbers + bullet points insight
 - Chọn chart type phù hợp: Line (xu hướng), Bar (so sánh), Pie (tỷ lệ), Doughnut (tỷ lệ phần trăm)
 - Data points trong chart: tối đa 8 điểm để dễ đọc
 - Layout responsive: flex/grid, tự động căn chỉnh
-- Màu sắc professional: 3-5 màu chủ đạo, tương phản rõ ràng
+- Màu sắc professional: 3-5 màu chủ đạo, tương phản rõ ràng, hạn chế dùng màu chói
 - KHÔNG tạo slide trống hoặc chỉ có tiêu đề
-- KHÔNG dùng quá nhiều animation hoặc effect phức tạp
 
 HTML format CHUẨN:
 - A4 landscape (297mm x 210mm) - PHẢI fit vừa trong 1 trang A4
@@ -234,7 +231,7 @@ Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>) với ĐÚNG {max_
         logger = logging.getLogger(__name__)
         slide_count = text_content.count('<div class="slide"')
         if slide_count != max_slides:
-            logger.warning(f"⚠️ Expected {max_slides} slides but got {slide_count}. HTML may need adjustment.")
+            logger.warning(f" Expected {max_slides} slides but got {slide_count}. HTML may need adjustment.")
         else:
             logger.info(f" Validated: Generated exactly {max_slides} slides as requested")
         

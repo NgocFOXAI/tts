@@ -332,7 +332,7 @@ Loại nội dung phù hợp:
                       Dán bất kỳ nội dung chuyên sâu nào để tạo podcast hội thoại chất lượng cao
                     </small>
                     <small className={`${styles.charCount} ${customText.length > 10000 ? styles.warning : ''}`}>
-                      {customText.length} ký tự {customText.length > 10000 && '(⚠️ Nội dung rất dài)'}
+                      {customText.length} ký tự {customText.length > 10000 && '( Nội dung rất dài)'}
                     </small>
                   </div>
                 </div>
