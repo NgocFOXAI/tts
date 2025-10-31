@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Báo cáo Phường Việt Hưng Q3/2025</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@page { size: A4 landscape; margin: 0; }
+body { margin: 0; padding: 0; font-family: Arial, sans-serif; background: #fff; }
+.slide { width: 297mm; height: 210mm; padding: 12mm; box-sizing: border-box; page-break-after: always; background: #fff; position: relative; }
+h2 { color: #1e40af; font-size: 22px; margin: 0 0 15px 0; text-align: center; font-weight: bold; }
+.slide-content { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; height: calc(100% - 40px); }
+.chart-box { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; }
+.chart-box h3 { color: #1e40af; font-size: 14px; margin: 0 0 8px 0; text-align: center; }
+.chart-box canvas { flex: 1; max-width: 100%; max-height: 100%; }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: TỔNG QUAN -->
+<div class="slide">
+<h2>TỔNG QUAN PHƯỜNG VIỆT HƯNG Q3/2025</h2>
+<div class="slide-content">
+<div class="chart-box">
+<h3>Quy Mô Địa Bàn</h3>
+<canvas id="chart1" width="350" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>Tổ Chức Bộ Máy Mới</h3>
+<canvas id="chart2" width="350" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>Văn Bản Xử Lý</h3>
+<canvas id="chart3" width="350" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>Chỉ Tiêu Hoàn Thành</h3>
+<canvas id="chart4" width="350" height="200"></canvas>
+</div>
+</div>
+</div>
+
+<!-- SLIDE 2: KINH TÊ - XÃ HỘI -->
+<div class="slide">
+<h2>PHÁT TRIỂN KINH TẾ - XÃ HỘI Q3/2025</h2>
+<div class="slide-content">
+<div class="chart-box">
+<h3>Thu Ngân Sách (triệu đồng)</h3>
+<canvas id="chart5" width="350" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>Chi Ngân Sách (triệu đồng)</h3>
+<canvas id="chart6" width="350" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>An Sinh Xã Hội</h3>
+<canvas id="chart7" width="350" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>Y Tế & Giáo Dục</h3>
+<canvas id="chart8" width="350" height="200"></canvas>
+</div>
+</div>
+</div>
+
+<!-- SLIDE 3: KẾT QUẢ & ĐỊNH HƯỚNG -->
+<div class="slide">
+<h2>KẾT QUẢ ĐẠT ĐƯỢC & ĐỊNH HƯỚNG 2025</h2>
+<div class="slide-content">
+<div class="chart-box">
+<h3>Đánh Giá Cán Bộ</h3>
+<canvas id="chart9" width="350" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>An Ninh Trật Tự</h3>
+<canvas id="chart10" width="350" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>Chuyển Đổi Số</h3>
+<canvas id="chart11" width="350" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>Kế Hoạch 3 Tháng Cuối Năm</h3>
+<canvas id="chart12" width="350" height="200"></canvas>
+</div>
+</div>
+</div>
+
+<script>
+const chartColors = {
+  navy: '#1e40af',
+  blue: '#3b82f6',
+  gray: '#6b7280',
+  lightGray: '#9ca3af'
+};
+
+// SLIDE 1 - Chart 1: Quy Mô
+new Chart(document.getElementById('chart1'), {
+  type: 'bar',
+  data: {
+    labels: ['Diện tích (km²)', 'Dân số (nghìn)', 'Tổ dân phố'],
+    datasets: [{
+      label: 'Quy mô',
+      data: [12.8, 121.4, 62],
+      backgroundColor: [chartColors.navy, chartColors.blue, chartColors.gray]
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false, plugins: { legend: { display: false }}}
+});
+
+// SLIDE 1 - Chart 2: Tổ chức
+new Chart(document.getElementById('chart2'), {
+  type: 'pie',
+  data: {
+    labels: ['Quyết định cán bộ', 'Đề án', 'Tổ dân phố'],
+    datasets: [{
+      data: [174, 2, 62],
+      backgroundColor: [chartColors.navy, chartColors.blue, chartColors.gray]
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false }
+});
+
+// SLIDE 1 - Chart 3: Văn bản
+new Chart(document.getElementById('chart3'), {
+  type: 'doughnut',
+  data: {
+    labels: ['VB đến', 'VB đi', 'HĐND'],
+    datasets: [{
+      data: [5473, 1644, 48],
+      backgroundColor: [chartColors.navy, chartColors.blue, chartColors.gray]
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false }
+});
+
+// SLIDE 1 - Chart 4: Chỉ tiêu
+new Chart(document.getElementById('chart4'), {
+  type: 'bar',
+  data: {
+    labels: ['Đã đạt', 'Đang thực hiện'],
+    datasets: [{
+      label: 'Chỉ tiêu',
+      data: [6, 6],
+      backgroundColor: [chartColors.blue, chartColors.gray]
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false, indexAxis: 'y' }
+});
+
+// SLIDE 2 - Chart 5: Thu NS
+new Chart(document.getElementById('chart5'), {
+  type: 'bar',
+  data: {
+    labels: ['Lệ phí trước bạ', 'Thuế đất', 'Phí-lệ phí', 'Quỹ đất'],
+    datasets: [{
+      label: 'Thu (triệu đồng)',
+      data: [36914, 6685, 827, 3985],
+      backgroundColor: chartColors.navy
+    }, {
+      label: '% KH',
+      data: [81, 48, 176, 142],
+      backgroundColor: chartColors.blue,
+      yAxisID: 'y1'
+    }]
+  },
+  options: { 
+    responsive: false, 
+    maintainAspectRatio: false,
+    scales: {
+      y: { beginAtZero: true },
+      y1: { position: 'right', beginAtZero: true, max: 200 }
+    }
+  }
+});
+
+// SLIDE 2 - Chart 6: Chi NS
+new Chart(document.getElementById('chart6'), {
+  type: 'line',
+  data: {
+    labels: ['Q1', 'Q2', 'Q3', 'KH năm'],
+    datasets: [{
+      label: 'Chi NS (tỷ đồng)',
+      data: [0.085, 0.17, 0.257, 0.395],
+      borderColor: chartColors.navy,
+      backgroundColor: chartColors.blue,
+      fill: true
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false }
+});
+
+// SLIDE 2 - Chart 7: An sinh
+new Chart(document.getElementById('chart7'), {
+  type: 'bar',
+  data: {
+    labels: ['Thăm NCC (lượt)', 'Kinh phí (tỷ)', 'Sổ tiết kiệm', 'Suất quà'],
+    datasets: [{
+      label: 'An sinh',
+      data: [2119, 2.65, 11, 1072],
+      backgroundColor: [chartColors.navy, chartColors.blue, chartColors.gray, chartColors.lightGray]
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false }
+});
+
+// SLIDE 2 - Chart 8: Y tế & GD
+new Chart(document.getElementById('chart8'), {
+  type: 'radar',
+  data: {
+    labels: ['Khám chữa bệnh', 'Tiêm chủng', 'Hiến máu', 'Trường học', 'Học sinh'],
+    datasets: [{
+      label: '% Hoàn thành',
+      data: [95, 95, 133, 100, 102],
+      backgroundColor: 'rgba(30, 64, 175, 0.2)',
+      borderColor: chartColors.navy
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false }
+});
+
+// SLIDE 3 - Chart 9: Đánh giá CB
+new Chart(document.getElementById('chart9'), {
+  type: 'pie',
+  data: {
+    labels: ['Xuất sắc', 'Hoàn thành tốt', 'Hoàn thành'],
+    datasets: [{
+      data: [26, 201, 1],
+      backgroundColor: [chartColors.navy, chartColors.blue, chartColors.gray]
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false }
+});
+
+// SLIDE 3 - Chart 10: An ninh
+new Chart(document.getElementById('chart10'), {
+  type: 'bar',
+  data: {
+    labels: ['Ma túy', 'Hình sự', 'Vi phạm MT', 'ANKT'],
+    datasets: [{
+      label: 'Vụ việc',
+      data: [12, 31, 46, 1],
+      backgroundColor: chartColors.navy
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false }
+});
+
+// SLIDE 3 - Chart 11: CĐS
+new Chart(document.getElementById('chart11'), {
+  type: 'line',
+  data: {
+    labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4', 'Tuần 5', 'Tuần 6'],
+    datasets: [{
+      label: 'Hồ sơ trực tuyến (%)',
+      data: [60, 70, 75, 82, 87, 90],
+      borderColor: chartColors.navy,
+      backgroundColor: chartColors.blue,
+      fill: true
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false }
+});
+
+// SLIDE 3 - Chart 12: Kế hoạch
+new Chart(document.getElementById('chart12'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Kinh tế-HT', 'Xã hội-VH', 'QPAN', 'Tổ chức'],
+    datasets: [{
+      data: [40, 35, 15, 10],
+      backgroundColor: [chartColors.navy, chartColors.blue, chartColors.gray, chartColors.lightGray]
+    }]
+  },
+  options: { responsive: false, maintainAspectRatio: false }
+});
+</script>
+
+</body>
+</html>

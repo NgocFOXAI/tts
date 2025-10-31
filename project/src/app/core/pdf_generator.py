@@ -18,7 +18,7 @@ class PDFGenerator:
     
     async def html_to_pdf(self, html_content: str) -> bytes:
         """
-        Convert HTML content to PDF
+        Convert HTML content to PDF using Playwright best practices
         
         Args:
             html_content: HTML string to convert
@@ -27,113 +27,133 @@ class PDFGenerator:
             PDF content as bytes
         """
         async with async_playwright() as p:
-            # Launch browser in headless mode with larger viewport
+            # Launch browser with optimized flags for PDF generation
             browser = await p.chromium.launch(
                 headless=True,
                 args=[
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
-                    '--disable-accelerated-2d-canvas',
-                    '--disable-gpu'
+                    '--disable-web-security',  # Allow loading external resources
+                    '--font-render-hinting=none'  # Better font rendering
                 ]
             )
             
-            # Create page with larger viewport for slides
-            page = await browser.new_page(viewport={'width': 1920, 'height': 1080})
+            # Create page with A4 landscape viewport (matches common slide size)
+            # A4 landscape at 96 DPI: ~1122px x 793px
+            page = await browser.new_page(
+                viewport={'width': 1122, 'height': 793},
+                device_scale_factor=2  # Higher DPI for better quality
+            )
             
-            # Set content and wait for all resources
+            # Emulate print media for CSS @media print
+            await page.emulate_media(media='print')
+            
+            # Set content and wait for network to be idle
             await page.set_content(html_content, wait_until="networkidle")
             
-            # Wait for Chart.js and other scripts to render
-            await page.wait_for_timeout(3000)
+            # Wait for Chart.js to render - check for canvas elements
+            try:
+                await page.wait_for_selector('canvas', timeout=5000)
+                # Wait for Chart.js initialization
+                await page.evaluate("""
+                    () => new Promise(resolve => {
+                        if (typeof Chart !== 'undefined') {
+                            // Chart.js loaded, wait for all charts to render
+                            setTimeout(resolve, 2000);
+                        } else {
+                            resolve();
+                        }
+                    })
+                """)
+            except:
+                # No charts, just wait a bit
+                await page.wait_for_timeout(1000)
             
-            # Execute JavaScript to restructure for PDF printing
-            await page.evaluate("""
-                // Find all slides
-                const slides = document.querySelectorAll('.slide, section, [class*="slide"]');
-                
-                if (slides.length > 0) {
-                    // Remove any horizontal scroll containers
-                    const containers = document.querySelectorAll('[style*="display: flex"], [style*="overflow"]');
-                    containers.forEach(c => {
-                        c.style.display = 'block';
-                        c.style.overflow = 'visible';
-                    });
+            # Analyze HTML format to determine PDF settings
+            format_info = await page.evaluate("""
+                () => {
+                    // Find all slides
+                    const slides = document.querySelectorAll('.slide, section, [class*="slide"]');
                     
-                    // Make all slides visible and setup for printing
+                    if (slides.length === 0) {
+                        return { slideCount: 0, format: 'unknown' };
+                    }
+                    
+                    console.log(`[PDF Gen] Found ${slides.length} slides`);
+                    
+                    // Get first slide to detect format
+                    const firstSlide = slides[0];
+                    const computedStyle = window.getComputedStyle(firstSlide);
+                    const slideWidth = computedStyle.width;
+                    const slideHeight = computedStyle.height;
+                    const position = computedStyle.position;
+                    
+                    console.log(`[PDF Gen] First slide: ${slideWidth} x ${slideHeight}, position: ${position}`);
+                    
+                    // Make all slides visible for PDF printing (KHÔNG thay đổi kích thước)
                     slides.forEach((slide, index) => {
-                        // Reset positioning
-                        slide.style.position = 'relative';
-                        slide.style.left = '0';
-                        slide.style.right = '0';
-                        slide.style.transform = 'none';
-                        
-                        // Make visible
-                        slide.style.display = 'block';
+                        // Only ensure visibility - DO NOT touch dimensions
+                        if (slide.style.display === 'none' || computedStyle.display === 'none') {
+                            slide.style.display = computedStyle.display === 'flex' ? 'flex' : 'block';
+                        }
                         slide.style.visibility = 'visible';
                         slide.style.opacity = '1';
                         
-                        // Set page break
-                        slide.style.pageBreakAfter = 'always';
-                        slide.style.pageBreakInside = 'avoid';
+                        // Ensure page breaks (if not already set)
+                        if (!slide.style.pageBreakAfter) {
+                            slide.style.pageBreakAfter = 'always';
+                        }
+                        if (!slide.style.pageBreakInside) {
+                            slide.style.pageBreakInside = 'avoid';
+                        }
                         
-                        // Set dimensions for A4 landscape
-                        slide.style.width = '100%';
-                        slide.style.height = '100vh';
-                        slide.style.minHeight = '100vh';
-                        slide.style.maxHeight = '100vh';
-                        slide.style.boxSizing = 'border-box';
+                        console.log(`[PDF Gen] Slide ${index + 1}: Visible, breaks set`);
                     });
                     
                     // Hide navigation buttons
                     const navButtons = document.querySelectorAll('button, .navigation, .nav-button, [class*="nav"]');
                     navButtons.forEach(btn => {
-                        if (btn.textContent.includes('←') || btn.textContent.includes('→') || btn.textContent.includes('◀') || btn.textContent.includes('▶')) {
+                        if (btn.textContent.includes('←') || btn.textContent.includes('→') || 
+                            btn.textContent.includes('◀') || btn.textContent.includes('▶')) {
                             btn.style.display = 'none';
                         }
                     });
+                    
+                    return {
+                        slideCount: slides.length,
+                        slideWidth: slideWidth,
+                        slideHeight: slideHeight,
+                        position: position,
+                        format: 'detected'
+                    };
                 }
             """)
             
-            # Wait a bit more after restructuring
-            await page.wait_for_timeout(1500)
+            logger.info(f"📐 Detected format: {format_info['slideCount']} slides, {format_info.get('slideWidth', 'unknown')} x {format_info.get('slideHeight', 'unknown')}")
+            
+            # Wait a bit more after ensuring visibility
+            await page.wait_for_timeout(500)
 
-            # Inject explicit A4 page CSS so CSS sizes (vw/vh or mm) map to A4 correctly.
-            # This helps when the HTML/CSS uses viewport units (100vw/100vh) or expects
-            # a full-page slide size. We prefer the CSS page size so the PDF matches
-            # the CSS layout instead of Playwright auto-scaling to the paper format.
-            await page.add_style_tag(content='''
-                @page { size: A4 landscape; margin: 0 }
-                html, body { width: 297mm; height: 210mm; margin: 0; padding: 0; }
-                /* Force slide elements to match the page box */
-                .slide, section, [class*="slide"] {
-                    width: 297mm !important;
-                    height: 210mm !important;
-                    min-height: 210mm !important;
-                    max-height: 210mm !important;
-                    box-sizing: border-box !important;
-                }
-            ''')
-
-            # Generate PDF using the CSS page size (preferred) so the output matches
-            # the injected @page and fixed mm sizes above.
+            # Generate PDF with optimized settings
+            # Reference: https://pdforge.com/blog/generate-pdf-from-html-using-playwright-python
             pdf_bytes = await page.pdf(
-                format="A4",
-                landscape=True,
-                print_background=True,
-                prefer_css_page_size=True,
-                scale=1.0,
+                format=None,  # Use CSS @page size
+                print_background=True,  # Include background colors/images
+                prefer_css_page_size=True,  # CRITICAL: Respect @page in CSS
+                scale=1.0,  # No scaling
                 margin={
-                    "top": "0mm",
-                    "right": "0mm",
-                    "bottom": "0mm",
-                    "left": "0mm"
-                }
+                    "top": "0",
+                    "right": "0", 
+                    "bottom": "0",
+                    "left": "0"
+                },
+                display_header_footer=False  # No headers/footers
             )
             
             await browser.close()
             
+            logger.info(f"✅ PDF generated: {len(pdf_bytes):,} bytes")
             return pdf_bytes
     
     async def save_dashboard_file(self, html_content: str, filename: str = None) -> dict:

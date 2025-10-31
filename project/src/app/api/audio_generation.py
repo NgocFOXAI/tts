@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FOXAi Automation API endpoint
+NotebookLM Automation API endpoint
 """
 
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
@@ -10,7 +10,39 @@ import os
 import sys
 import time
 import asyncio
+import hashlib
 from concurrent.futures import ThreadPoolExecutor
+
+# File cache directory - persistent across server restarts
+CACHE_DIR = "static/file_cache"
+os.makedirs(CACHE_DIR, exist_ok=True)
+
+# In-memory cache: hash -> file_path
+FILE_CACHE = {}
+
+def get_cached_file_path(file_hash: str, filename: str) -> Optional[str]:
+    """Check if file with this hash exists in cache, return path if found."""
+    # Check memory cache first
+    if file_hash in FILE_CACHE:
+        cached_path = FILE_CACHE[file_hash]
+        if os.path.exists(cached_path):
+            return cached_path
+    
+    # Check disk cache
+    cached_path = os.path.join(CACHE_DIR, f"{file_hash}_{filename}")
+    if os.path.exists(cached_path):
+        FILE_CACHE[file_hash] = cached_path
+        return cached_path
+    
+    return None
+
+def save_to_cache(file_hash: str, filename: str, content: bytes) -> str:
+    """Save file to cache directory and return path."""
+    cached_path = os.path.join(CACHE_DIR, f"{file_hash}_{filename}")
+    with open(cached_path, 'wb') as f:
+        f.write(content)
+    FILE_CACHE[file_hash] = cached_path
+    return cached_path
 
 # Add paths for imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -29,7 +61,7 @@ from automate import run_notebooklm_automation
 
 router = APIRouter(
     prefix="/audio-generation",
-    tags=["FOXAi Audio Generation"],
+    tags=["NotebookLM Audio Generation"],
     responses={404: {"description": "Not found"}},
 )
 
@@ -48,10 +80,11 @@ async def generate_audio_from_text(
     files: Optional[List[UploadFile]] = File(None)
 ):
     """
-    Generate audio using FOXAi Automation from custom text or uploaded files.
+    Generate audio using NotebookLM automation from custom text or uploaded files.
     Audio files will be saved to the static/audio_downloads folder.
     
-    Note: This feature requires manual browser interaction due to Google's automation restrictions.
+    The API will queue the generation task and return immediately.
+    Audio will be available in the Audio Management section after processing completes.
     """
     try:
         start_time = time.time()
@@ -74,11 +107,23 @@ async def generate_audio_from_text(
                 for file in files:
                     if not file:
                         continue
-                        
+                    # Read file content
                     file_content_bytes = await file.read()
                     filename = file.filename
                     
-                    # Define supported file types
+                    # Generate file hash for caching
+                    file_hash = hashlib.md5(file_content_bytes).hexdigest()
+                    
+                    # Check if file already in cache
+                    cached_path = get_cached_file_path(file_hash, filename)
+                    if cached_path:
+                        print(f"[CACHE HIT]  Using cached file: {filename} (hash: {file_hash[:8]}...)")
+                        files_content.append((file_content_bytes, filename))
+                        continue
+                    
+                    print(f"[CACHE MISS]  Processing new file: {filename} (hash: {file_hash[:8]}...)")
+                    
+                    # Define supported file types based on NotebookLM capabilities
                     supported_types = {
                         # Text files
                         "text/plain": ['.txt'],
@@ -89,7 +134,7 @@ async def generate_audio_from_text(
                         "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ['.docx'],
                         "application/msword": ['.doc'],
                         
-                        # Audio files
+                        # Audio files (NotebookLM can process these)
                         "audio/mpeg": ['.mp3'],
                         "audio/mp4": ['.m4a'],
                         "audio/wav": ['.wav'],
@@ -131,9 +176,13 @@ async def generate_audio_from_text(
                                    f"Supported types: {', '.join(sorted(set(supported_extensions)))}"
                         )
                     
-                    # Add to files list
-                    files_content.append((file_content_bytes, filename))
-                    print(f"[INFO] File processed: {filename} ({content_type})")
+                    # Add to files list and save to cache
+                    file_tuple = (file_content_bytes, filename)
+                    files_content.append(file_tuple)
+                    
+                    # Save to persistent cache
+                    save_to_cache(file_hash, filename, file_content_bytes)
+                    print(f"[CACHED]  File processed and cached: {filename} ({content_type})")
                 
                 if not files_content:
                     raise HTTPException(
@@ -168,7 +217,7 @@ async def generate_audio_from_text(
         if content:
             content = content.strip()
         
-        print(f"[INFO] Using {content_source} for FOXAi Automation", flush=True)
+        print(f"[INFO] Queuing NotebookLM automation with {content_source}", flush=True)
         
         text_info = {
             'source': content_source,
@@ -178,9 +227,7 @@ async def generate_audio_from_text(
             'created_at': 'now'
         }
         
-        # Run automation in thread pool to avoid sync/async conflict
-        print(f"[INFO] Starting FOXAi Automation with {content_source}", flush=True)
-
+        # Start automation in background thread (fire and forget)
         def run_automation():
             try:
                 # Check Playwright availability first
@@ -215,7 +262,7 @@ async def generate_audio_from_text(
                 
                 # Validate content length (only for text input)
                 if not files_content and len(content.strip()) < 50:
-                    raise Exception(f"Nội dung quá ngắn ({len(content.strip())} ký tự). Cần tối thiểu 50 ký tự để tạo audio.")
+                    raise Exception(f"Content too short ({len(content.strip())} chars). Minimum 50 characters required for NotebookLM.")
                 
                 if files_content:
                     content_desc = f"{len(files_content)} files: {', '.join([f[1] for f in files_content])}"
@@ -244,50 +291,25 @@ async def generate_audio_from_text(
                 print(f"[ERROR] Traceback: {traceback.format_exc()}", flush=True)
                 return False
 
-        # Execute in thread pool with timeout
-        loop = asyncio.get_event_loop()
-        try:
-            with ThreadPoolExecutor() as executor:
-                future = loop.run_in_executor(executor, run_automation)
-                # Increase timeout to 35 minutes to allow 30 min automation + 5 min buffer
-                success = await asyncio.wait_for(future, timeout=2100)  # 35 minutes
-        except asyncio.TimeoutError:
-            print("[ERROR] Automation timed out after 35 minutes", flush=True)
-            success = False
+        # Start background task (fire and forget)
+        executor = ThreadPoolExecutor(max_workers=1)
+        executor.submit(run_automation)
         
         processing_time = time.time() - start_time
         
-        if success:
-            return NotebookLMResponse(
-                success=True,
-                message="Audio generation initiated successfully! Please check your Downloads folder and browser for the completed audio file.",
-                text_info=text_info,
-                processing_time=processing_time
-            )
-        else:
-            # Provide more helpful error message with setup instructions
-            error_type = "Unknown automation error"
-            setup_instructions = ""
-            
-            # Check for common Playwright issues in logs
-            if "playwright" in str(custom_text).lower() or "chromium" in str(custom_text).lower():
-                error_type = "Playwright setup issue"
-                setup_instructions = (
-                    "🔧 Playwright Setup Required:\n"
-                    "1. Install Playwright: pip install playwright\n"
-                    "2. Install browsers: playwright install chromium\n"
-                    "3. Restart the application\n\n"
-                )
-            
-            return NotebookLMResponse(
-                success=False,
-                message=(
-                    f"FOXAi Automation gặp lỗi ({error_type}). "
-                    "Vui lòng liên hệ với đội phát triển FOXAi để được hỗ trợ."
-                ),
-                text_info=text_info,
-                processing_time=processing_time
-            )
+        # Return immediately with queued status
+        estimated_minutes = 15 if files_content and len(files_content) > 1 else 8
+        
+        return NotebookLMResponse(
+            success=True,
+            message=f" Yêu cầu tạo podcast đã được gửi đến hệ thống!\n\n"
+                    f"⏱️ Thời gian xử lý dự kiến: {estimated_minutes}-30 phút\n"
+                    f"Nguồn: {content_source}\n"
+                    f"📊 Số file: {len(files_content) if files_content else 0}\n\n"
+                    f"🎧 Âm thanh sau khi hoàn thành sẽ được lưu trong phần Quản Lý Âm Thanh.",
+            text_info=text_info,
+            processing_time=processing_time
+        )
         
     except HTTPException:
         raise

@@ -15,12 +15,13 @@ const FileManager = ({ notify }) => {
     const getTabFromUrl = () => {
         const params = new URLSearchParams(location.search);
         const tab = params.get('tab');
-        return ['audio', 'documents'].includes(tab) ? tab : 'documents';
+        return ['audio', 'documents', 'reports'].includes(tab) ? tab : 'documents';
     };
 
     const [activeTab, setActiveTab] = useState(getTabFromUrl());
     const [audioFiles, setAudioFiles] = useState([]);
     const [documentFiles, setDocumentFiles] = useState([]);
+    const [reportFiles, setReportFiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -150,6 +151,35 @@ const FileManager = ({ notify }) => {
         }
     }, [API_BASE, activeTab]);
 
+    // Fetch report files (dashboard files)
+    const fetchReportFiles = useCallback(async () => {
+        try {
+            const url = `${API_BASE}/claude/dashboard`;
+            // eslint-disable-next-line no-console
+            console.log('🔍 Fetching reports from:', url);
+            const response = await fetch(url, {
+                headers: {
+                    'ngrok-skip-browser-warning': 'true',
+                    'Accept': 'application/json'
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            // eslint-disable-next-line no-console
+            console.log('📊 Reports received:', data);
+            // API returns { total: number, files: [...] } format
+            setReportFiles(data.files || []);
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Error fetching reports:', err);
+            if (activeTab === 'reports') {
+                setError(`Failed to fetch reports: ${err.message}`);
+            }
+        }
+    }, [API_BASE, activeTab]);
+
     // Delete audio file
     const deleteAudioFile = async (filename) => {
         try {
@@ -197,6 +227,24 @@ const FileManager = ({ notify }) => {
         }
     };
 
+    // Delete report file
+    const deleteReportFile = async (filename) => {
+        try {
+            const url = `${API_BASE}/claude/dashboard/${encodeURIComponent(filename)}`;
+            const response = await fetch(url, { method: 'DELETE' });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            setResultMessage(`Đã xóa thành công báo cáo "${filename}"`);
+            setShowResultModal(true);
+            await fetchReportFiles();
+        } catch (err) {
+            setResultMessage(`Lỗi khi xóa báo cáo: ${err.message}`);
+            setShowResultModal(true);
+        }
+    };
+
     // Handle file delete
     const deleteFile = async (filename, type = 'audio') => {
         setSelectedFile({ name: filename, type });
@@ -210,6 +258,8 @@ const FileManager = ({ notify }) => {
         
         if (selectedFile.type === 'audio') {
             await deleteAudioFile(selectedFile.name);
+        } else if (selectedFile.type === 'reports') {
+            await deleteReportFile(selectedFile.name);
         } else {
             await deleteDocumentFile(selectedFile.name);
         }
@@ -384,6 +434,8 @@ const FileManager = ({ notify }) => {
             try {
                 if (activeTab === 'audio') {
                     await fetchAudioFiles();
+                } else if (activeTab === 'reports') {
+                    await fetchReportFiles();
                 } else {
                     await fetchDocumentFiles();
                 }
@@ -393,9 +445,9 @@ const FileManager = ({ notify }) => {
         };
         
         loadData();
-    }, [activeTab, fetchAudioFiles, fetchDocumentFiles]);
+    }, [activeTab, fetchAudioFiles, fetchDocumentFiles, fetchReportFiles]);
 
-    const currentFiles = activeTab === 'audio' ? audioFiles : documentFiles;
+    const currentFiles = activeTab === 'audio' ? audioFiles : activeTab === 'reports' ? reportFiles : documentFiles;
     const audioStats = calculateAudioStats();
 
     if (loading) {
@@ -511,7 +563,9 @@ const FileManager = ({ notify }) => {
             <div className="header">
                 <div className="header-title">
                     <h2>Quản Lý File</h2>
-                    <p className="header-subtitle">Quản lý tài liệu và file âm thanh</p>
+                    <p className="header-subtitle">
+                        {activeTab === 'reports' ? 'Quản lý báo cáo thông minh' : 'Quản lý tài liệu và file âm thanh'}
+                    </p>
                 </div>
             </div>
 
@@ -562,6 +616,13 @@ const FileManager = ({ notify }) => {
                         </button>
                     </>
                 )}
+                {activeTab === 'reports' && (
+                    <>
+                        <button onClick={fetchReportFiles} className="refresh-btn">
+                            Làm Mới
+                        </button>
+                    </>
+                )}
             </div>
 
             {/* Stats */}
@@ -581,6 +642,21 @@ const FileManager = ({ notify }) => {
                     </div>
                 </div>
             )}
+            
+            {activeTab === 'reports' && (
+                <div className="stats-container">
+                    <div className="stat-card">
+                        <div className="stat-label">Tổng Báo Cáo</div>
+                        <div className="stat-value">{reportFiles.length || 0}</div>
+                    </div>
+                    <div className="stat-card">
+                        <div className="stat-label">Tổng Dung Lượng</div>
+                        <div className="stat-value">
+                            {reportFiles.reduce((sum, r) => sum + (r.size_kb || 0), 0).toFixed(0)} KB
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Error Display */}
             {error && (
@@ -595,10 +671,16 @@ const FileManager = ({ notify }) => {
             {/* File List */}
             {currentFiles.length === 0 ? (
                 <div className="no-files">
-                    <p>{activeTab === 'audio' ? 'Thư viện âm thanh hiện đang trống' : 'Chưa có tài liệu nào được tải lên'}</p>
+                    <p>
+                        {activeTab === 'audio' ? 'Thư viện âm thanh hiện đang trống' : 
+                         activeTab === 'reports' ? 'Chưa có báo cáo nào' :
+                         'Chưa có tài liệu nào được tải lên'}
+                    </p>
                     <p className="tip">
                         {activeTab === 'audio' 
                             ? 'Các file âm thanh sẽ xuất hiện tại đây sau khi bạn tạo nội dung âm thanh'
+                            : activeTab === 'reports'
+                            ? 'Tạo báo cáo đầu tiên của bạn ở tab "Báo Cáo Thông Minh"'
                             : 'Tải lên tài liệu để bắt đầu tạo cuộc trò chuyện âm thanh'
                         }
                     </p>
@@ -620,8 +702,18 @@ const FileManager = ({ notify }) => {
                                     )}
                                 </div>
                                 <div className="file-info-col">
-                                    <span className="file-size">{formatFileSize(file.size || file.file_size)}</span>
-                                    <span className="file-date">{formatDate(file.modified || file.upload_time)}</span>
+                                    <span className="file-size">
+                                        {activeTab === 'reports' 
+                                            ? `${file.size_kb || 0} KB`
+                                            : formatFileSize(file.size || file.file_size)
+                                        }
+                                    </span>
+                                    <span className="file-date">
+                                        {activeTab === 'reports'
+                                            ? formatDate(file.created_at)
+                                            : formatDate(file.modified || file.upload_time)
+                                        }
+                                    </span>
                                 </div>
                                 <div className="file-actions-col">
                                     {activeTab === 'audio' && (
@@ -657,6 +749,32 @@ const FileManager = ({ notify }) => {
                                                 onClick={() => deleteFile(file.name || file.filename, activeTab)}
                                                 className="delete-btn"
                                                 title="Xóa file"
+                                            >
+                                                Xóa
+                                            </button>
+                                        </>
+                                    )}
+                                    {activeTab === 'reports' && (
+                                        <>
+                                            <button
+                                                onClick={() => window.open(`${API_BASE.replace('/api', '')}${file.pdf_url}`, '_blank')}
+                                                className="download-btn"
+                                                title="Xem PDF"
+                                            >
+                                                Xem PDF
+                                            </button>
+                                            <a
+                                                href={`${API_BASE.replace('/api', '')}${file.pdf_url}`}
+                                                download
+                                                className="download-btn"
+                                                title="Tải xuống PDF"
+                                            >
+                                                Tải PDF
+                                            </a>
+                                            <button
+                                                onClick={() => deleteFile(file.filename, activeTab)}
+                                                className="delete-btn"
+                                                title="Xóa báo cáo"
                                             >
                                                 Xóa
                                             </button>

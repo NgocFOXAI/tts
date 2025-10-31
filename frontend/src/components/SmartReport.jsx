@@ -10,16 +10,12 @@ import Sidebar from './common/Sidebar';
 import { SettingsSection } from './common/SettingsSection';
 
 const SmartReport = ({ notify }) => {
-  const location = useLocation();
-  const [view, setView] = useState('create'); // 'create' or 'manage'
-  
   // Use chat state hook with localStorage persistence
   const { messages, setMessages, inputMessage, setInputMessage, clearChat, addMessage } = useChatState('smartReport_chatState');
   
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [savedReports, setSavedReports] = useState([]);
-  const [loadingReports, setLoadingReports] = useState(false);
+  const [maxSlides, setMaxSlides] = useState(5);
   
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -60,81 +56,6 @@ const SmartReport = ({ notify }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  // URL parameter handling
-  useEffect(() => {
-    const urlParams = new URLSearchParams(location.search);
-    const mode = urlParams.get('mode');
-    
-    if (mode === 'manage') {
-      setView('manage');
-    } else {
-      setView('create');
-    }
-  }, [location.search]);
-
-  // Listen for URL changes
-  useEffect(() => {
-    const handlePopState = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const mode = urlParams.get('mode');
-      
-      if (mode === 'manage') {
-        setView('manage');
-      } else {
-        setView('create');
-      }
-    };
-
-    window.addEventListener('popstate', handlePopState);
-    
-    const handleLocationChange = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const mode = urlParams.get('mode');
-      
-      if (mode === 'manage') {
-        setView('manage');
-      } else {
-        setView('create');
-      }
-    };
-
-    const interval = setInterval(handleLocationChange, 100);
-
-    return () => {
-      window.removeEventListener('popstate', handlePopState);
-      clearInterval(interval);
-    };
-  }, []);
-
-  // Load saved reports when switching to manage view
-  useEffect(() => {
-    if (view === 'manage') {
-      loadSavedReports();
-    }
-  }, [view]);
-
-  const loadSavedReports = async () => {
-    setLoadingReports(true);
-    try {
-      const response = await fetch(`${env.api.baseUrl}/claude/dashboard`);
-      const data = await response.json();
-      
-      if (data.files) {
-        setSavedReports(data.files);
-        if (notify) {
-          notify.success(`Đã tải ${data.total} báo cáo`, { duration: 2000 });
-        }
-      }
-    } catch (error) {
-      console.error('Error loading reports:', error);
-      if (notify) {
-        notify.error('Lỗi khi tải danh sách báo cáo', { duration: 3000 });
-      }
-    } finally {
-      setLoadingReports(false);
-    }
-  };
 
   const handleFileSelect = (files) => {
     if (files && files.length > 0) {
@@ -188,6 +109,7 @@ const SmartReport = ({ notify }) => {
       const formData = new FormData();
       formData.append('message', inputMessage);
       formData.append('output_format', 'pdf');
+      formData.append('max_slides', maxSlides);
       
       if (file) {
         formData.append('file', file);
@@ -251,35 +173,6 @@ const SmartReport = ({ notify }) => {
     document.body.removeChild(link);
   };
 
-  const handleDeleteReport = async (filename) => {
-    if (!window.confirm(`Bạn có chắc muốn xóa báo cáo "${filename}"?`)) {
-      return;
-    }
-
-    try {
-      const response = await fetch(`${env.api.baseUrl}/claude/dashboard/${filename}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        throw new Error('Lỗi khi xóa báo cáo');
-      }
-
-      // Reload reports
-      await loadSavedReports();
-
-      if (notify) {
-        notify.success('Đã xóa báo cáo thành công', { duration: 2000 });
-      }
-
-    } catch (error) {
-      console.error('Error deleting report:', error);
-      if (notify) {
-        notify.error('Lỗi khi xóa báo cáo', { duration: 3000 });
-      }
-    }
-  };
-
   const handleViewReport = (pdfUrl) => {
     window.open(pdfUrl, '_blank');
   };
@@ -310,6 +203,37 @@ const SmartReport = ({ notify }) => {
                 <strong>FOXAi Smart Report:</strong> Tạo slide báo cáo chuyên nghiệp từ tài liệu PDF/DOCX với biểu đồ và số liệu trực quan.
               </div>
             </div>
+
+            <div style={{ marginTop: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+                Số trang slide
+              </label>
+              <input
+                type="number"
+                min="3"
+                max="5"
+                value={maxSlides}
+                onChange={(e) => {
+                  let val = parseInt(e.target.value) || 5;
+                  // Giới hạn từ 3-5
+                  if (val < 3) val = 3;
+                  if (val > 5) val = 5;
+                  setMaxSlides(val);
+                }}
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  outline: 'none'
+                }}
+              />
+              <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                Giới hạn: 3-5 trang. Mỗi slide có 2-4 biểu đồ.
+              </p>
+            </div>
           </SettingsSection>
         </div>
       </Sidebar>
@@ -322,8 +246,7 @@ const SmartReport = ({ notify }) => {
 
         <div className={styles.contentBody}>
           {/* Create Report View */}
-          {view === 'create' && (
-            <div className={styles.podcastContainer}>
+          <div className={styles.podcastContainer}>
               {/* Clear Chat Button */}
               {messages.length > 0 && (
                 <div style={{ marginBottom: '15px', display: 'flex', justifyContent: 'flex-end' }}>
@@ -497,106 +420,6 @@ const SmartReport = ({ notify }) => {
                 </form>
               </div>
             </div>
-          )}
-
-          {/* Manage View */}
-          {view === 'manage' && (
-            <div className={styles.podcastContainer}>
-              {/* Actions */}
-              <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
-                <button onClick={loadSavedReports} className={styles.generateButton}>
-                  Làm Mới
-                </button>
-                <button 
-                  onClick={handleClearChat} 
-                  className={styles.generateButton}
-                  style={{ background: '#ef4444' }}
-                >
-                  Xóa Lịch Sử Chat
-                </button>
-              </div>
-
-              {/* Stats */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
-                <div style={{ padding: '15px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                  <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '5px' }}>Tổng Báo Cáo</div>
-                  <div style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>{savedReports.length}</div>
-                </div>
-                <div style={{ padding: '15px', background: '#f9fafb', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
-                  <div style={{ fontSize: '13px', color: '#6b7280', marginBottom: '5px' }}>Tổng Dung Lượng</div>
-                  <div style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937' }}>
-                    {savedReports.reduce((sum, r) => sum + (r.size_kb || 0), 0).toFixed(0)} KB
-                  </div>
-                </div>
-              </div>
-
-              {loadingReports ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Đang tải danh sách báo cáo...</div>
-              ) : savedReports.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
-                  <p style={{ fontSize: '16px', fontWeight: '600', marginBottom: '10px' }}>Chưa có báo cáo nào</p>
-                  <p>Tạo báo cáo đầu tiên của bạn ở tab "Tạo Báo Cáo"</p>
-                </div>
-              ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
-                        <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Tên File</th>
-                        <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Kích Thước</th>
-                        <th style={{ padding: '12px', textAlign: 'left', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Ngày Tạo</th>
-                        <th style={{ padding: '12px', textAlign: 'center', fontSize: '13px', fontWeight: '600', color: '#374151' }}>Thao Tác</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {savedReports.map((report) => (
-                        <tr key={report.filename} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                          <td style={{ padding: '12px', fontSize: '14px', color: '#1f2937' }}>
-                            <strong>{report.filename}</strong>
-                          </td>
-                          <td style={{ padding: '12px', fontSize: '14px', color: '#6b7280' }}>
-                            {report.size_kb} KB
-                          </td>
-                          <td style={{ padding: '12px', fontSize: '14px', color: '#6b7280' }}>
-                            {new Date(report.created_at).toLocaleString('vi-VN')}
-                          </td>
-                          <td style={{ padding: '12px', textAlign: 'center' }}>
-                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                              <button
-                                className={styles.generateButton}
-                                onClick={() => handleViewReport(`${env.api.baseUrl.replace('/api', '')}${report.pdf_url}`)}
-                                title="Xem PDF"
-                                style={{ fontSize: '13px', padding: '6px 12px' }}
-                              >
-                                Xem PDF
-                              </button>
-                              <a
-                                href={`${env.api.baseUrl.replace('/api', '')}${report.pdf_url}`}
-                                download
-                                className={styles.generateButton}
-                                title="Tải xuống PDF"
-                                style={{ fontSize: '13px', padding: '6px 12px', textDecoration: 'none', display: 'inline-block' }}
-                              >
-                                Tải PDF
-                              </a>
-                              <button
-                                className={styles.generateButton}
-                                onClick={() => handleDeleteReport(report.filename)}
-                                title="Xóa"
-                                style={{ fontSize: '13px', padding: '6px 12px', background: '#ef4444' }}
-                              >
-                                Xóa
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>

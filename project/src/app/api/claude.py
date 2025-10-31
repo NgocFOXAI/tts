@@ -14,15 +14,19 @@ logger = logging.getLogger(__name__)
 async def chat_with_claude(
     message: str = Form(..., description="User message to send to Claude"),
     file: Optional[UploadFile] = File(None, description="Optional PDF or DOCX file"),
-    output_format: str = Form("html", description="Output format: 'html' or 'pdf'")
+    output_format: str = Form("html", description="Output format: 'html' or 'pdf'"),
+    max_slides: int = Form(5, description="Maximum number of slides to generate (3-5, default: 5)")
 ):
     """
     Send message to Claude AI and get HTML or PDF response
     
     Supports optional file upload (PDF/DOCX) for document analysis.
     Returns HTML or PDF based on output_format parameter.
+    Allows specifying max_slides to control the number of slides generated (3-5).
     """
     try:
+        # Validate max_slides
+        max_slides = max(3, min(5, max_slides))  # Clamp between 3-5
         # If file is provided, send with document
         if file:
             # Validate file type
@@ -41,13 +45,19 @@ async def chat_with_claude(
             html_content = await claude_service.send_message_with_document(
                 user_message=message,
                 document_base64=base64_content,
-                media_type=file.content_type
+                media_type=file.content_type,
+                max_slides=max_slides
             )
         else:
             # Call service without document
             html_content = await claude_service.send_simple_message(
-                user_message=message
+                user_message=message,
+                max_slides=max_slides
             )
+        
+        # Log slide count for monitoring
+        slide_count = html_content.count('<div class="slide"')
+        logger.info(f"📊 Generated {slide_count} slides with A4 landscape format")
         
         # Save to dashboard
         file_info = await pdf_generator.save_dashboard_file(html_content)

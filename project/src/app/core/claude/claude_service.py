@@ -77,8 +77,9 @@ class ClaudeService:
         self,
         user_message: str,
         model: str = "claude-sonnet-4-5-20250929",
-        max_tokens: int = 60000,
-        system: Optional[str] = None
+        max_tokens: int = 30000,
+        system: Optional[str] = None,
+        max_slides: int = 5
     ) -> str:
         """
         Send simple text message to Claude
@@ -94,35 +95,30 @@ class ClaudeService:
         """
         # Default system prompt for HTML slide generation
         if system is None:
-            system = """BẠN LÀ CHUYÊN GIA TẠO BÁO CÁO SLIDESHOW CHUYÊN NGHIỆP.
+            system = f"""Tạo slideshow {max_slides} slides từ file, mỗi slide có: KPI + Biểu đồ Chart.js + Text insight.
 
-🎯 NHIỆM VỤ:
-- Đọc kỹ file PDF/DOCX
-- Tạo SLIDESHOW 3-4 SLIDES (tối đa 5 trang)
-- Mỗi slide có biểu đồ Chart.js minh họa số liệu thực
-- KHÔNG tạo slide bìa riêng, đi thẳng vào nội dung
+CẤU TRÚC:
+• Slide 1: Tổng quan
+• Slide 2-{max_slides-1}: Phân tích chi tiết
+• Slide {max_slides}: Kết luận
 
-📋 CẤU TRÚC:
-• Slide 1: TỔNG QUAN (KPI + biểu đồ overview)
-• Slide 2-3: PHÂN TÍCH CHI TIẾT (mỗi slide 1 chủ đề + biểu đồ)
-• Slide 4: KẾT LUẬN (nếu cần)
+QUY TẮC:
+✅ Đúng {max_slides} slides
+✅ Mỗi slide: Tiêu đề + 1-2 chart + 2-3 KPI + 3-5 bullets insight
+✅ Chọn chart theo data: Line (thời gian), Bar (so sánh), Pie (tỷ lệ)
+✅ KPI highlight số có % thay đổi
+✅ Text: What (nhận định) → Why (giải thích) → So what (hành động)
+❌ Không copy template, phải phân tích data để chọn chart phù hợp
 
-⚠️ QUY TẮC:
-✅ Số liệu THẬT từ tài liệu
-✅ Màu professional: Navy (#1e40af, #3b82f6) + Xám (#6b7280)
-✅ Biểu đồ Chart.js đầy đủ
-❌ KHÔNG quá 5 trang
-❌ KHÔNG markdown code block
-❌ KHÔNG giải thích bên ngoài HTML
+LAYOUT A4 landscape (297x210mm):
+- Slide: padding 15mm, flexbox
+- Trái 55%: chart (canvas responsive)
+- Phải 45%: KPI box + bullet list
+- Màu: #1e40af, #3b82f6, #6b7280
 
-💻 FORMAT HTML SLIDESHOW:
-- Mỗi slide: <div class="slide"> với position: absolute, width: 100vw, height: 100vh
-- Slide đầu tiên có class="active", các slide khác display: none
-- Navigation buttons (◀ ▶) fixed position
-- JavaScript để chuyển slide
-- Chart.js CDN: https://cdn.jsdelivr.net/npm/chart.js
+Chart.js: responsive:true, aspectRatio:16/9
 
-✅ TRẢ VỀ: HTML hoàn chỉnh bắt đầu với <!DOCTYPE html>"""
+OUTPUT: HTML string (<!DOCTYPE html>...</html>)"""
         
         messages = [
             {"role": "user", "content": user_message}
@@ -150,7 +146,8 @@ class ClaudeService:
         document_base64: str,
         media_type: str,
         model: str = "claude-sonnet-4-5-20250929",
-        max_tokens: int = 60000
+        max_tokens: int = 30000,
+        max_slides: int = 5
     ) -> str:
         """
         Send message with document (PDF/DOCX) to Claude
@@ -165,36 +162,35 @@ class ClaudeService:
         Returns:
             Text response from Claude
         """
-        # Default system prompt for HTML slide generation
-        system = """BẠN LÀ CHUYÊN GIA TẠO BÁO CÁO SLIDESHOW CHUYÊN NGHIỆP.
+        # Default system prompt for HTML slide generation - use same as send_simple_message
+        system = f"""Tạo slideshow {max_slides} slides từ file, mỗi slide có: KPI + Biểu đồ Chart.js + Text insight.
 
-🎯 NHIỆM VỤ:
-- Đọc kỹ file PDF/DOCX
-- Tạo SLIDESHOW 3-4 SLIDES (tối đa 5 trang)
-- Mỗi slide có biểu đồ Chart.js minh họa số liệu thực
-- KHÔNG tạo slide bìa riêng, đi thẳng vào nội dung
+CẤU TRÚC:
+• Slide 1: Tổng quan
+• Slide 2-{max_slides-1}: Phân tích chi tiết
+• Slide {max_slides}: Kết luận
 
-📋 CẤU TRÚC:
-• Slide 1: TỔNG QUAN (KPI + biểu đồ overview)
-• Slide 2-3: PHÂN TÍCH CHI TIẾT (mỗi slide 1 chủ đề + biểu đồ)
-• Slide 4: KẾT LUẬN (nếu cần)
+QUY TẮC:
+✅ Đúng {max_slides} slides
+✅ Mỗi slide: Tiêu đề + 1-2 chart + 2-3 KPI + 3-5 bullets insight
+✅ Chọn chart theo data: Line (thời gian), Bar (so sánh), Pie (tỷ lệ)
+✅ KPI highlight số có % thay đổi
+✅ Text: What (nhận định) → Why (giải thích) → So what (hành động)
+❌ Không copy template, phải phân tích data để chọn chart phù hợp
 
-⚠️ QUY TẮC:
-✅ Số liệu THẬT từ tài liệu
-✅ Màu professional: Navy (#1e40af, #3b82f6) + Xám (#6b7280)
-✅ Biểu đồ Chart.js đầy đủ
-❌ KHÔNG quá 5 trang
-❌ KHÔNG markdown code block
-❌ KHÔNG giải thích bên ngoài HTML
+LAYOUT A4 landscape (297x210mm):
+- Slide: padding 15mm, flexbox
 
-💻 FORMAT HTML SLIDESHOW:
-- Mỗi slide: <div class="slide"> với position: absolute, width: 100vw, height: 100vh
-- Slide đầu tiên có class="active", các slide khác display: none
-- Navigation buttons (◀ ▶) fixed position
-- JavaScript để chuyển slide
-- Chart.js CDN: https://cdn.jsdelivr.net/npm/chart.js
+YÊU CẦU SÁNG TẠO:
+- **KHÔNG** copy y nguyên ví dụ
+- **PHẢI** phân tích nội dung file để chọn chart type phù hợp
+- **NÊN** thay đổi layout nếu cần (vd: 2 chart nhỏ thay vì 1 chart lớn)
+- **CÓ THỂ** dùng color palette khác nhau cho từng slide nếu phù hợp
+- Mỗi slide phải reflect đúng insight từ data, không làm theo khuôn mẫu
 
-✅ TRẢ VỀ: HTML hoàn chỉnh bắt đầu với <!DOCTYPE html>"""
+Chart.js: responsive:true, aspectRatio:16/9
+
+OUTPUT: HTML string (<!DOCTYPE html>...</html>)"""
         
         messages = [
             {

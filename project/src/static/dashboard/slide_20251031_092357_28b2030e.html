@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Báo Cáo Kinh Tế - Xã Hội Quý III/2025 Phường Việt Hưng</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+        
+        * { box-sizing: border-box; }
+        
+        body { 
+            margin: 0; 
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+        }
+        
+        .slide {
+            width: 297mm;
+            height: 210mm;
+            padding: 40px;
+            page-break-after: always;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        
+        .slide-header {
+            margin-bottom: 20px;
+        }
+        
+        .slide h2 {
+            font-size: 28px;
+            color: #1e40af;
+            margin: 0 0 10px 0;
+        }
+        
+        .slide-content {
+            flex: 1;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .chart-container {
+            flex: 0 0 55%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .text-content {
+            flex: 1;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1f2937;
+        }
+        
+        .text-content ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .text-content li {
+            margin: 10px 0;
+        }
+
+        canvas {
+            max-width: 100% !important;
+            max-height: 100% !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Slide 1: Tổng Quan -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>TỔNG QUAN PHƯỜNG VIỆT HƯNG</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart1" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Diện tích:</strong> 12,8 km² sau sáp nhập 7 phường</li>
+                    <li><strong>Dân số:</strong> 121.436 người (62 tổ dân phố)</li>
+                    <li><strong>Thành lập:</strong> 01/7/2025 theo NQ 1656/NQUBTVQH15</li>
+                    <li><strong>Mô hình:</strong> Chính quyền địa phương 2 cấp mới</li>
+                    <li><strong>Đặc điểm:</strong> Quy mô dân số lớn, hạ tầng đa dạng</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Tổ Chức Bộ Máy -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>CÔNG TÁC TỔ CHỨC BỘ MÁY SAU SÁP NHẬP</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart2" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Văn bản cán bộ:</strong> 171 quyết định (QĐ 04-174)</li>
+                    <li><strong>Trụ sở:</strong> Sắp xếp 5/7 trụ sở, còn 2 chưa xử lý</li>
+                    <li><strong>Tổ dân phố:</strong> Đổi tên 62 TDP, tỷ lệ đồng ý 98,2%</li>
+                    <li><strong>Văn bản xử lý:</strong> 5.473 văn bản đến, 1.644 văn bản đi</li>
+                    <li><strong>Họp hành:</strong> 17 hội nghị, 94 cuộc họp, 22 buổi tiếp dân</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Kết Quả Chỉ Tiêu -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>KẾT QUẢ THỰC HIỆN CHỈ TIÊU KINH TẾ - XÃ HỘI</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart3" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Hoàn thành:</strong> 6/12 chỉ tiêu đạt/vượt kế hoạch</li>
+                    <li><strong>Thu ngân sách:</strong> 48.411 triệu đồng (77% KH)</li>
+                    <li><strong>Chi ngân sách:</strong> 257.135 triệu đồng (65% KH)</li>
+                    <li><strong>Đang thực hiện:</strong> 6 chỉ tiêu chưa đến hạn đánh giá</li>
+                    <li><strong>Xu hướng:</strong> Tăng trưởng ổn định, đạt tiến độ</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: Thu Ngân Sách -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>CƠ CẤU THU NGÂN SÁCH QUÝ III/2025</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart4" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Lệ phí trước bạ:</strong> 36.914 triệu (đạt 81% KH)</li>
+                    <li><strong>Thuế đất phi nông nghiệp:</strong> 6.685 triệu (48%)</li>
+                    <li><strong>Phí, lệ phí:</strong> 827 triệu (đạt 176% - vượt KH)</li>
+                    <li><strong>Quỹ đất công ích:</strong> 3.985 triệu (đạt 142%)</li>
+                    <li><strong>Dự kiến:</strong> Hoàn thành 100% chỉ tiêu cuối năm</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: An Sinh Xã Hội -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>CÔNG TÁC AN SINH XÃ HỘI VÀ NGƯỜI CÓ CÔNG</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart5" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Thăm hỏi NCC:</strong> 2.119 lượt, tổng 2,65 tỷ đồng</li>
+                    <li><strong>Quỹ đền ơn:</strong> 11 sổ tiết kiệm + 1.072 suất quà</li>
+                    <li><strong>Khám sức khỏe:</strong> 525 lượt NCC miễn phí</li>
+                    <li><strong>Trợ cấp định kỳ:</strong> Chi trả đầy đủ, kịp thời</li>
+                    <li><strong>Sửa nhà chính sách:</strong> 01 nhà, kinh phí 35 triệu</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6: Giáo Dục -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>CÔNG TÁC GIÁO DỤC VÀ ĐÀO TẠO</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart6" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Tuyển sinh:</strong> MN 101,2%, TH 105,6%, THCS 93,8%</li>
+                    <li><strong>Hoàn thành:</strong> 03 dự án trường học năm 2025-2026</li>
+                    <li><strong>Kiểm tra ATTP:</strong> 28/29 bếp ăn đạt chuẩn (96,5%)</li>
+                    <li><strong>Đánh giá:</strong> 04 trường tự đánh giá, 03 đón đoàn</li>
+                    <li><strong>Khai giảng:</strong> Tổ chức trang trọng, an toàn, tiết kiệm</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 7: Y Tế -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>CÔNG TÁC Y TẾ VÀ PHÒNG CHỐNG DỊCH BỆNH</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart7" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Khám chữa bệnh:</strong> 8.130 lượt, chuyển tuyến 1.051</li>
+                    <li><strong>Xét nghiệm:</strong> 11.654 lượt, siêu âm 817 ca</li>
+                    <li><strong>Tiêm chủng trẻ <1 tuổi:</strong> Đạt 95%</li>
+                    <li><strong>Hồ sơ sức khỏe:</strong> Cập nhật 97,3%, có HS 98,2%</li>
+                    <li><strong>Hiến máu:</strong> 426 đơn vị (133% KH), tỷ lệ TC 88%</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 8: An Ninh Trật Tự -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>CÔNG TÁC AN NINH - TRẬT TỰ VÀ QUỐC PHÒNG</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart8" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Xử lý hình sự:</strong> 31 vụ, khám phá 20 vụ (64,5%)</li>
+                    <li><strong>Ma túy:</strong> 12 vụ, 20 đối tượng bị xử lý</li>
+                    <li><strong>Vi phạm môi trường:</strong> 46 vụ, thu phạt 98,625 triệu</li>
+                    <li><strong>Tuyển quân:</strong> 06 đơn tình nguyện, 05 QĐ nhập ngũ</li>
+                    <li><strong>Dân quân:</strong> Xây dựng đầy đủ biên chế, sẵn sàng PCTT</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 9: Văn Hóa - Thể Thao -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>HOẠT ĐỘNG VĂN HÓA - THỂ THAO NỔI BẬT</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart9" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Văn nghệ:</strong> 06 đêm liên hoan tại các cụm dân cư</li>
+                    <li><strong>Thể thao:</strong> Bóng bàn (50 VĐV), Bơi (200 VĐV)</li>
+                    <li><strong>Tuần Văn hóa:</strong> 150 gian hàng, triển lãm sinh vật cảnh</li>
+                    <li><strong>Gắn biển:</strong> Đường danh nhân, 03 vườn hoa mới</li>
+                    <li><strong>Kỷ niệm 80 năm:</strong> Chuỗi sự kiện 19/8-02/9 thành công</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 10: Chuyển Đổi Số -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>CHUYỂN ĐỔI SỐ VÀ CÁCH MẠNG HÀNH CHÍNH</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart10" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Chiến dịch 45 ngày:</strong> Hỗ trợ CĐS tại điểm phục vụ HCC</li>
+                    <li><strong>Tập huấn:</strong> 02 lớp "Bình dân học vụ số" (130 CB)</li>
+                    <li><strong>Hồ sơ trực tuyến:</strong> Tăng gần 30%, đứng top TP</li>
+                    <li><strong>Giải quyết TTHC:</strong> 1.979 hồ sơ, xử lý toàn trình cao</li>
+                    <li><strong>ISO 9001:2015:</strong> Duy trì, mở rộng hệ thống QLCL</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 11: Kết Luận -->
+    <div class="slide">
+        <div class="slide-header">
+            <h2>NHIỆM VỤ TRỌNG TÂM 3 THÁNG CUỐI NĂM 2025</h2>
+        </div>
+        <div class="slide-content">
+            <div class="chart-container">
+                <canvas id="chart11" width="600" height="400"></canvas>
+            </div>
+            <div class="text-content">
+                <ul>
+                    <li><strong>Hoàn thành:</strong> 100% chỉ tiêu kinh tế - xã hội 2025</li>
+                    <li><strong>Xây dựng:</strong> 04 chương trình công tác toàn khóa ĐU</li>
+                    <li><strong>Đẩy nhanh:</strong> Tiến độ đầu tư công, GPMB, đấu giá đất</li>
+                    <li><strong>Tăng cường:</strong> Quản lý đất công, TTXD, VSMT, ANTT</li>
+                    <li><strong>Chuẩn bị:</strong> Kỳ họp HĐND cuối năm, Tết Nguyên đán 2026</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart 1: Tổng Quan
+        new Chart(document.getElementById('chart1'), {
+            type: 'bar',
+            data: {
+                labels: ['Diện tích (km²)', 'Dân số (x1000)', 'Số TDP', 'Số phường sáp nhập'],
+                datasets: [{
+                    label: 'Quy mô địa bàn',
+                    data: [12.8, 121.436, 62, 7],
+                    backgroundColor: ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { font: { size: 14 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Chart 2: Tổ Chức Bộ Máy
+        new Chart(document.getElementById('chart2'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Quyết định CB', 'Văn bản đến', 'Văn bản đi', 'Họp/Hội nghị'],
+                datasets: [{
+                    data: [171, 5473, 1644, 111],
+                    backgroundColor: ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'right',
+                        labels: { font: { size: 14 } } 
+                    }
+                }
+            }
+        });
+
+        // Chart 3: Chỉ Tiêu KTXH
+        new Chart(document.getElementById('chart3'), {
+            type: 'bar',
+            data: {
+                labels: ['Hoàn thành', 'Đang thực hiện', 'Tổng chỉ tiêu'],
+                datasets: [{
+                    label: 'Số chỉ tiêu',
+                    data: [6, 6, 12],
+                    backgroundColor: ['#10b981', '#3b82f6', '#6b7280']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { font: { size: 14 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 15 }
+                }
+            }
+        });
+
+        // Chart 4: Thu Ngân Sách
+        new Chart(document.getElementById('chart4'), {
+            type: 'pie',
+            data: {
+                labels: ['Lệ phí trước bạ', 'Thuế đất phi NN', 'Phí, lệ phí', 'Quỹ đất công ích'],
+                datasets: [{
+                    data: [36914, 6685, 827, 3985],
+                    backgroundColor: ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { 
+                        position: 'right',
+                        labels: { font: { size: 13 } } 
+                    }
+                }
+            }
+        });
+
+        // Chart 5: An Sinh Xã Hội
+        new Chart(document.getElementById('chart5'), {
+            type: 'bar',
+            data: {
+                labels: ['Lượt thăm NCC', 'Sổ tiết kiệm', 'Suất quà', 'Lượt khám SK'],
+                datasets: [{
+                    label: 'Số lượng',
+                    data: [2119, 11, 1072, 525],
+                    backgroundColor: ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { font: { size: 14 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Chart 6: Giáo Dục
+        new Chart(document.getElementById('chart6'), {
+            type: 'bar',
+            data: {
+                labels: ['Mầm non', 'Tiểu học', 'THCS', 'Bếp ăn đạt chuẩn'],
+                datasets: [{
+                    label: 'Tỷ lệ % so KH',
+                    data: [101.2, 105.6, 93.8, 96.5],
+                    backgroundColor: ['#10b981', '#10b981', '#f59e0b', '#10b981']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { font: { size: 14 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true, max: 110 }
+                }
+            }
+        });
+
+        // Chart 7: Y Tế
+        new Chart(document.getElementById('chart7'), {
+            type: 'line',
+            data: {
+                labels: ['Khám CB', 'Xét nghiệm', 'Siêu âm', 'Chuyển tuyến', 'X-quang'],
+                datasets: [{
+                    label: 'Số lượt',
+                    data: [8130, 11654, 817, 1051, 694],
+                    borderColor: '#1e40af',
+                    backgroundColor: 'rgba(30, 64, 175, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { font: { size: 14 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Chart 8: An Ninh
+        new Chart(document.getElementById('chart8'), {
+            type: 'bar',
+            data: {
+                labels: ['Hình sự', 'Ma túy', 'Vi phạm MT', 'Kinh tế', 'An ninh KT'],
+                datasets: [{
+                    label: 'Số vụ xử lý',
+                    data: [31, 12, 46, 3, 1],
+                    backgroundColor: ['#dc2626', '#f59e0b', '#eab308', '#3b82f6', '#6b7280']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { font: { size: 14 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Chart 9: Văn Hóa - Thể Thao
+        new Chart(document.getElementById('chart9'), {
+            type: 'radar',
+            data: {
+                labels: ['Văn nghệ', 'Thể thao', 'Triển lãm', 'Tuyên truyền', 'Gắn biển'],
+                datasets: [{
+                    label: 'Mức độ hoạt động',
+                    data: [6, 5, 4, 8, 4],
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    borderColor: '#3b82f6',
+                    pointBackgroundColor: '#1e40af'
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { font: { size: 14 } } }
+                },
+                scales: {
+                    r: { beginAtZero: true, max: 10 }
+                }
+            }
+        });
+
+        // Chart 10: Chuyển Đổi Số
+        new Chart(document.getElementById('chart10'), {
+            type: 'bar',
+            data: {
+                labels: ['Hồ sơ TTHC', 'Tập huấn (người)', 'Tăng HS trực tuyến (%)', 'Tỷ lệ HS toàn trình (%)'],
+                datasets: [{
+                    label: 'Kết quả CĐS',
+                    data: [1979, 130, 30, 95],
+                    backgroundColor: ['#1e40af', '#3b82f6', '#10b981', '#10b981']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { font: { size: 14 } } }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Chart 11: Nhiệm Vụ 3 Tháng Cuối Năm
+        new Chart(document.getElementById('chart11'), {
+            type: 'horizontalBar',
+            data: {
+                labels: ['Hoàn thành chỉ tiêu', 'Xây dựng chương trình', 'Đầu tư công', 'Quản lý đất công', 'Chuẩn bị kỳ họp'],
+                datasets: [{
+                    label: 'Mức độ ưu tiên',
+                    data: [10, 9, 9, 8, 7],
+                    backgroundColor: ['#1e40af', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe']
+                }]
+            },
+            options: {
+                responsive: false,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: {
+                    legend: { labels: { font: { size: 14 } } }
+                },
+                scales: {
+                    x: { beginAtZero: true, max: 10 }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

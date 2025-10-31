@@ -37,17 +37,14 @@ function AppContent() {
       component: <FileManager notify={notify} />,
       subTabs: [
         { id: 'files-docs', label: 'Tài Liệu', path: '/files?tab=documents' },
-        { id: 'files-audio', label: 'Âm Thanh', path: '/files?tab=audio' }
+        { id: 'files-audio', label: 'Âm Thanh', path: '/files?tab=audio' },
+        { id: 'files-reports', label: 'Quản Lý Báo Cáo', path: '/files?tab=reports' }
       ]
     },
     { 
       id: 'report', 
       label: 'Báo Cáo Thông Minh', 
-      path: '/report',
-      subTabs: [
-        { id: 'report-create', label: 'Tạo Báo Cáo', path: '/report?mode=create' },
-        { id: 'report-manage', label: 'Quản Lý File', path: '/report?mode=manage' }
-      ]
+      path: '/report'
     },
   ];
 
