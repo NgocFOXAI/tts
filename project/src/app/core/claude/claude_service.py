@@ -95,30 +95,24 @@ class ClaudeService:
         """
         # Default system prompt for HTML slide generation
         if system is None:
-            system = f"""Tạo slideshow {max_slides} slides từ file, mỗi slide có: KPI + Biểu đồ Chart.js + Text insight.
-
-CẤU TRÚC:
-• Slide 1: Tổng quan
-• Slide 2-{max_slides-1}: Phân tích chi tiết
-• Slide {max_slides}: Kết luận
+            system = f"""Phân tích file và tạo {max_slides} slides HTML báo cáo. Mỗi slide kết hợp số liệu, biểu đồ và text.
 
 QUY TẮC:
-✅ Đúng {max_slides} slides
-✅ Mỗi slide: Tiêu đề + 1-2 chart + 2-3 KPI + 3-5 bullets insight
-✅ Chọn chart theo data: Line (thời gian), Bar (so sánh), Pie (tỷ lệ)
-✅ KPI highlight số có % thay đổi
-✅ Text: What (nhận định) → Why (giải thích) → So what (hành động)
-❌ Không copy template, phải phân tích data để chọn chart phù hợp
+- Đúng {max_slides} slides, không thêm không bớt
+- Mỗi slide: tiêu đề + biểu đồ Chart.js + KPI numbers + bullet points insight
+- Chọn chart type phù hợp data: Line (xu hướng), Bar (so sánh), Pie (tỷ lệ), Combo
+- Layout tự do, không bắt buộc format cứng
+- Màu sắc professional, không quá màu mè
+- KHÔNG tạo slide trống hoặc chỉ có tiêu đề
 
-LAYOUT A4 landscape (297x210mm):
-- Slide: padding 15mm, flexbox
-- Trái 55%: chart (canvas responsive)
-- Phải 45%: KPI box + bullet list
-- Màu: #1e40af, #3b82f6, #6b7280
+HTML format:
+- A4 landscape (297mm x 210mm)
+- Class "slide" cho mỗi slide
+- @page size: A4 landscape, margin: 0
+- page-break-after: always
+- Chart.js CDN + responsive config
 
-Chart.js: responsive:true, aspectRatio:16/9
-
-OUTPUT: HTML string (<!DOCTYPE html>...</html>)"""
+Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>)"""
         
         messages = [
             {"role": "user", "content": user_message}
@@ -163,34 +157,24 @@ OUTPUT: HTML string (<!DOCTYPE html>...</html>)"""
             Text response from Claude
         """
         # Default system prompt for HTML slide generation - use same as send_simple_message
-        system = f"""Tạo slideshow {max_slides} slides từ file, mỗi slide có: KPI + Biểu đồ Chart.js + Text insight.
-
-CẤU TRÚC:
-• Slide 1: Tổng quan
-• Slide 2-{max_slides-1}: Phân tích chi tiết
-• Slide {max_slides}: Kết luận
+        system = f"""Phân tích file và tạo {max_slides} slides HTML báo cáo. Mỗi slide kết hợp số liệu, biểu đồ và text.
 
 QUY TẮC:
-✅ Đúng {max_slides} slides
-✅ Mỗi slide: Tiêu đề + 1-2 chart + 2-3 KPI + 3-5 bullets insight
-✅ Chọn chart theo data: Line (thời gian), Bar (so sánh), Pie (tỷ lệ)
-✅ KPI highlight số có % thay đổi
-✅ Text: What (nhận định) → Why (giải thích) → So what (hành động)
-❌ Không copy template, phải phân tích data để chọn chart phù hợp
+- Đúng {max_slides} slides, không thêm không bớt
+- Mỗi slide: tiêu đề + biểu đồ Chart.js + KPI numbers + bullet points insight
+- Chọn chart type phù hợp data: Line (xu hướng), Bar (so sánh), Pie (tỷ lệ), Combo
+- Layout tự do, không bắt buộc format cứng
+- Màu sắc professional, không quá màu mè
+- KHÔNG tạo slide trống hoặc chỉ có tiêu đề
 
-LAYOUT A4 landscape (297x210mm):
-- Slide: padding 15mm, flexbox
+HTML format:
+- A4 landscape (297mm x 210mm)
+- Class "slide" cho mỗi slide
+- @page size: A4 landscape, margin: 0
+- page-break-after: always
+- Chart.js CDN + responsive config
 
-YÊU CẦU SÁNG TẠO:
-- **KHÔNG** copy y nguyên ví dụ
-- **PHẢI** phân tích nội dung file để chọn chart type phù hợp
-- **NÊN** thay đổi layout nếu cần (vd: 2 chart nhỏ thay vì 1 chart lớn)
-- **CÓ THỂ** dùng color palette khác nhau cho từng slide nếu phù hợp
-- Mỗi slide phải reflect đúng insight từ data, không làm theo khuôn mẫu
-
-Chart.js: responsive:true, aspectRatio:16/9
-
-OUTPUT: HTML string (<!DOCTYPE html>...</html>)"""
+Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>)"""
         
         messages = [
             {
