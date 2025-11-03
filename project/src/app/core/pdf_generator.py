@@ -183,20 +183,25 @@ class PDFGenerator:
     
     async def save_dashboard_file(self, html_content: str, filename: str = None, content_context: str = None) -> dict:
         """
-        Save HTML and PDF to dashboard directory
+        Save HTML and PDF to dashboard directory with intelligent filename generation
+        
+        Filename generation strategy (three-tier fallback):
+        1. Use provided filename (from Claude AI suggestion)
+        2. Generate with Gemini AI if content_context provided
+        3. Fallback to timestamp + UUID if above methods fail
         
         Args:
             html_content: HTML string to save
-            filename: Optional filename (without extension), generates UUID if not provided
-            content_context: Optional context to generate meaningful filename using Gemini
+            filename: Optional filename (without extension), typically from Claude AI suggestion
+            content_context: Optional context to generate meaningful filename using Gemini (fallback)
             
         Returns:
             Dict with file info: {filename, html_path, pdf_path, created_at}
         """
-        # Generate filename if not provided
+        # Generate filename if not provided (three-tier fallback)
         if not filename:
             if content_context:
-                # Use Gemini to generate meaningful filename
+                # Use Gemini to generate meaningful filename (Tier 2 fallback)
                 try:
                     from app.core.gemini_service import GeminiService
                     gemini = GeminiService()
@@ -211,7 +216,7 @@ Content context:
 
 Return ONLY the filename (without extension), nothing else."""
                     
-                    logger.info(" Asking Gemini to generate meaningful filename...")
+                    logger.info("🤖 Asking Gemini to generate meaningful filename...")
                     gemini_filename = await gemini.generate_text(prompt=prompt)
                     
                     # Clean up the response
@@ -221,21 +226,28 @@ Return ONLY the filename (without extension), nothing else."""
                     # Validate length and use if valid
                     if gemini_filename and len(gemini_filename) <= 50:
                         filename = gemini_filename
-                        logger.info(f"Gemini generated filename: {filename}")
+                        logger.info(f"✅ Gemini generated filename: {filename}")
                     else:
-                        # Fallback to timestamp
+                        # Fallback to timestamp (Tier 3)
                         filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
-                        logger.warning(f"Gemini filename invalid, using fallback: {filename}")
+                        logger.warning(f"⚠️ Gemini filename invalid, using timestamp fallback: {filename}")
                 except Exception as e:
-                    # Fallback to timestamp if Gemini fails
-                    logger.error(f"Failed to generate filename with Gemini: {e}")
+                    # Fallback to timestamp if Gemini fails (Tier 3)
+                    logger.error(f"❌ Failed to generate filename with Gemini: {e}")
                     filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+                    logger.info(f"🔄 Using timestamp fallback: {filename}")
             else:
-                # Default timestamp-based filename
+                # Default timestamp-based filename (Tier 3)
                 filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+                logger.info(f"🕐 No context provided, using timestamp: {filename}")
         
         # Sanitize filename (extra safety)
         filename = "".join(c for c in filename if c.isalnum() or c in ('-', '_'))
+        
+        # Final validation: if filename becomes empty after sanitization, use fallback
+        if not filename or len(filename) == 0:
+            filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
+            logger.warning(f"⚠️ Filename empty after sanitization, using fallback: {filename}")
         
         # Paths
         html_path = self.dashboard_dir / f"{filename}.html"
@@ -265,7 +277,7 @@ Return ONLY the filename (without extension), nothing else."""
             logger.info(f" PDF saved: {pdf_path}")
             
         except Exception as e:
-            logger.error(f"PDF generation failed: {e}")
+            logger.error(f"❌ PDF generation failed: {e}")
             logger.error(f"HTML was saved, but PDF could not be generated")
             # Continue anyway, HTML is saved
         

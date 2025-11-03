@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Tài chính CTCP - 6 tháng đầu 2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .slide { 
+            width: 297mm; height: 210mm; padding: 20mm;
+            background: white; page-break-after: always; page-break-inside: avoid;
+            display: flex; flex-direction: column; justify-content: space-between;
+        }
+        .slide:last-child { page-break-after: auto; }
+        h1 { font-size: 28px; color: #1a5490; margin-bottom: 15px; text-align: center; }
+        h2 { font-size: 20px; color: #2c5aa0; margin-bottom: 12px; }
+        .chart-container { height: 280px; margin: 15px 0; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 15px 0; }
+        .kpi-box { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    padding: 15px; border-radius: 8px; color: white; text-align: center; }
+        .kpi-value { font-size: 24px; font-weight: bold; margin: 8px 0; }
+        .kpi-label { font-size: 13px; opacity: 0.9; }
+        .insight-list { margin: 12px 0; padding-left: 20px; }
+        .insight-list li { margin: 8px 0; font-size: 15px; line-height: 1.5; }
+        .footer { text-align: center; font-size: 12px; color: #666; margin-top: auto; padding-top: 15px; border-top: 1px solid #ddd; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    </style>
+</head>
+<body>
+
+<!-- SLIDE 1: TỔNG QUAN TÀI CHÍNH -->
+<div class="slide">
+    <div>
+        <h1>📊 TỔNG QUAN TÀI CHÍNH 6 THÁNG ĐẦU 2025</h1>
+        <h2>Tổng Công ty Cơ điện Xây dựng - CTCP</h2>
+        
+        <div class="kpi-grid">
+            <div class="kpi-box">
+                <div class="kpi-label">TỔNG TÀI SẢN</div>
+                <div class="kpi-value">2.192 tỷ</div>
+                <div class="kpi-label">+0.1% so với đầu năm</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">DOANH THU</div>
+                <div class="kpi-value">35.847 tỷ</div>
+                <div class="kpi-label">+34.8% so với cùng kỳ</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-label">LỢI NHUẬN SAU THUẾ</div>
+                <div class="kpi-value">39.2 tỷ</div>
+                <div class="kpi-label">+107% so với cùng kỳ</div>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="chart1"></canvas>
+        </div>
+
+        <ul class="insight-list">
+            <li><strong>Tài sản:</strong> Ổn định ở mức 2.192 tỷ, trong đó tài sản ngắn hạn chiếm 23%</li>
+            <li><strong>Vốn CSH:</strong> 402.8 tỷ, tỷ lệ sở hữu 18.7% - cấu trúc vốn vững mạnh</li>
+            <li><strong>Doanh thu:</strong> Tăng trưởng mạnh 34.8% nhờ tăng cường hợp đồng xây lắp</li>
+            <li><strong>Lợi nhuận:</strong> Tăng gấp đôi so với cùng kỳ, cho thấy hiệu quả hoạt động tốt</li>
+        </ul>
+    </div>
+    <div class="footer">Nguồn: Báo cáo tài chính hợp nhất giữa niên độ | Kỳ kế toán: 01/01/2025 - 30/06/2025</div>
+</div>
+
+<!-- SLIDE 2: PHÂN TÍCH DOANH THU & HIỆU QUẢ -->
+<div class="slide">
+    <div>
+        <h1>💰 PHÂN TÍCH DOANH THU & HIỆU QUẢ KINH DOANH</h1>
+        
+        <div class="two-col">
+            <div class="chart-container">
+                <canvas id="chart2"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="chart3"></canvas>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="kpi-label">LỢI NHUẬN GỘP</div>
+                <div class="kpi-value">130 tỷ</div>
+                <div class="kpi-label">Biên lợi nhuận 0.36%</div>
+            </div>
+            <div class="kpi-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="kpi-label">CHI PHÍ TÀI CHÍNH</div>
+                <div class="kpi-value">3.1 tỷ</div>
+                <div class="kpi-label">Giảm 85% so với cùng kỳ</div>
+            </div>
+            <div class="kpi-box" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <div class="kpi-label">THU NHẬP KHÁC</div>
+                <div class="kpi-value">105 triệu</div>
+                <div class="kpi-label">Tăng 60% so với cùng kỳ</div>
+            </div>
+        </div>
+
+        <ul class="insight-list">
+            <li><strong>Doanh thu xây lắp:</strong> Chiếm 95% tổng doanh thu (34.126 tỷ), tăng 34.7%</li>
+            <li><strong>Giá vốn hàng bán:</strong> 35.717 tỷ, tỷ lệ 99.6% doanh thu - biên lãi thấp nhưng ổn định</li>
+            <li><strong>Chi phí tài chính:</strong> Giảm mạnh 85% xuống 3.1 tỷ nhờ quản trị nợ tốt</li>
+            <li><strong>Chi phí quản lý:</strong> 9.5 tỷ, tăng nhẹ 2.8% - kiểm soát hiệu quả</li>
+        </ul>
+    </div>
+    <div class="footer">Doanh thu và chi phí được phân tích theo cơ cấu và so sánh với cùng kỳ năm trước</div>
+</div>
+
+<!-- SLIDE 3: CẤU TRÚC TÀI SẢN & NGUỒN VỐN -->
+<div class="slide">
+    <div>
+        <h1>🏦 CẤU TRÚC TÀI SẢN & NGUỒN VỐN</h1>
+        
+        <div class="two-col">
+            <div class="chart-container">
+                <canvas id="chart4"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="chart5"></canvas>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-box" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); color: #333;">
+                <div class="kpi-label">TÀI SẢN NGẮN HẠN</div>
+                <div class="kpi-value">497.9 tỷ</div>
+                <div class="kpi-label">22.7% tổng tài sản</div>
+            </div>
+            <div class="kpi-box" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); color: #333;">
+                <div class="kpi-label">TÀI SẢN DÀI HẠN</div>
+                <div class="kpi-value">1.694 tỷ</div>
+                <div class="kpi-label">77.3% tổng tài sản</div>
+            </div>
+            <div class="kpi-box" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); color: #333;">
+                <div class="kpi-label">NỢ PHẢI TRẢ</div>
+                <div class="kpi-value">1.783 tỷ</div>
+                <div class="kpi-label">81.3% tổng nguồn vốn</div>
+            </div>
+        </div>
+
+        <ul class="insight-list">
+            <li><strong>Cấu trúc tài sản:</strong> Tài sản dài hạn chiếm ưu thế (77%), chủ yếu đầu tư vào công ty con</li>
+            <li><strong>Đầu tư tài chính:</strong> 1.400 tỷ vào các dự án năng lượng tái tạo (năm giữ đến đáo hạn)</li>
+            <li><strong>Hàng tồn kho:</strong> 278.8 tỷ, tăng 8.9% - quản lý vật tư thi công hợp lý</li>
+            <li><strong>Nợ phải trả:</strong> Chủ yếu nợ dài hạn (1.276 tỷ) từ các khoản vay dự án</li>
+            <li><strong>Vốn chủ sở hữu:</strong> 402.8 tỷ, tăng 7.4% nhờ lợi nhuận giữ lại</li>
+        </ul>
+    </div>
+    <div class="footer">Cấu trúc tài chính thể hiện chiến lược đầu tư dài hạn vào năng lượng tái tạo</div>
+</div>
+
+<script>
+// Chart 1: Tổng quan tài chính - So sánh đầu năm vs cuối kỳ
+new Chart(document.getElementById('chart1'), {
+    type: 'bar',
+    data: {
+        labels: ['Tổng Tài sản', 'Vốn CSH', 'Nợ phải trả'],
+        datasets: [{
+            label: 'Đầu năm 2025 (tỷ VNĐ)',
+            data: [2190, 375, 1809],
+            backgroundColor: '#4a90e2'
+        }, {
+            label: 'Cuối kỳ 6/2025 (tỷ VNĐ)',
+            data: [2192, 403, 1784],
+            backgroundColor: '#7b68ee'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            title: { display: true, text: 'So sánh Tài chính: Đầu năm vs Giữa năm 2025', font: { size: 16 } },
+            legend: { position: 'top' }
+        },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => v.toFixed(0) } } }
+    }
+});
+
+// Chart 2: Doanh thu 6 tháng so sánh
+new Chart(document.getElementById('chart2'), {
+    type: 'line',
+    data: {
+        labels: ['6T 2024', '6T 2025'],
+        datasets: [{
+            label: 'Doanh thu (tỷ VNĐ)',
+            data: [26602, 35847],
+            borderColor: '#ff6384',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            title: { display: true, text: 'Tăng trưởng Doanh thu (+34.8%)', font: { size: 16 } }
+        },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// Chart 3: Lợi nhuận so sánh
+new Chart(document.getElementById('chart3'), {
+    type: 'bar',
+    data: {
+        labels: ['Lợi nhuận Gộp', 'Lợi nhuận sau thuế'],
+        datasets: [{
+            label: '6T 2024 (tỷ VNĐ)',
+            data: [3297, 18961],
+            backgroundColor: '#36a2eb'
+        }, {
+            label: '6T 2025 (tỷ VNĐ)',
+            data: [130, 39232],
+            backgroundColor: '#ffce56'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            title: { display: true, text: 'Lợi nhuận: Tăng trưởng mạnh', font: { size: 16 } }
+        },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// Chart 4: Cơ cấu Tài sản
+new Chart(document.getElementById('chart4'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Tiền & Tương đương', 'Phải thu', 'Hàng tồn kho', 'TS ngắn hạn khác', 'TS dài hạn'],
+        datasets: [{
+            data: [4199, 194, 279, 19, 1695],
+            backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#4bc0c0', '#9966ff']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            title: { display: true, text: 'Cơ cấu Tài sản (tỷ VNĐ)', font: { size: 16 } }
+        }
+    }
+});
+
+// Chart 5: Cơ cấu Nguồn vốn
+new Chart(document.getElementById('chart5'), {
+    type: 'pie',
+    data: {
+        labels: ['Vốn CSH', 'Nợ ngắn hạn', 'Nợ dài hạn'],
+        datasets: [{
+            data: [403, 507, 1277],
+            backgroundColor: ['#4bc0c0', '#ff9f40', '#ff6384']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            title: { display: true, text: 'Cơ cấu Nguồn vốn (tỷ VNĐ)', font: { size: 16 } }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

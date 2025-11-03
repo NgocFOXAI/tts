@@ -117,7 +117,15 @@ HTML format CHUẨN:
 - Chart.js CDN v4 + config responsive: maintainAspectRatio: false
 - KIỂM TRA: Đảm bảo nội dung không vượt quá chiều cao 210mm của slide
 
-Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>) với ĐÚNG {max_slides} slides"""
+TÊN FILE GỢI Ý:
+- Dòng đầu tiên của response PHẢI là: FILENAME: ten-file-goi-y
+- Tên file ngắn gọn (max 50 ký tự), mô tả nội dung chính
+- Chỉ dùng chữ thường, số, dấu gạch ngang (-), gạch dưới (_)
+- VD: FILENAME: bao-cao-tai-chinh-q4-2024
+
+Output format:
+FILENAME: ten-file-goi-y
+<!DOCTYPE html>...</html>"""
         
         messages = [
             {"role": "user", "content": user_message}
@@ -137,16 +145,40 @@ Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>) với ĐÚNG {max_
             if block["type"] == "text" and block["text"]:
                 text_content += block["text"]
         
-        # Validate slide count
+        # Clean up markdown code blocks if present (```html ... ```)
+        import re
         import logging
         logger = logging.getLogger(__name__)
+        
+        # Remove starting ```html or ``` and ending ```
+        text_content = re.sub(r'^```html\s*\n?', '', text_content.strip())
+        text_content = re.sub(r'^```\s*\n?', '', text_content.strip())
+        text_content = re.sub(r'\n?```\s*$', '', text_content.strip())
+        
+        # Extract suggested filename from response (format: FILENAME: ten-file\n<html>...)
+        suggested_filename = None
+        if text_content.startswith('FILENAME:'):
+            lines = text_content.split('\n', 1)
+            if len(lines) >= 2:
+                filename_line = lines[0]
+                suggested_filename = filename_line.replace('FILENAME:', '').strip()
+                # Clean filename
+                suggested_filename = "".join(c for c in suggested_filename if c.isalnum() or c in ('-', '_'))
+                if suggested_filename and len(suggested_filename) <= 50:
+                    text_content = lines[1].strip()
+                    logger.info(f"📝 Claude suggested filename: {suggested_filename}")
+                else:
+                    suggested_filename = None
+        
+        # Validate slide count
         slide_count = text_content.count('<div class="slide"')
         if slide_count != max_slides:
-            logger.warning(f"Expected {max_slides} slides but got {slide_count}. HTML may need adjustment.")
+            logger.warning(f"⚠️ Expected {max_slides} slides but got {slide_count}. HTML may need adjustment.")
         else:
-            logger.info(f"Validated: Generated exactly {max_slides} slides as requested")
+            logger.info(f"✅ Validated: Generated exactly {max_slides} slides as requested")
         
-        return text_content
+        # Return both HTML and suggested filename as tuple
+        return text_content, suggested_filename
     
     async def send_message_with_document(
         self,
@@ -190,7 +222,16 @@ HTML format CHUẨN:
 - Chart.js CDN v4 + config responsive: maintainAspectRatio: false
 - KIỂM TRA: Đảm bảo nội dung không vượt quá chiều cao 210mm của slide
 
-Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>) với ĐÚNG {max_slides} slides"""
+TÊN FILE GỢI Ý:
+- Dòng đầu tiên của response PHẢI là: FILENAME: ten-file-goi-y
+- Tên file ngắn gọn (max 50 ký tự), mô tả nội dung chính
+- Chỉ dùng chữ thường, số, dấu gạch ngang (-), gạch dưới (_)
+- VD: FILENAME: bao-cao-tai-chinh-q4-2024
+
+LƯU Ý: KHÔNG TRẢ VỀ DẠNG MARKDOWN HAY CODE BLOCK
+Output format:
+FILENAME: ten-file-goi-y
+<!DOCTYPE html>...</html>"""
         
         messages = [
             {
@@ -226,16 +267,40 @@ Output: HTML string hoàn chỉnh (<!DOCTYPE html>...</html>) với ĐÚNG {max_
             if block["type"] == "text" and block["text"]:
                 text_content += block["text"]
         
-        # Validate slide count
+        # Clean up markdown code blocks if present (```html ... ```)
+        import re
         import logging
         logger = logging.getLogger(__name__)
+        
+        # Remove starting ```html or ``` and ending ```
+        text_content = re.sub(r'^```html\s*\n?', '', text_content.strip())
+        text_content = re.sub(r'^```\s*\n?', '', text_content.strip())
+        text_content = re.sub(r'\n?```\s*$', '', text_content.strip())
+        
+        # Extract suggested filename from response (format: FILENAME: ten-file\n<html>...)
+        suggested_filename = None
+        if text_content.startswith('FILENAME:'):
+            lines = text_content.split('\n', 1)
+            if len(lines) >= 2:
+                filename_line = lines[0]
+                suggested_filename = filename_line.replace('FILENAME:', '').strip()
+                # Clean filename
+                suggested_filename = "".join(c for c in suggested_filename if c.isalnum() or c in ('-', '_'))
+                if suggested_filename and len(suggested_filename) <= 50:
+                    text_content = lines[1].strip()
+                    logger.info(f"Claude suggested filename: {suggested_filename}")
+                else:
+                    suggested_filename = None
+        
+        # Validate slide count
         slide_count = text_content.count('<div class="slide"')
         if slide_count != max_slides:
-            logger.warning(f" Expected {max_slides} slides but got {slide_count}. HTML may need adjustment.")
+            logger.warning(f"Expected {max_slides} slides but got {slide_count}. HTML may need adjustment.")
         else:
-            logger.info(f" Validated: Generated exactly {max_slides} slides as requested")
+            logger.info(f"Validated: Generated exactly {max_slides} slides as requested")
         
-        return text_content
+        # Return both HTML and suggested filename as tuple
+        return text_content, suggested_filename
 
 
 # Global instance

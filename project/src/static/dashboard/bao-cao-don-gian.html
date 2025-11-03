@@ -1,0 +1,391 @@
+```html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Tài chính - Tổng Công ty Cơ điện Xây dựng CTCP</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .slide {
+            width: 297mm;
+            height: 210mm;
+            padding: 20mm;
+            background: white;
+            page-break-after: always;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .slide:last-child {
+            page-break-after: auto;
+        }
+        
+        h1 {
+            font-size: 28px;
+            color: #1a5490;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #1a5490;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            font-size: 20px;
+            color: #2c5f8d;
+            margin: 15px 0 10px 0;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .kpi-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .kpi-box h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+        
+        .kpi-box .value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .kpi-box .change {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .insight-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .insight-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        
+        .insight-list li:before {
+            content: "▸ ";
+            color: #1a5490;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .footer {
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 2px solid #e0e0e0;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .slide {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SLIDE 1: Tổng quan tài chính -->
+<div class="slide">
+    <h1>Tổng quan Tài chính 6 tháng đầu năm 2025</h1>
+    <p style="font-size: 16px; color: #666; margin-bottom: 20px;">Tổng Công ty Cơ điện Xây dựng - CTCP</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+        <div class="kpi-box" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h3>Tổng Tài sản</h3>
+            <div class="value">2.192 tỷ</div>
+            <div class="change">+0.1% so đầu năm</div>
+        </div>
+        <div class="kpi-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <h3>Doanh thu</h3>
+            <div class="value">35.847 tỷ</div>
+            <div class="change">+34.7% YoY</div>
+        </div>
+        <div class="kpi-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <h3>Lợi nhuận sau thuế</h3>
+            <div class="value">39.2 tỷ</div>
+            <div class="change">+107% YoY</div>
+        </div>
+        <div class="kpi-box" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <h3>Vốn chủ sở hữu</h3>
+            <div class="value">402.8 tỷ</div>
+            <div class="change">+7.4% so đầu năm</div>
+        </div>
+    </div>
+    
+    <div class="content-grid">
+        <div>
+            <h2>Cơ cấu Tài sản</h2>
+            <div class="chart-container">
+                <canvas id="assetChart"></canvas>
+            </div>
+        </div>
+        <div>
+            <h2>Điểm nhấn</h2>
+            <ul class="insight-list">
+                <li>Tổng tài sản đạt 2.192 tỷ đồng, duy trì ổn định</li>
+                <li>Doanh thu tăng trưởng mạnh 34.7%, đạt 35.847 tỷ</li>
+                <li>Lợi nhuận sau thuế tăng gấp đôi (+107%), đạt 39.2 tỷ</li>
+                <li>Vốn chủ sở hữu tăng 7.4%, thể hiện sức khỏe tài chính tốt</li>
+                <li>Tỷ suất sinh lời trên vốn chủ sở hữu (ROE) cải thiện đáng kể</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Báo cáo tài chính giữa niên độ 6 tháng đầu năm 2025 | Tổng Công ty Cơ điện Xây dựng - CTCP
+    </div>
+</div>
+
+<!-- SLIDE 2: Kết quả kinh doanh -->
+<div class="slide">
+    <h1>Kết quả Kinh doanh - Tăng trưởng ấn tượng</h1>
+    
+    <div class="content-grid">
+        <div>
+            <h2>Doanh thu & Lợi nhuận 6 tháng</h2>
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+            <div style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="kpi-box" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <h3>Tỷ suất lợi nhuận gộp</h3>
+                    <div class="value">0.36%</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);">
+                    <h3>Tỷ suất lợi nhuận ròng</h3>
+                    <div class="value">0.11%</div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Phân tích chi tiết</h2>
+            <ul class="insight-list">
+                <li><strong>Doanh thu:</strong> 35.847 tỷ (+34.7% so cùng kỳ 2024)</li>
+                <li><strong>Giá vốn hàng bán:</strong> 35.717 tỷ</li>
+                <li><strong>Lợi nhuận gộp:</strong> 130 tỷ (+3.9% YoY)</li>
+                <li><strong>Chi phí tài chính:</strong> 3.147 tỷ (-85.4% YoY)</li>
+                <li><strong>Chi phí quản lý:</strong> 9.485 tỷ (-12.4% YoY)</li>
+                <li><strong>Lợi nhuận thuần:</strong> 39.232 tỷ (+107% YoY)</li>
+                <li><strong>Nhân tố tăng trưởng:</strong> Kiểm soát chi phí hiệu quả, đặc biệt chi phí tài chính giảm mạnh</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Dữ liệu từ Báo cáo Kết quả Hoạt động Kinh doanh trang 11
+    </div>
+</div>
+
+<!-- SLIDE 3: Dòng tiền và Cơ cấu vốn -->
+<div class="slide">
+    <h1>Dòng tiền & Cơ cấu Nguồn vốn</h1>
+    
+    <div class="content-grid">
+        <div>
+            <h2>Lưu chuyển Tiền tệ</h2>
+            <div class="chart-container">
+                <canvas id="cashflowChart"></canvas>
+            </div>
+            <div style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <p style="font-size: 14px; line-height: 1.6;">
+                    <strong>Dòng tiền từ HĐKD:</strong> -42.6 tỷ (mua hàng tồn kho và đầu tư)<br>
+                    <strong>Dòng tiền từ HĐĐT:</strong> +2.7 tỷ<br>
+                    <strong>Dòng tiền từ HĐTC:</strong> -1.4 tỷ<br>
+                    <strong>Tiền cuối kỳ:</strong> 4.199 tỷ (-74.2% so đầu năm)
+                </p>
+            </div>
+        </div>
+        <div>
+            <h2>Cơ cấu Vốn chủ sở hữu</h2>
+            <div class="chart-container">
+                <canvas id="equityChart"></canvas>
+            </div>
+            <ul class="insight-list" style="margin-top: 15px;">
+                <li><strong>Vốn góp:</strong> 215 tỷ (Vốn điều lệ không đổi)</li>
+                <li><strong>Lợi nhuận sau thuế chưa phân phối:</strong> 212.5 tỷ (+15.4%)</li>
+                <li><strong>ROE cải thiện:</strong> Tỷ suất sinh lời trên vốn chủ tăng mạnh nhờ lợi nhuận ròng tăng gấp đôi</li>
+                <li><strong>Đòn bẩy tài chính:</strong> Nợ phải trả/Tổng tài sản = 81.6%</li>
+                <li><strong>Thanh khoản:</strong> Tỷ lệ thanh toán hiện hành duy trì ổn định</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Dữ liệu từ Báo cáo Lưu chuyển Tiền tệ trang 12-13 & Bảng Cân đối Kế toán trang 7-10
+    </div>
+</div>
+
+<script>
+// Slide 1: Asset Structure
+const assetCtx = document.getElementById('assetChart').getContext('2d');
+new Chart(assetCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Tài sản ngắn hạn', 'Tài sản dài hạn'],
+        datasets: [{
+            data: [497.9, 1694.6],
+            backgroundColor: ['#667eea', '#f093fb'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 14 }, padding: 15 } },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.label + ': ' + context.parsed.toFixed(1) + ' tỷ (' + 
+                               ((context.parsed / 2192.5) * 100).toFixed(1) + '%)';
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Slide 2: Revenue & Profit
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+new Chart(revenueCtx, {
+    type: 'bar',
+    data: {
+        labels: ['6T/2024', '6T/2025'],
+        datasets: [
+            {
+                label: 'Doanh thu (tỷ)',
+                data: [26602, 35847],
+                backgroundColor: '#4facfe',
+                borderRadius: 8
+            },
+            {
+                label: 'Lợi nhuận (tỷ)',
+                data: [18961, 39232],
+                backgroundColor: '#43e97b',
+                borderRadius: 8
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { 
+                beginAtZero: true,
+                ticks: { font: { size: 13 } }
+            },
+            x: { ticks: { font: { size: 13 } } }
+        },
+        plugins: {
+            legend: { labels: { font: { size: 14 }, padding: 15 } }
+        }
+    }
+});
+
+// Slide 3: Cashflow
+const cashflowCtx = document.getElementById('cashflowChart').getContext('2d');
+new Chart(cashflowCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Hoạt động KD', 'Đầu tư', 'Tài chính'],
+        datasets: [{
+            label: 'Dòng tiền (tỷ)',
+            data: [-42.6, 2.7, -1.4],
+            backgroundColor: ['#f5576c', '#4facfe', '#feca57'],
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { 
+                ticks: { font: { size: 13 } }
+            },
+            x: { ticks: { font: { size: 13 } } }
+        },
+        plugins: {
+            legend: { display: false }
+        }
+    }
+});
+
+// Slide 3: Equity Structure
+const equityCtx = document.getElementById('equityChart').getContext('2d');
+new Chart(equityCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Vốn góp', 'LNST chưa phân phối', 'Quỹ khác'],
+        datasets: [{
+            data: [215, 212.5, -24.7],
+            backgroundColor: ['#667eea', '#f093fb', '#feca57'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 14 }, padding: 15 } },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.label + ': ' + context.parsed.toFixed(1) + ' tỷ';
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>
+```

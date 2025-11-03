@@ -42,16 +42,16 @@ async def chat_with_claude(
             file_content = await file.read()
             base64_content = base64.b64encode(file_content).decode('utf-8')
             
-            # Call service with document
-            html_content = await claude_service.send_message_with_document(
+            # Call service with document - now returns tuple (html, suggested_filename)
+            html_content, suggested_filename = await claude_service.send_message_with_document(
                 user_message=message,
                 document_base64=base64_content,
                 media_type=file.content_type,
                 max_slides=max_slides
             )
         else:
-            # Call service without document
-            html_content = await claude_service.send_simple_message(
+            # Call service without document - now returns tuple (html, suggested_filename)
+            html_content, suggested_filename = await claude_service.send_simple_message(
                 user_message=message,
                 max_slides=max_slides
             )
@@ -60,12 +60,21 @@ async def chat_with_claude(
         slide_count = html_content.count('<div class="slide"')
         logger.info(f"📊 Generated {slide_count} slides with A4 landscape format")
         
-        # Save to dashboard with Gemini-generated meaningful filename
-        # Pass the user message as context for filename generation
+        # Log filename source
+        if suggested_filename:
+            logger.info(f"📝 Using Claude-suggested filename: {suggested_filename}")
+        else:
+            logger.info(f"📝 No filename from Claude, will use Gemini or fallback")
+        
+        # Save to dashboard with Claude-suggested filename
+        # Three-tier fallback: Claude → Gemini → UUID timestamp
         file_info = await pdf_generator.save_dashboard_file(
             html_content=html_content,
-            content_context=message
+            filename=suggested_filename,  # Use Claude's suggested filename (or None)
+            content_context=message if not suggested_filename else None  # Fallback to Gemini if Claude didn't provide
         )
+        
+        logger.info(f"📁 Final filename: {file_info['filename']}")
         
         # Return based on format
         if output_format.lower() == "pdf":
