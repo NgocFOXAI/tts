@@ -27,7 +27,7 @@ async def chat_with_claude(
     try:
         # Validate and clamp max_slides between 3-5
         max_slides = max(3, min(5, max_slides))
-        logger.info(f"📊 Requesting {max_slides} slides generation")
+        logger.info(f"Báo cáo Requesting {max_slides} slides generation")
         # If file is provided, send with document
         if file:
             # Validate file type
@@ -58,13 +58,13 @@ async def chat_with_claude(
         
         # Log slide count for monitoring
         slide_count = html_content.count('<div class="slide"')
-        logger.info(f"📊 Generated {slide_count} slides with A4 landscape format")
+        logger.info(f"Báo cáo Generated {slide_count} slides with A4 landscape format")
         
         # Log filename source
         if suggested_filename:
-            logger.info(f"📝 Using Claude-suggested filename: {suggested_filename}")
+            logger.info(f" Using Claude-suggested filename: {suggested_filename}")
         else:
-            logger.info(f"📝 No filename from Claude, will use Gemini or fallback")
+            logger.info(f" No filename from Claude, will use Gemini or fallback")
         
         # Save to dashboard with Claude-suggested filename
         # Three-tier fallback: Claude → Gemini → UUID timestamp

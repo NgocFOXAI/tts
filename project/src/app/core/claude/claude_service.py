@@ -166,7 +166,7 @@ FILENAME: ten-file-goi-y
                 suggested_filename = "".join(c for c in suggested_filename if c.isalnum() or c in ('-', '_'))
                 if suggested_filename and len(suggested_filename) <= 50:
                     text_content = lines[1].strip()
-                    logger.info(f"📝 Claude suggested filename: {suggested_filename}")
+                    logger.info(f" Claude suggested filename: {suggested_filename}")
                 else:
                     suggested_filename = None
         

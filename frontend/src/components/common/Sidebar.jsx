@@ -2,7 +2,7 @@ import styles from '../../styles/common/Sidebar.module.css';
 
 const Sidebar = ({ 
   title, 
-  icon = '⚙️', 
+  icon = 'Báo cáo', 
   children, 
   className = '' 
 }) => {

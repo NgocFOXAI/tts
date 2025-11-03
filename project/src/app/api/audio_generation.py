@@ -305,7 +305,7 @@ async def generate_audio_from_text(
             message=f" Yêu cầu tạo podcast đã được gửi đến hệ thống!\n\n"
                     f"⏱️ Thời gian xử lý dự kiến: {estimated_minutes}-30 phút\n"
                     f"Nguồn: {content_source}\n"
-                    f"📊 Số file: {len(files_content) if files_content else 0}\n\n"
+                    f"Báo cáo Số file: {len(files_content) if files_content else 0}\n\n"
                     f"🎧 Âm thanh sau khi hoàn thành sẽ được lưu trong phần Quản Lý Âm Thanh.",
             text_info=text_info,
             processing_time=processing_time

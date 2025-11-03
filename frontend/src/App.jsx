@@ -6,6 +6,7 @@ import ChatInterface from './components/ChatInterface';
 import PodcastGenerator from './components/PodcastGenerator';
 import FileManager from './components/FileManager';
 import SmartReport from './components/SmartReport';
+import DataAnalysis from './components/DataAnalysis';
 import NotificationManager, { useNotifications } from './components/common/NotificationManager';
 import styles from './styles/App.module.css';
 
@@ -14,16 +15,25 @@ const foxaiLogo = '/static/logo/foxai-logo-3.png';
 function AppContent() {
   const [generatedText, setGeneratedText] = useState('');
   const [activeSubTab, setActiveSubTab] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { notifications, notify, removeNotification } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
   const navRef = useRef(null);
 
   const tabs = [
-    { id: 'chat', label: 'Trí Tuệ Nhân Tạo', path: '/chat' },
+    { 
+      id: 'data-analysis', 
+      label: 'Phân Tích Dữ Liệu', 
+      path: '/data-analysis',
+      subTabs: [
+        { id: 'data-analysis-text', label: 'Phân Tích Dữ Liệu Văn Bản', path: '/data-analysis?mode=text' },
+        { id: 'data-analysis-chart', label: 'Tạo Biểu Đồ Báo Cáo', path: '/data-analysis?mode=chart' }
+      ]
+    },
     { 
       id: 'podcast', 
-      label: 'Tạo Podcast Thông Minh', 
+      label: 'Podcast Thông Minh', 
       path: '/podcast',
       subTabs: [
         { id: 'podcast-text', label: 'Podcast Văn Bản', path: '/podcast?mode=text' },
@@ -34,17 +44,11 @@ function AppContent() {
       id: 'files', 
       label: 'Quản Lý File', 
       path: '/files',
-      component: <FileManager notify={notify} />,
       subTabs: [
         { id: 'files-docs', label: 'Tài Liệu', path: '/files?tab=documents' },
         { id: 'files-audio', label: 'Âm Thanh', path: '/files?tab=audio' },
-        { id: 'files-reports', label: 'Quản Lý Báo Cáo', path: '/files?tab=reports' }
+        { id: 'files-reports', label: 'Báo cáo', path: '/files?tab=reports' }
       ]
-    },
-    { 
-      id: 'report', 
-      label: 'Báo Cáo Thông Minh', 
-      path: '/report'
     },
   ];
 
@@ -78,7 +82,7 @@ function AppContent() {
       {!isHomePage && (
         <div className={styles.chatTabSwitcher} ref={navRef}>
           <div className={styles.container}>
-            <div className={styles.headerLogo}>
+            <div className={styles.headerLogo} onClick={() => navigate('/')} style={{ cursor: 'pointer' }} title="Về Trang Chủ">
               <img src={foxaiLogo} alt="FOXAI Logo" className={styles.logoImage} />
             </div>
 
@@ -127,11 +131,10 @@ function AppContent() {
 
       <div className={styles.content}>
         <Routes>
-          <Route path="/" element={<HomePage onNavigate={(path) => navigate(`/${path === 'generator' ? 'chat' : path === 'tts' ? 'podcast' : path}`)} />} />
-          <Route path="/chat" element={<ChatInterface onTextGenerated={handleTextGenerated} notify={notify} />} />
+          <Route path="/" element={<HomePage onNavigate={(path) => navigate(`/${path === 'generator' ? 'data-analysis' : path === 'tts' ? 'podcast' : path}`)} />} />
+          <Route path="/data-analysis" element={<DataAnalysis notify={notify} />} />
           <Route path="/podcast" element={<PodcastGenerator notify={notify} />} />
           <Route path="/files" element={<FileManager notify={notify} />} />
-          <Route path="/report" element={<SmartReport notify={notify} />} />
         </Routes>
       </div>
     </div>

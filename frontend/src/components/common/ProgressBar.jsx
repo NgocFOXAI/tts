@@ -10,7 +10,7 @@ const ProgressBar = ({
 }) => {
     const getStatusIcon = () => {
         switch (status) {
-            case 'preparing': return '⚙️';
+            case 'preparing': return 'Báo cáo';
             case 'uploading': return '📤';
             case 'processing': return '🎵';
             case 'generating': return '';

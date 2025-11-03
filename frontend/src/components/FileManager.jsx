@@ -168,7 +168,7 @@ const FileManager = ({ notify }) => {
             }
             const data = await response.json();
             // eslint-disable-next-line no-console
-            console.log('📊 Reports received:', data);
+            console.log('Báo cáo Reports received:', data);
             // API returns { total: number, files: [...] } format
             setReportFiles(data.files || []);
         } catch (err) {
@@ -564,7 +564,7 @@ const FileManager = ({ notify }) => {
                 <div className="header-title">
                     <h2>Quản Lý File</h2>
                     <p className="header-subtitle">
-                        {activeTab === 'reports' ? 'Quản lý báo cáo thông minh' : 'Quản lý tài liệu và file âm thanh'}
+                        {activeTab === 'reports' ? 'Báo cáo thông minh' : 'Quản lý tài liệu và file âm thanh'}
                     </p>
                 </div>
             </div>

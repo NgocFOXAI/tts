@@ -5,8 +5,7 @@ import { usePodcastStore } from '../stores/podcastStore';
 import { apiService } from '../services/api';
 import styles from '../styles/TextToSpeech.module.css';
 
-import Sidebar from './common/Sidebar';
-import { SettingsSection } from './common/SettingsSection';
+import FeatureSettings from './common/FeatureSettings';
 import NotificationManager, { useNotifications } from './common/NotificationManager';
 
 const PodcastGenerator = () => {
@@ -35,6 +34,7 @@ const PodcastGenerator = () => {
   const [notebookError, setNotebookError] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [currentGenerationId, setCurrentGenerationId] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Notifications
   const { notifications, removeNotification, notify } = useNotifications();
@@ -235,7 +235,7 @@ const PodcastGenerator = () => {
         notify.info(' Đang xử lý yêu cầu...', { duration: 2000 });
         
         await new Promise(resolve => setTimeout(resolve, 2000));
-        notify.info('📊 Đang phân tích nội dung...', { duration: 2000 });
+        notify.info('Báo cáo Đang phân tích nội dung...', { duration: 2000 });
         
         await new Promise(resolve => setTimeout(resolve, 2000));
         
@@ -277,24 +277,43 @@ const PodcastGenerator = () => {
     return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${remainingSeconds}s`;
   };
 
+  const settingsConfig = {
+    title: "Cấu Hình Mô Hình AI",
+    engineName: "FOXAi Advanced Podcast Engine",
+    engineDescription: "Chuyển đổi văn bản và tài liệu thành podcast hội thoại tự nhiên với hai diễn giả AI chuyên nghiệp.",
+    expertInfo: {
+      title: "Chuyên Gia Podcast",
+      name: "Senior Podcast Producer",
+      description: "Chuyên gia sản xuất podcast với hơn 10 năm kinh nghiệm trong lĩnh vực audio và truyền thông.\n\nKhả năng:\n• Chuyển đổi nội dung văn bản thành podcast\n• Tạo hội thoại tự nhiên và hấp dẫn\n• Phân tích và tổng hợp nội dung chuyên sâu\n• Sản xuất audio chất lượng cao"
+    },
+    showClearButton: false
+  };
+
   return (
     <div className={styles.textToSpeech}>
+      {/* Backdrop overlay */}
+      {isSidebarOpen && (
+        <div 
+          className={styles.backdrop}
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Toggle Button */}
+      <button
+        className={styles.toggleButton}
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+        title={isSidebarOpen ? "Ẩn tùy chỉnh" : "Hiện tùy chỉnh"}
+      >
+        {isSidebarOpen ? '✕' : '⚙'}
+      </button>
+
       {/* Left Sidebar */}
-      <Sidebar className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarTitle}>🎙️ Cài Đặt Podcast</h2>
-        </div>
-        
-        <div className={styles.sidebarContent}>
-          <SettingsSection title="Cấu Hình Podcast Thông Minh">
-            <div className={styles.infoBox} style={{ marginTop: '1rem' }}>
-              <div>
-                <strong>FOXAi Advanced Engine:</strong> Chuyển đổi văn bản thành podcast hội thoại tự nhiên với hai diễn giả AI chuyên nghiệp.
-              </div>
-            </div>
-          </SettingsSection>
-        </div>
-      </Sidebar>
+      <div className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ''}`}>
+        <FeatureSettings 
+          config={settingsConfig}
+        />
+      </div>
 
       {/* Right Content Area */}
       <div className={styles.contentArea}>
@@ -397,7 +416,7 @@ Loại nội dung phù hợp:
                         <button
                           type="button"
                           onClick={clearAllFiles}
-                          className={styles.clearButton}
+                          className={styles.clearFilesButton}
                         >
                           Xóa Tất Cả
                         </button>

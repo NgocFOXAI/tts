@@ -54,3 +54,53 @@
 .sidebarContent::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(135deg, #64748b, #475569);
 }
+
+/* Responsive Design */
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 240px;
+  }
+
+  .sidebarHeader {
+    padding: 0.875rem;
+  }
+
+  .sidebarTitle {
+    font-size: 0.9rem;
+  }
+
+  .sidebarContent {
+    padding: 0.875rem;
+  }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 100%;
+    position: fixed;
+    left: -100%;
+    top: 0;
+    height: 100vh;
+    transition: left 0.3s ease;
+    z-index: 1000;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .sidebarHeader {
+    padding: 0.75rem;
+  }
+
+  .sidebarTitle {
+    font-size: 0.85rem;
+  }
+
+  .sidebarContent {
+    padding: 0.75rem;
+  }
+}

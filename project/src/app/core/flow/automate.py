@@ -1239,7 +1239,7 @@ class NotebookLMAutomation:
 
                         # Summary
                         print("\n Automation Workflow Completed!")
-                        print("📊 Summary:")
+                        print("Báo cáo Summary:")
                         print("   Content source: custom text")
                         print(f"   Content length: {len(content)} chars")
                         print("   Upload: SUCCESS")
