@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Kinh tế - Xã hội Phường Việt Hưng Q3/2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; }
+        .slide { 
+            width: 297mm; height: 210mm; padding: 20mm;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            page-break-after: always; page-break-inside: avoid;
+            display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .slide:nth-child(2) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .slide:nth-child(3) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .slide:nth-child(4) { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .slide:nth-child(5) { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        h1 { color: white; font-size: 32px; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        h2 { color: white; font-size: 24px; margin: 15px 0 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .content { 
+            background: rgba(255,255,255,0.95); 
+            border-radius: 15px; padding: 20px;
+            flex: 1; display: flex; gap: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .chart-container { flex: 1; position: relative; min-height: 0; }
+        .info { flex: 1; display: flex; flex-direction: column; gap: 15px; }
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .kpi-box { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px; border-radius: 10px; color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .kpi-label { font-size: 13px; opacity: 0.9; margin-bottom: 5px; }
+        .kpi-value { font-size: 26px; font-weight: bold; }
+        .bullet { 
+            background: white; padding: 12px; border-radius: 8px; 
+            margin-bottom: 8px; font-size: 14px; line-height: 1.5;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .footer { 
+            color: white; text-align: center; margin-top: 15px; 
+            font-size: 12px; opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Tổng quan -->
+<div class="slide">
+    <h1>📊 Báo cáo Kinh tế - Xã hội Q3/2025</h1>
+    <h2>Phường Việt Hưng - Thành phố Hà Nội</h2>
+    <div class="content">
+        <div class="chart-container">
+            <canvas id="chart1"></canvas>
+        </div>
+        <div class="info">
+            <div class="kpi-grid">
+                <div class="kpi-box">
+                    <div class="kpi-label">Dân số</div>
+                    <div class="kpi-value">121.436</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-label">Diện tích</div>
+                    <div class="kpi-value">12,8 km²</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-label">Tổ dân phố</div>
+                    <div class="kpi-value">62</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-label">Văn bản xử lý</div>
+                    <div class="kpi-value">5.473</div>
+                </div>
+            </div>
+            <div class="bullet">✅ Thành lập theo NQ 1656/NQ-UBTVQH15 ngày 16/6/2025</div>
+            <div class="bullet">✅ Sáp nhập từ 7 phường: Thượng Thanh, Đức Giang, Giang Biên, Việt Hưng...</div>
+            <div class="bullet">✅ Hoàn thành 100% nhiệm vụ Thành phố giao (13/13 nhiệm vụ)</div>
+            <div class="bullet">✅ Tổ chức thành công 6 sự kiện lớn kỷ niệm 80 năm Cách mạng Tháng 8</div>
+        </div>
+    </div>
+    <div class="footer">Phường Việt Hưng | Quý III/2025</div>
+</div>
+
+<!-- Slide 2: Tài chính & Kinh tế -->
+<div class="slide">
+    <h1>💰 Tình hình Thu - Chi Ngân sách</h1>
+    <div class="content">
+        <div class="chart-container">
+            <canvas id="chart2"></canvas>
+        </div>
+        <div class="info">
+            <div class="kpi-grid">
+                <div class="kpi-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="kpi-label">Tổng thu</div>
+                    <div class="kpi-value">48,4 tỷ</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="kpi-label">Đạt KH</div>
+                    <div class="kpi-value">77%</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="kpi-label">Tổng chi</div>
+                    <div class="kpi-value">257 tỷ</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="kpi-label">Đạt KH</div>
+                    <div class="kpi-value">65%</div>
+                </div>
+            </div>
+            <div class="bullet">💼 2.000 hộ kinh doanh | 3.000+ doanh nghiệp hoạt động</div>
+            <div class="bullet">🏪 10 chợ dân sinh | 1 TTTM | 20 siêu thị & cửa hàng tiện ích</div>
+            <div class="bullet">🌾 Diện tích lúa: 32 ha (100% KH) | Năng suất: 60 tạ/ha</div>
+            <div class="bullet">📋 Cấp 159 GCNĐKKD mới | Thay đổi nội dung 36 giấy</div>
+            <div class="bullet">🎯 Tổ chức Tuần Văn hóa - Thương mại với 150 gian hàng</div>
+        </div>
+    </div>
+    <div class="footer">Thu ngân sách đạt 77% kế hoạch năm</div>
+</div>
+
+<!-- Slide 3: Xã hội & Giáo dục -->
+<div class="slide">
+    <h1>🎓 Phát triển Xã hội & Giáo dục</h1>
+    <div class="content">
+        <div class="chart-container">
+            <canvas id="chart3"></canvas>
+        </div>
+        <div class="info">
+            <div class="kpi-grid">
+                <div class="kpi-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="kpi-label">Khám chữa bệnh</div>
+                    <div class="kpi-value">8.130</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="kpi-label">Tiêm chủng trẻ</div>
+                    <div class="kpi-value">95%</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="kpi-label">Hiến máu</div>
+                    <div class="kpi-value">426 ĐV</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="kpi-label">Đạt KH</div>
+                    <div class="kpi-value">133%</div>
+                </div>
+            </div>
+            <div class="bullet">🏥 Quản lý 51 cơ sở KCB | 107 nhà thuốc trên địa bàn</div>
+            <div class="bullet">🏫 23 trường học | 3 trường hoàn thành đưa vào sử dụng</div>
+            <div class="bullet">🍲 Kiểm tra 28/29 bếp ăn trường học (26 đạt chuẩn)</div>
+            <div class="bullet">❤️ Chi trả 2,65 tỷ đồng thăm hỏi 2.119 lượt người có công</div>
+            <div class="bullet">🎉 Tổ chức 6 đêm văn nghệ | 4 giải thể thao thu hút 450+ VĐV</div>
+        </div>
+    </div>
+    <div class="footer">Chất lượng giáo dục & y tế được nâng cao</div>
+</div>
+
+<!-- Slide 4: Hạ tầng & Đô thị -->
+<div class="slide">
+    <h1>🏗️ Phát triển Hạ tầng & Quản lý Đô thị</h1>
+    <div class="content">
+        <div class="chart-container">
+            <canvas id="chart4"></canvas>
+        </div>
+        <div class="info">
+            <div class="kpi-grid">
+                <div class="kpi-box" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="kpi-label">Cấp GPXD</div>
+                    <div class="kpi-value">56</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="kpi-label">Xử lý vi phạm</div>
+                    <div class="kpi-value">193</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="kpi-label">Cấp GCN đất</div>
+                    <div class="kpi-value">133</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <div class="kpi-label">Nạo vét</div>
+                    <div class="kpi-value">1.945 m³</div>
+                </div>
+            </div>
+            <div class="bullet">🚧 22 dự án GPMB đang triển khai | Chi trả 24,9 tỷ cho 8 hộ dân</div>
+            <div class="bullet">💡 Duy trì 123,9 km đường (7.328 bóng đèn) | 93 km ngõ xóm</div>
+            <div class="bullet">🌳 Khắc phục bão số 3: Giải tỏa 5 cây đổ, 3 cành gãy, trồng mới 24 cây</div>
+            <div class="bullet">🏢 117 tòa chung cư (33 BQT) | Kiểm tra PCCC 23 cơ sở</div>
+            <div class="bullet">♻️ Xử lý 3 điểm ngập úng | Phạt 98,6 triệu vi phạm trật tự đô thị</div>
+        </div>
+    </div>
+    <div class="footer">Kết cấu hạ tầng được đầu tư đồng bộ</div>
+</div>
+
+<!-- Slide 5: An ninh & Định hướng -->
+<div class="slide">
+    <h1>🛡️ An ninh - Định hướng Q4/2025</h1>
+    <div class="content">
+        <div class="chart-container">
+            <canvas id="chart5"></canvas>
+        </div>
+        <div class="info">
+            <div class="kpi-grid">
+                <div class="kpi-box" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <div class="kpi-label">Vụ vi phạm</div>
+                    <div class="kpi-value">93</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <div class="kpi-label">Giải quyết HS</div>
+                    <div class="kpi-value">1.979</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <div class="kpi-label">Tiếp dân</div>
+                    <div class="kpi-value">63 lượt</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <div class="kpi-label">Xử lý iHanoi</div>
+                    <div class="kpi-value">155/173</div>
+                </div>
+            </div>
+            <div class="bullet">🎯 Hoàn thành 6/12 chỉ tiêu KT-XH | Tập trung 6 chỉ tiêu còn lại</div>
+            <div class="bullet">📱 Chiến dịch CĐS: Tăng 30% hồ sơ trực tuyến | Top đầu TP</div>
+            <div class="bullet">🏆 Khen thưởng 24 tập thể, 33 cá nhân xuất sắc Q3</div>
+            <div class="bullet">🚀 Triển khai 4 chương trình công tác nhiệm kỳ 2025-2030</div>
+            <div class="bullet">🎊 Chuẩn bị Tết Nguyên đán 2026 | Tổng kết năm 2025</div>
+        </div>
+    </div>
+    <div class="footer">Phấn đấu hoàn thành toàn diện nhiệm vụ năm 2025</div>
+</div>
+
+<script>
+// Chart 1: Tổng quan chỉ tiêu
+new Chart(document.getElementById('chart1'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Đã hoàn thành', 'Đang thực hiện'],
+        datasets: [{
+            data: [50, 50],
+            backgroundColor: ['#10b981', '#f59e0b'],
+            borderWidth: 3,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#1f2937', font: { size: 14, weight: 'bold' }}},
+            title: { display: true, text: 'Tỷ lệ hoàn thành chỉ tiêu (6/12)', color: '#1f2937', font: { size: 18, weight: 'bold' }}
+        }
+    }
+});
+
+// Chart 2: Thu ngân sách
+new Chart(document.getElementById('chart2'), {
+    type: 'bar',
+    data: {
+        labels: ['Lệ phí TB', 'Thuế đất', 'Phí lệ phí', 'Quỹ đất CI'],
+        datasets: [{
+            label: 'Số tiền (tỷ đồng)',
+            data: [36.914, 6.685, 0.827, 3.985],
+            backgroundColor: ['#8b5cf6', '#ec4899', '#f59e0b', '#10b981'],
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Cơ cấu thu ngân sách Q3/2025', color: '#1f2937', font: { size: 18, weight: 'bold' }}
+        },
+        scales: {
+            y: { beginAtZero: true, ticks: { color: '#1f2937', font: { size: 12 }}}
+        }
+    }
+});
+
+// Chart 3: Y tế - Giáo dục
+new Chart(document.getElementById('chart3'), {
+    type: 'line',
+    data: {
+        labels: ['Khám bệnh', 'Xét nghiệm', 'Siêu âm', 'X-quang', 'Chuyển tuyến'],
+        datasets: [{
+            label: 'Số lượt',
+            data: [8130, 11654, 817, 694, 1051],
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            tension: 0.4,
+            fill: true,
+            borderWidth: 3
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Hoạt động Y tế Q3/2025', color: '#1f2937', font: { size: 18, weight: 'bold' }}
+        },
+        scales: {
+            y: { beginAtZero: true, ticks: { color: '#1f2937' }}
+        }
+    }
+});
+
+// Chart 4: Hạ tầng
+new Chart(document.getElementById('chart4'), {
+    type: 'bar',
+    data: {
+        labels: ['GPXD', 'Xử lý VI', 'GCN đất', 'Chứng thực'],
+        datasets: [{
+            label: 'Số lượng',
+            data: [56, 193, 133, 2280],
+            backgroundColor: ['#10b981', '#f59e0b', '#8b5cf6', '#ec4899'],
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Kết quả công tác hành chính', color: '#1f2937', font: { size: 18, weight: 'bold' }}
+        },
+        scales: {
+            x: { beginAtZero: true, ticks: { color: '#1f2937' }}
+        }
+    }
+});
+
+// Chart 5: An ninh - Tư pháp
+new Chart(document.getElementById('chart5'), {
+    type: 'polarArea',
+    data: {
+        labels: ['Ma túy', 'Hình sự', 'Vi phạm MT', 'Kinh tế'],
+        datasets: [{
+            data: [12, 31, 46, 3],
+            backgroundColor: ['#ef4444', '#f59e0b', '#10b981', '#3b82f6'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { color: '#1f2937', font: { size: 14 }}},
+            title: { display: true, text: 'Xử lý vi phạm theo loại', color: '#1f2937', font: { size: 18, weight: 'bold' }}
+        }
+    }
+});
+</script>
+
+</body>
+</html>

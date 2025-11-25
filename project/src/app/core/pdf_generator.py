@@ -4,6 +4,8 @@ from pathlib import Path
 from datetime import datetime
 import uuid
 import logging
+import asyncio
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -216,7 +218,6 @@ Content context:
 
 Return ONLY the filename (without extension), nothing else."""
                     
-                    logger.info("🤖 Asking Gemini to generate meaningful filename...")
                     gemini_filename = await gemini.generate_text(prompt=prompt)
                     
                     # Clean up the response
@@ -226,16 +227,16 @@ Return ONLY the filename (without extension), nothing else."""
                     # Validate length and use if valid
                     if gemini_filename and len(gemini_filename) <= 50:
                         filename = gemini_filename
-                        logger.info(f"✅ Gemini generated filename: {filename}")
+                        logger.info(f"Gemini generated filename: {filename}")
                     else:
                         # Fallback to timestamp (Tier 3)
                         filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
                         logger.warning(f"⚠️ Gemini filename invalid, using timestamp fallback: {filename}")
                 except Exception as e:
                     # Fallback to timestamp if Gemini fails (Tier 3)
-                    logger.error(f"❌ Failed to generate filename with Gemini: {e}")
+                    logger.error(f" Failed to generate filename with Gemini: {e}")
                     filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
-                    logger.info(f"🔄 Using timestamp fallback: {filename}")
+                    logger.info(f"Using timestamp fallback: {filename}")
             else:
                 # Default timestamp-based filename (Tier 3)
                 filename = f"slide_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
@@ -277,7 +278,7 @@ Return ONLY the filename (without extension), nothing else."""
             logger.info(f" PDF saved: {pdf_path}")
             
         except Exception as e:
-            logger.error(f"❌ PDF generation failed: {e}")
+            logger.error(f" PDF generation failed: {e}")
             logger.error(f"HTML was saved, but PDF could not be generated")
             # Continue anyway, HTML is saved
         

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo Kinh tế - Xã hội Quý III/2025 Phường Việt Hưng</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .slide { 
+            width: 297mm; height: 210mm; padding: 20mm;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            page-break-after: always; page-break-inside: avoid;
+            display: flex; flex-direction: column; position: relative;
+        }
+        .slide:not(:first-child) { background: white; }
+        h1 { font-size: 32px; color: white; margin-bottom: 15px; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        h2 { font-size: 24px; color: #2c3e50; margin-bottom: 15px; border-left: 5px solid #667eea; padding-left: 15px; }
+        .info-box { background: rgba(255,255,255,0.95); padding: 15px; border-radius: 10px; margin: 10px 0; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 15px 0; }
+        .kpi-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; text-align: center; color: white; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .kpi-card h3 { font-size: 36px; margin-bottom: 5px; }
+        .kpi-card p { font-size: 14px; opacity: 0.9; }
+        .chart-container { height: 400px; margin: 20px 0; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        ul { margin-left: 20px; line-height: 1.8; }
+        ul li { margin: 8px 0; font-size: 16px; }
+        .subtitle { color: white; font-size: 20px; text-align: center; margin-top: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
+        .highlight { background: #ffeaa7; padding: 2px 6px; border-radius: 3px; }
+        .footer { position: absolute; bottom: 15mm; right: 20mm; color: #7f8c8d; font-size: 12px; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Trang bìa -->
+<div class="slide">
+    <h1>BÁO CÁO TÌNH HÌNH KINH TÉ - XÃ HỘI</h1>
+    <h1 style="margin-top: 40px;">PHƯỜNG VIỆT HƯNG</h1>
+    <p class="subtitle" style="margin-top: 50px; font-size: 24px;">Quý III/2025 và Nhiệm vụ 3 tháng cuối năm 2025</p>
+    <div class="kpi-grid" style="margin-top: 60px;">
+        <div class="kpi-card">
+            <h3>12.8</h3>
+            <p>Diện tích (km²)</p>
+        </div>
+        <div class="kpi-card">
+            <h3>121,436</h3>
+            <p>Dân số (người)</p>
+        </div>
+        <div class="kpi-card">
+            <h3>62</h3>
+            <p>Tổ dân phố</p>
+        </div>
+        <div class="kpi-card">
+            <h3>100%</h3>
+            <p>Hoàn thành nhiệm vụ TP giao</p>
+        </div>
+    </div>
+    <p class="footer">UBND Phường Việt Hưng | Tháng 9/2025</p>
+</div>
+
+<!-- Slide 2: Tổ chức bộ máy và điều hành -->
+<div class="slide">
+    <h2>Tổ chức bộ máy & Công tác điều hành</h2>
+    <div class="two-col">
+        <div>
+            <div class="info-box">
+                <h3 style="color: #667eea; margin-bottom: 10px;">Khẩn trương sắp xếp tổ chức</h3>
+                <ul>
+                    <li>Ban hành <span class="highlight">171 quyết định</span> về công tác cán bộ</li>
+                    <li>Thành lập 02 đề án cơ quan chuyên môn & đơn vị sự nghiệp</li>
+                    <li>Sắp xếp 05/07 trụ sở làm việc, xử lý tài sản công</li>
+                    <li>Đổi tên 62 tổ dân phố: <span class="highlight">98.2% đồng ý</span></li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <h3 style="color: #667eea; margin-bottom: 10px;">Hoạt động điều hành</h3>
+                <ul>
+                    <li>Xử lý <span class="highlight">5,473 văn bản đến</span></li>
+                    <li>Ban hành <span class="highlight">1,644 văn bản đi</span></li>
+                    <li>100% văn bản ký số toàn trình</li>
+                    <li>Tổ chức 17 hội nghị, 94 cuộc họp</li>
+                </ul>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart1"></canvas>
+        </div>
+    </div>
+    <p class="footer">Slide 2/5</p>
+</div>
+
+<!-- Slide 3: Kết quả chỉ tiêu kinh tế -->
+<div class="slide">
+    <h2>Kết quả thực hiện các chỉ tiêu kinh tế - xã hội</h2>
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <h3>48.4</h3>
+            <p>Tỷ đồng Thu NSNN (77%)</p>
+        </div>
+        <div class="kpi-card">
+            <h3>257.1</h3>
+            <p>Tỷ đồng Chi NSNN (65%)</p>
+        </div>
+        <div class="kpi-card">
+            <h3>133%</h3>
+            <p>Hiến máu tình nguyện</p>
+        </div>
+        <div class="kpi-card">
+            <h3>6/12</h3>
+            <p>Chỉ tiêu đã hoàn thành</p>
+        </div>
+    </div>
+    <div class="two-col">
+        <div class="chart-container">
+            <canvas id="chart2"></canvas>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart3"></canvas>
+        </div>
+    </div>
+    <p class="footer">Slide 3/5</p>
+</div>
+
+<!-- Slide 4: Văn hóa - Xã hội & An sinh -->
+<div class="slide">
+    <h2>Văn hóa - Xã hội & An sinh xã hội</h2>
+    <div class="two-col">
+        <div>
+            <div class="info-box">
+                <h3 style="color: #667eea; margin-bottom: 10px;">Giáo dục</h3>
+                <ul>
+                    <li>Tuyển sinh: Mầm non 101.2%, Tiểu học 105.6%, THCS 93.8%</li>
+                    <li>Hoàn thành 03 dự án trường học phục vụ năm học mới</li>
+                    <li>Kiểm định 09/23 nhóm lớp mầm non độc lập</li>
+                    <li>Kiểm tra ATTP: 26/28 trường đạt yêu cầu</li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <h3 style="color: #667eea; margin-bottom: 10px;">Người có công & An sinh</h3>
+                <ul>
+                    <li>Thăm hỏi <span class="highlight">2,119 lượt NCC</span> với 2.65 tỷ đồng</li>
+                    <li>Trợ cấp người có công tháng 8, 9: trên 4.2 tỷ đồng</li>
+                    <li>Chi trả 272 người cao tuổi 75-80 tuổi theo NĐ 176</li>
+                    <li>Sửa chữa 01 nhà chính sách (35 triệu đồng)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart4"></canvas>
+        </div>
+    </div>
+    <p class="footer">Slide 4/5</p>
+</div>
+
+<!-- Slide 5: Nhiệm vụ trọng tâm 3 tháng cuối năm -->
+<div class="slide">
+    <h2>Nhiệm vụ trọng tâm 3 tháng cuối năm 2025</h2>
+    <div class="two-col">
+        <div class="info-box">
+            <h3 style="color: #667eea; margin-bottom: 10px;">Trọng tâm chính</h3>
+            <ul>
+                <li>Xây dựng 04 chương trình công tác toàn khóa Đảng ủy</li>
+                <li>Đẩy nhanh đầu tư công, quản lý ngân sách hiệu quả</li>
+                <li>Triển khai chiến dịch làm sạch cơ sở dữ liệu đất đai</li>
+                <li>Thẩm định phường Đô thị văn minh 2025</li>
+                <li>Tổ chức Tết Trung thu & chuẩn bị Tết Nguyên đán</li>
+            </ul>
+        </div>
+        <div class="info-box">
+            <h3 style="color: #667eea; margin-bottom: 10px;">An ninh - Trật tự</h3>
+            <ul>
+                <li>Giữ vững ổn định ANCT-TTATXH</li>
+                <li>Tăng cường đấu tranh chống tội phạm công nghệ cao</li>
+                <li>Tuyển quân 2026 đảm bảo chất lượng</li>
+                <li>Kiểm soát PCCC tại 117 tòa chung cư</li>
+            </ul>
+        </div>
+    </div>
+    <div class="chart-container" style="height: 280px;">
+        <canvas id="chart5"></canvas>
+    </div>
+    <p class="footer">Slide 5/5</p>
+</div>
+
+<script>
+// Chart 1: Văn bản xử lý
+new Chart(document.getElementById('chart1'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Văn bản đến UBND TP', 'Văn bản đến Sở/ngành', 'Văn bản đi', 'Văn bản Đảng ủy'],
+        datasets: [{
+            data: [2675, 2798, 1644, 48],
+            backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Tình hình xử lý văn bản Quý III/2025', font: { size: 16 } },
+            legend: { position: 'bottom' }
+        }
+    }
+});
+
+// Chart 2: Thu ngân sách
+new Chart(document.getElementById('chart2'), {
+    type: 'bar',
+    data: {
+        labels: ['Lệ phí trước bạ', 'Thuế SDĐPNN', 'Phí, lệ phí', 'Quỹ đất công'],
+        datasets: [{
+            label: 'Tỷ đồng',
+            data: [36.914, 6.685, 0.827, 3.985],
+            backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Cơ cấu Thu ngân sách (48.4 tỷ đồng)', font: { size: 16 } }
+        },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// Chart 3: Chỉ tiêu hoàn thành
+new Chart(document.getElementById('chart3'), {
+    type: 'pie',
+    data: {
+        labels: ['Đã hoàn thành', 'Đang thực hiện'],
+        datasets: [{
+            data: [6, 6],
+            backgroundColor: ['#10ac84', '#ee5a6f']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Tình hình thực hiện 12 chỉ tiêu KTXH', font: { size: 16 } },
+            legend: { position: 'bottom' }
+        }
+    }
+});
+
+// Chart 4: Y tế
+new Chart(document.getElementById('chart4'), {
+    type: 'bar',
+    data: {
+        labels: ['Khám chữa bệnh', 'Xét nghiệm', 'Siêu âm', 'X-quang', 'Chuyển tuyến'],
+        datasets: [{
+            label: 'Lượt người',
+            data: [8130, 11654, 817, 694, 1051],
+            backgroundColor: '#667eea'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Hoạt động Y tế Quý III/2025', font: { size: 16 } }
+        },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+// Chart 5: Kế hoạch Q4
+new Chart(document.getElementById('chart5'), {
+    type: 'line',
+    data: {
+        labels: ['Tháng 10', 'Tháng 11', 'Tháng 12'],
+        datasets: [{
+            label: 'Dự kiến hoàn thành chỉ tiêu',
+            data: [8, 10, 12],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Kế hoạch hoàn thành chỉ tiêu 3 tháng cuối năm', font: { size: 16 } }
+        },
+        scales: { 
+            y: { beginAtZero: true, max: 12 }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

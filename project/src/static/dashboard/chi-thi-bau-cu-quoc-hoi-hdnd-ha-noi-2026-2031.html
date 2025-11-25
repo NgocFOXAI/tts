@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉ thị bầu cử Quốc hội và HĐND Hà Nội 2026-2031</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .slide {
+            width: 297mm;
+            height: 210mm;
+            padding: 20mm;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            page-break-after: always;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        }
+        
+        .slide-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            z-index: 1;
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        h2 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #ffd700;
+            border-bottom: 3px solid #ffd700;
+            padding-bottom: 10px;
+        }
+        
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .kpi-section {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .kpi-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .kpi-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 10px 0;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .chart-container {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            border-radius: 15px;
+            height: 100%;
+            position: relative;
+        }
+        
+        .bullet-points {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .bullet-points ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .bullet-points li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 16px;
+            line-height: 1.6;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .bullet-points li:last-child {
+            border-bottom: none;
+        }
+        
+        .bullet-points li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            z-index: 0;
+        }
+        
+        .timeline-item {
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .timeline-dot {
+            width: 60px;
+            height: 60px;
+            background: #ffd700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            color: #667eea;
+            border: 4px solid white;
+        }
+        
+        .timeline-label {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        canvas {
+            max-height: 100% !important;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .slide {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Tổng quan -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>CHỈ THỊ BẦU CỬ QUỐC HỘI KHÓA XVI<br>VÀ HĐND HÀ NỘI NHIỆM KỲ 2026-2031</h1>
+        
+        <div class="kpi-section">
+            <div class="kpi-card">
+                <div class="kpi-label">Ngày bầu cử</div>
+                <div class="kpi-value">15/3/2026</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Nhiệm kỳ</div>
+                <div class="kpi-value">2026-2031</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Số chỉ thị</div>
+                <div class="kpi-value">47-CT/TU</div>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <div class="chart-container">
+                <canvas id="chart1"></canvas>
+            </div>
+            
+            <div class="bullet-points">
+                <h2 style="font-size: 22px; margin-bottom: 15px;">Bối cảnh quan trọng</h2>
+                <ul>
+                    <li>Đại hội Đảng bộ Thành phố lần XVIII và Đại hội toàn quốc lần XIV thành công tốt đẹp</li>
+                    <li>Sau 40 năm đổi mới, đất nước đạt nhiều thành tựu quan trọng</li>
+                    <li>Kinh tế - xã hội phát triển với nhiều khó khăn, thách thức</li>
+                    <li>Tình hình quốc tế có nhiều thuận lợi và khó khăn đan xen</li>
+                    <li>Yêu cầu xây dựng thủ đô hiện đại, văn minh, hiện đại</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-dot">16/5<br>2025</div>
+                <div class="timeline-label">Chỉ thị 46-CT/TW<br>Bộ Chính trị</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot">26/9<br>2025</div>
+                <div class="timeline-label">Chỉ thị 47-CT/TU<br>Thành ủy HN</div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-dot">15/3<br>2026</div>
+                <div class="timeline-label">Ngày bầu cử<br>chính thức</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 2: 8 Nhiệm vụ chính -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>8 NHIỆM VỤ TRỌNG TÂM</h1>
+        
+        <div class="content-grid">
+            <div class="chart-container">
+                <canvas id="chart2"></canvas>
+            </div>
+            
+            <div class="bullet-points">
+                <h2 style="font-size: 20px; margin-bottom: 15px;">Các nhiệm vụ quan trọng</h2>
+                <ul style="font-size: 15px;">
+                    <li><strong>NV1:</strong> Xây dựng kế hoạch tổ chức bầu cử đầy đủ, hợp pháp</li>
+                    <li><strong>NV2:</strong> Lãnh đạo công tác nhân sự gắn với lãnh đạo tập trung</li>
+                    <li><strong>NV3:</strong> Lãnh đạo thực hiện bầu đủ số lượng đại biểu</li>
+                    <li><strong>NV4:</strong> Lựa chọn giới thiệu ứng cử viên theo đúng quy trình</li>
+                    <li><strong>NV5:</strong> Chỉ đạo tuyên truyền phổ biến sâu rộng</li>
+                    <li><strong>NV6:</strong> Chỉ đạo xây dựng phương án an ninh trật tự</li>
+                    <li><strong>NV7:</strong> Thành lập Ban Chỉ đạo bầu cử các cấp</li>
+                    <li><strong>NV8:</strong> Các Đảng ủy phối hợp chặt chẽ triển khai</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 3: Công tác chuẩn bị -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>CÔNG TÁC CHUẨN BỊ VÀ TỔ CHỨC</h1>
+        
+        <div class="kpi-section">
+            <div class="kpi-card">
+                <div class="kpi-label">Kế hoạch</div>
+                <div class="kpi-value">Cụ thể</div>
+                <div class="kpi-label">Đầy đủ điều kiện</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Nhân sự</div>
+                <div class="kpi-value">Chất lượng</div>
+                <div class="kpi-label">Tiêu biểu, quan điểm vững vàng</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Bầu cử</div>
+                <div class="kpi-value">Đúng pháp luật</div>
+                <div class="kpi-label">An toàn, tiết kiệm</div>
+            </div>
+        </div>
+        
+        <div class="content-grid">
+            <div class="bullet-points">
+                <h2 style="font-size: 20px; margin-bottom: 15px;">Công tác lãnh đạo nhân sự</h2>
+                <ul style="font-size: 14px;">
+                    <li>Gắn kết nhận sự đại hội đảng các cấp với quy hoạch cán bộ</li>
+                    <li>Giới thiệu người tiêu biểu có quan điểm chính trị vững vàng</li>
+                    <li>Có năng lực và điều kiện thực hiện nhiệm vụ đại biểu</li>
+                    <li>Không đưa vào danh sách ứng cử người có khuyết điểm</li>
+                    <li>Người bị thanh tra, kiểm tra đầu hiệu vi phạm</li>
+                    <li>Đứng đầu cơ quan có thẩm quyền kết luận không trung thực</li>
+                </ul>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="chart3"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Tuyên truyền và An ninh -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>TUYÊN TRUYỀN VÀ ĐẢM BẢO AN NINH</h1>
+        
+        <div class="content-grid">
+            <div class="chart-container">
+                <canvas id="chart4"></canvas>
+            </div>
+            
+            <div class="bullet-points">
+                <h2 style="font-size: 20px; margin-bottom: 15px;">Công tác tuyên truyền (NV5)</h2>
+                <ul style="font-size: 15px;">
+                    <li>Phổ biến sâu rộng trong Đảng, dân và quân đội</li>
+                    <li>Quy định Luật bầu cử đại biểu QH và HĐND</li>
+                    <li>Vị trí, vai trò của Quốc hội và HĐND trong bộ máy</li>
+                    <li>Trách nhiệm, quyền hạn của người đại biểu</li>
+                    <li>Nghĩa vụ công dân trong xây dựng bộ máy nhà nước</li>
+                </ul>
+                
+                <h2 style="font-size: 20px; margin: 20px 0 15px 0;">An ninh trật tự (NV6)</h2>
+                <ul style="font-size: 15px;">
+                    <li>Xây dựng phương án bảo đảm an ninh chính trị</li>
+                    <li>Kịp thời giải quyết khiếu nại, tố cáo theo quy định</li>
+                    <li>Ngăn chặn mọi hành vi lợi dụng dân chủ vi phạm pháp luật</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: Triển khai và Tổ chức -->
+<div class="slide">
+    <div class="slide-content">
+        <h1>TỔ CHỨC TRIỂN KHAI VÀ PHỐI HỢP</h1>
+        
+        <div class="content-grid">
+            <div class="bullet-points">
+                <h2 style="font-size: 20px; margin-bottom: 15px;">Ban Chỉ đạo bầu cử (NV7)</h2>
+                <ul style="font-size: 15px;">
+                    <li>Thành lập Ban Chỉ đạo Thành ủy và các Đảng ủy xã, phường</li>
+                    <li>Lãnh đạo toàn diện công tác bầu cử ở địa phương</li>
+                    <li>Giới thiệu ứng cử viên và chỉ đạo giải quyết vấn đề phát sinh</li>
+                    <li>Tổ chức chuẩn bị và tổ chức bầu cử đại biểu Quốc hội, HĐND</li>
+                </ul>
+                
+                <h2 style="font-size: 20px; margin: 20px 0 15px 0;">Phối hợp triển khai (NV8)</h2>
+                <ul style="font-size: 15px;">
+                    <li>Đảng ủy, Ủy ban nhân dân các cấp xây dựng kế hoạch cụ thể</li>
+                    <li>Phối hợp chặt chẽ trong chỉ đạo, tổ chức bầu cử</li>
+                    <li>Bảo đảm cuộc bầu cử thành công tốt đẹp</li>
+                </ul>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="chart5"></canvas>
+            </div>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px; margin-top: 20px; text-align: center;">
+            <h2 style="font-size: 24px; border: none; padding: 0; margin: 0;">🎯 MỤC TIÊU: BẦU CỬ THÀNH CÔNG, DÂN CHỦ, AN TOÀN, TIẾT KIỆM</h2>
+        </div>
+    </div>
+</div>
+
+<script>
+// Chart 1: Biểu đồ Timeline với các mốc quan trọng
+const ctx1 = document.getElementById('chart1').getContext('2d');
+new Chart(ctx1, {
+    type: 'line',
+    data: {
+        labels: ['Q2/2025', 'Q3/2025', 'Q4/2025', 'Q1/2026', '15/3/2026', 'Q2/2026'],
+        datasets: [{
+            label: 'Tiến độ chuẩn bị',
+            data: [20, 40, 65, 85, 100, 100],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointBackgroundColor: '#667eea',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Lộ trình triển khai bầu cử (%)',
+                font: { size: 18, weight: 'bold' },
+                color: '#333'
+            },
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) { return value + '%'; },
+                    font: { size: 12 }
+                }
+            },
+            x: {
+                ticks: { font: { size: 12 } }
+            }
+        }
+    }
+});
+
+// Chart 2: 8 nhiệm vụ
+const ctx2 = document.getElementById('chart2').getContext('2d');
+new Chart(ctx2, {
+    type: 'bar',
+    data: {
+        labels: ['Kế hoạch', 'Nhân sự', 'Số lượng ĐB', 'Ứng cử viên', 'Tuyên truyền', 'An ninh', 'Ban Chỉ đạo', 'Phối hợp'],
+        datasets: [{
+            label: 'Mức độ ưu tiên',
+            data: [95, 100, 90, 95, 85, 90, 85, 80],
+            backgroundColor: [
+                '#667eea', '#764ba2', '#f093fb', '#4facfe',
+                '#43e97b', '#fa709a', '#fee140', '#30cfd0'
+            ],
+            borderRadius: 8,
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Mức độ ưu tiên 8 nhiệm vụ (%)',
+                font: { size: 18, weight: 'bold' },
+                color: '#333'
+            },
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) { return value + '%'; },
+                    font: { size: 11 }
+                }
+            },
+            x: {
+                ticks: { font: { size: 11 } }
+            }
+        }
+    }
+});
+
+// Chart 3: Tiêu chí ứng cử viên
+const ctx3 = document.getElementById('chart3').getContext('2d');
+new Chart(ctx3, {
+    type: 'doughnut',
+    data: {
+        labels: ['Quan điểm chính trị', 'Năng lực điều kiện', 'Tiêu biểu gương mẫu', 'Lập trường vững vàng', 'Trung thực liêm khiết'],
+        datasets: [{
+            data: [25, 20, 20, 18, 17],
+            backgroundColor: [
+                '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b'
+            ],
+            borderWidth: 3,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Tiêu chí lựa chọn ứng cử viên (%)',
+                font: { size: 18, weight: 'bold' },
+                color: '#333'
+            },
+            legend: {
+                position: 'bottom',
+                labels: { 
+                    font: { size: 13 },
+                    padding: 12,
+                    boxWidth: 15
+                }
+            }
+        }
+    }
+});
+
+// Chart 4: Công tác tuyên truyền
+const ctx4 = document.getElementById('chart4').getContext('2d');
+new Chart(ctx4, {
+    type: 'bar',
+    data: {
+        labels: ['Trong Đảng', 'Toàn dân', 'Quân đội', 'Quy định pháp luật', 'Vai trò QH-HĐND', 'Nghĩa vụ công dân'],
+        datasets: [{
+            label: 'Phạm vi phủ sóng',
+            data: [100, 100, 95, 90, 85, 80],
+            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+            borderColor: '#667eea',
+            borderWidth: 2,
+            borderRadius: 8
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Phạm vi tuyên truyền bầu cử (%)',
+                font: { size: 18, weight: 'bold' },
+                color: '#333'
+            },
+            legend: { display: false }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                max: 100,
+                ticks: {
+                    callback: function(value) { return value + '%'; },
+                    font: { size: 11 }
+                }
+            },
+            y: {
+                ticks: { font: { size: 12 } }
+            }
+        }
+    }
+});
+
+// Chart 5: Cấp triển khai
+const ctx5 = document.getElementById('chart5').getContext('2d');
+new Chart(ctx5, {
+    type: 'pie',
+    data: {
+        labels: ['Thành ủy', 'Đảng ủy quận/huyện', 'Đảng ủy xã/phường', 'UBND các cấp', 'Mặt trận Tổ quốc', 'Các tổ chức CT-XH'],
+        datasets: [{
+            data: [20, 20, 20, 15, 15, 10],
+            backgroundColor: [
+                '#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fee140'
+            ],
+            borderWidth: 3,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Phân bổ trách nhiệm các cấp (%)',
+                font: { size: 18, weight: 'bold' },
+                color: '#333'
+            },
+            legend: {
+                position: 'bottom',
+                labels: { 
+                    font: { size: 13 },
+                    padding: 10,
+                    boxWidth: 15
+                }
+            }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

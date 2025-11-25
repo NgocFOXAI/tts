@@ -11,17 +11,47 @@ import os
 from pathlib import Path
 from contextlib import asynccontextmanager
 from .utils.log_cleaner import LogCleaner
+from .config.loggings import get_logger, setup_uvicorn_logging
+import asyncio
+import sys
 
 # Load environment variables from .env file
 load_dotenv()
 
+# Initialize logging
+logger = get_logger(__name__)
+setup_uvicorn_logging()
+
+# Set Windows-specific event loop policy
+# ProactorEventLoop is required for subprocess operations (Playwright)
+if sys.platform == 'win32':
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+        logger.info("Using WindowsProactorEventLoopPolicy for subprocess support (Playwright)")
+    except Exception as e:
+        logger.warning(f"Could not set WindowsProactorEventLoopPolicy: {e}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Clean old logs
-    log_cleaner = LogCleaner(log_dir="logs", retention_days=3)
+    # Startup
+    logger.info("=" * 80)
+    logger.info("🚀 Application starting up...")
+    logger.info(f"Environment: {os.getenv('ENV', 'production')}")
+    logger.info(f"Port: {os.getenv('PORT', '18001')}")
+    
+    # Clean old logs
+    log_cleaner = LogCleaner(log_dir="logs", retention_days=7)
     log_cleaner.clean_old_logs()
+    
+    logger.info("✅ Application startup complete")
+    logger.info("=" * 80)
+    
     yield
-    # Shutdown: cleanup if needed
+    
+    # Shutdown
+    logger.info("=" * 80)
+    logger.info("🛑 Application shutting down...")
+    logger.info("=" * 80)
 
 app = FastAPI(
     title="Text-to-Speech & Text Generation API",
@@ -29,6 +59,30 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+# Add middleware to handle connection errors gracefully
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
+
+class ConnectionErrorMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        try:
+            response = await call_next(request)
+            return response
+        except (OSError, ConnectionError, ConnectionResetError) as e:
+            # Log the error but don't crash the server
+            if isinstance(e, OSError) and e.winerror == 64:
+                logger.warning(f"Client disconnected abruptly: {e}")
+            else:
+                logger.warning(f"Connection error: {e}")
+            # Return a generic response since client is already gone
+            return Response(status_code=499, content="Client Closed Request")
+        except Exception as e:
+            logger.error(f"Unexpected error in request handling: {e}", exc_info=True)
+            raise
+
+app.add_middleware(ConnectionErrorMiddleware)
 
 # Add CORS middleware - Allow all origins for maximum compatibility
 app.add_middleware(

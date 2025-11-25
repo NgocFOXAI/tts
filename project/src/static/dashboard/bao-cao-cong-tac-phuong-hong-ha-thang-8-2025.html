@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo công tác phường Hồng Hà tháng 8/2025</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .slide {
+            width: 297mm;
+            height: 210mm;
+            padding: 20mm;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            page-break-after: always;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="rgba(255,255,255,0.05)"/></svg>');
+            opacity: 0.3;
+        }
+        
+        .slide-content {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .slide h1 {
+            font-size: 32px;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            border-bottom: 3px solid rgba(255,255,255,0.5);
+            padding-bottom: 10px;
+        }
+        
+        .slide h2 {
+            font-size: 24px;
+            color: white;
+            margin: 10px 0;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .kpi-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .kpi-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        .kpi-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 5px 0;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .chart-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            position: relative;
+            min-height: 0;
+        }
+        
+        .insights {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        
+        .insights ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .insights li {
+            padding: 8px 0;
+            font-size: 15px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .insights li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .insights li:last-child {
+            border-bottom: none;
+        }
+        
+        .slide:nth-child(2) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .slide:nth-child(3) {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .slide:nth-child(4) {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .slide:nth-child(5) {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Slide 1: Tổng quan -->
+    <div class="slide">
+        <div class="slide-content">
+            <h1>BÁO CÁO CÔNG TÁC THÁNG 8/2025 - PHƯỜNG HỒNG HÀ</h1>
+            
+            <div class="kpi-container">
+                <div class="kpi-box">
+                    <div class="kpi-value">381</div>
+                    <div class="kpi-label">Văn bản ban hành</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">2.715</div>
+                    <div class="kpi-label">Hồ sơ TTHC</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">95,3%</div>
+                    <div class="kpi-label">Tỷ lệ giải quyết đúng hạn</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="chart1"></canvas>
+            </div>
+            
+            <div class="insights">
+                <h2>Điểm nổi bật</h2>
+                <ul>
+                    <li>Tổ chức thành công Đại hội Đảng bộ phường lần thứ I, nhiệm kỳ 2025-2030</li>
+                    <li>Triển khai hiệu quả mô hình chính quyền hai cấp</li>
+                    <li>Đảm bảo an toàn tuyệt đối cho các sự kiện lớn</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 2: Thu ngân sách và kinh tế -->
+    <div class="slide">
+        <div class="slide-content">
+            <h1>TÌNH HÌNH KINH TÉ - THU NGÂN SÁCH</h1>
+            
+            <div class="kpi-container">
+                <div class="kpi-box">
+                    <div class="kpi-value">10,76 tỷ</div>
+                    <div class="kpi-label">Thu NSNN tháng 8</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">25,87 tỷ</div>
+                    <div class="kpi-label">Lũy kế 8 tháng</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">34,67%</div>
+                    <div class="kpi-label">So với dự toán năm</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="chart2"></canvas>
+            </div>
+            
+            <div class="insights">
+                <ul>
+                    <li>Dự kiến hoàn thành 100% kế hoạch thu ngân sách năm 2025 (74,597 tỷ đồng)</li>
+                    <li>Giải quyết 211/228 hồ sơ hộ kinh doanh, đạt tỷ lệ 92,54%</li>
+                    <li>Thị trường hàng hóa ổn định, không biến động giá</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 3: Công tác đô thị và xây dựng -->
+    <div class="slide">
+        <div class="slide-content">
+            <h1>QUẢN LÝ ĐÔ THỊ & TRẬT TỰ XÂY DỰNG</h1>
+            
+            <div class="kpi-container">
+                <div class="kpi-box">
+                    <div class="kpi-value">94</div>
+                    <div class="kpi-label">Hồ sơ hành chính đất đai</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">24</div>
+                    <div class="kpi-label">Công trình vi phạm xử lý</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">5 tấn</div>
+                    <div class="kpi-label">Rác thải thu gom</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="chart3"></canvas>
+            </div>
+            
+            <div class="insights">
+                <ul>
+                    <li>Ra quân vệ sinh môi trường chào mừng Quốc khánh 2/9</li>
+                    <li>Cưỡng chế 4 công trình vi phạm, thông báo 20 chủ đầu tư tự phá dỡ</li>
+                    <li>Xử lý 9 điểm chân rác, tháo dỡ 22 biển quảng cáo vi phạm</li>
+                    <li>Hoàn thiện điều tra GPMB dự án cầu Tứ Liên: 148 trường hợp</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 4: An ninh trật tự -->
+    <div class="slide">
+        <div class="slide-content">
+            <h1>AN NINH - TRẬT TỰ & QUỐC PHÒNG</h1>
+            
+            <div class="kpi-container">
+                <div class="kpi-box">
+                    <div class="kpi-value">63</div>
+                    <div class="kpi-label">Chốt đảm bảo ANTT</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">2.260</div>
+                    <div class="kpi-label">Lượt cán bộ tham gia</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">20 vụ</div>
+                    <div class="kpi-label">Phát hiện ma túy</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="chart4"></canvas>
+            </div>
+            
+            <div class="insights">
+                <ul>
+                    <li>Đảm bảo an toàn tuyệt đối cho Đại hội Đảng bộ và Lễ kỷ niệm 80 năm Quốc khánh</li>
+                    <li>Xử phạt TTATGT: 173 trường hợp, thu 90,875 triệu đồng</li>
+                    <li>Xử phạt kinh tế: 6 vụ, thu 95,940 triệu đồng</li>
+                    <li>Giảm 3 vụ cháy so tháng trước (còn 4 vụ), thiệt hại 180 triệu đồng</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5: Văn hóa xã hội và định hướng -->
+    <div class="slide">
+        <div class="slide-content">
+            <h1>VĂN HÓA - XÃ HỘI & ĐỊNH HƯỚNG THÁNG 9/2025</h1>
+            
+            <div class="kpi-container">
+                <div class="kpi-box">
+                    <div class="kpi-value">123</div>
+                    <div class="kpi-label">Hồ sơ trợ cấp hưu trí XH</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">180</div>
+                    <div class="kpi-label">Đối tượng khám sức khỏe</div>
+                </div>
+                <div class="kpi-box">
+                    <div class="kpi-value">86</div>
+                    <div class="kpi-label">Lượt trẻ tiêm chủng</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="chart5"></canvas>
+            </div>
+            
+            <div class="insights">
+                <h2>Nhiệm vụ trọng tâm tháng 9/2025</h2>
+                <ul>
+                    <li>Vận hành thông suốt mô hình chính quyền hai cấp</li>
+                    <li>Triển khai kế hoạch 6 tháng cuối năm, phấn đấu hoàn thành vượt mức</li>
+                    <li>Tổ chức Lễ khai giảng năm học 2025-2026 đảm bảo an toàn</li>
+                    <li>Đẩy mạnh chuyển đổi số, cải cách hành chính</li>
+                    <li>Xây dựng kế hoạch đầu tư công trung hạn 2026-2030</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart 1: Văn bản và hồ sơ
+        const ctx1 = document.getElementById('chart1').getContext('2d');
+        new Chart(ctx1, {
+            type: 'bar',
+            data: {
+                labels: ['Văn bản', 'Hồ sơ TTHC', 'Đã giải quyết', 'Đang giải quyết'],
+                datasets: [{
+                    label: 'Số lượng',
+                    data: [381, 2715, 2588, 127],
+                    backgroundColor: [
+                        'rgba(102, 126, 234, 0.8)',
+                        'rgba(118, 75, 162, 0.8)',
+                        'rgba(67, 233, 123, 0.8)',
+                        'rgba(254, 225, 64, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(102, 126, 234, 1)',
+                        'rgba(118, 75, 162, 1)',
+                        'rgba(67, 233, 123, 1)',
+                        'rgba(254, 225, 64, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'Công tác chỉ đạo điều hành và TTHC',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Chart 2: Thu ngân sách
+        const ctx2 = document.getElementById('chart2').getContext('2d');
+        new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: ['Tháng 1-7', 'Tháng 8', 'Dự kiến 4T cuối', 'Kế hoạch năm'],
+                datasets: [{
+                    label: 'Thu NSNN (tỷ đồng)',
+                    data: [15.11, 10.76, 48.73, 74.60],
+                    backgroundColor: 'rgba(245, 87, 108, 0.2)',
+                    borderColor: 'rgba(245, 87, 108, 1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true },
+                    title: {
+                        display: true,
+                        text: 'Xu hướng thu ngân sách năm 2025',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Chart 3: Công tác đô thị
+        const ctx3 = document.getElementById('chart3').getContext('2d');
+        new Chart(ctx3, {
+            type: 'doughnut',
+            data: {
+                labels: ['Phá dỡ bục bệ', 'Tháo biển QC', 'Bóc xóa QC', 'Xử lý điểm rác'],
+                datasets: [{
+                    data: [19, 29, 150, 9],
+                    backgroundColor: [
+                        'rgba(79, 172, 254, 0.8)',
+                        'rgba(0, 242, 254, 0.8)',
+                        'rgba(67, 233, 123, 0.8)',
+                        'rgba(250, 112, 154, 0.8)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' },
+                    title: {
+                        display: true,
+                        text: 'Kết quả ra quân vệ sinh môi trường',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                }
+            }
+        });
+
+        // Chart 4: An ninh trật tự
+        const ctx4 = document.getElementById('chart4').getContext('2d');
+        new Chart(ctx4, {
+            type: 'bar',
+            data: {
+                labels: ['TP trật tự XH', 'TP kinh tế', 'TP ma túy', 'TP môi trường'],
+                datasets: [{
+                    label: 'Tổng số vụ',
+                    data: [10, 20, 20, 20],
+                    backgroundColor: 'rgba(67, 233, 123, 0.7)',
+                    borderWidth: 2
+                }, {
+                    label: 'Đã xử lý',
+                    data: [4, 7, 20, 4],
+                    backgroundColor: 'rgba(56, 249, 215, 0.7)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true },
+                    title: {
+                        display: true,
+                        text: 'Tình hình phòng chống tội phạm',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Chart 5: Văn hóa xã hội
+        const ctx5 = document.getElementById('chart5').getContext('2d');
+        new Chart(ctx5, {
+            type: 'radar',
+            data: {
+                labels: ['Y tế', 'Giáo dục', 'An sinh XH', 'Văn hóa', 'Thể thao'],
+                datasets: [{
+                    label: 'Kết quả đạt được (%)',
+                    data: [92, 95, 98, 90, 85],
+                    backgroundColor: 'rgba(250, 112, 154, 0.2)',
+                    borderColor: 'rgba(254, 225, 64, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(250, 112, 154, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(250, 112, 154, 1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: true },
+                    title: {
+                        display: true,
+                        text: 'Đánh giá công tác văn hóa - xã hội',
+                        font: { size: 16, weight: 'bold' }
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

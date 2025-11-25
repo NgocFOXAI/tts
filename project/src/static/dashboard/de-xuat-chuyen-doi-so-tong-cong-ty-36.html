@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đề xuất Chuyển đổi Số - Tổng Công ty 36</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .slide {
+            width: 297mm;
+            height: 210mm;
+            padding: 20mm;
+            background: white;
+            page-break-after: always;
+            page-break-inside: avoid;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1e3a8a;
+        }
+        
+        .slide-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+        
+        .slide-number {
+            font-size: 18px;
+            color: #64748b;
+            font-weight: 600;
+        }
+        
+        .content-grid {
+            display: grid;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .two-col {
+            grid-template-columns: 1fr 1fr;
+        }
+        
+        .chart-container {
+            position: relative;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        canvas {
+            max-height: 280px;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            text-align: center;
+        }
+        
+        .kpi-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .kpi-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .insights {
+            background: #f1f5f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .insights h3 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .insights ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .insights li {
+            padding: 8px 0;
+            font-size: 15px;
+            color: #334155;
+            line-height: 1.5;
+        }
+        
+        .insights li:before {
+            content: "▸ ";
+            color: #3b82f6;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 2px solid #e2e8f0;
+            font-size: 13px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Tổng quan Thực trạng -->
+<div class="slide">
+    <div class="slide-header">
+        <div class="slide-title">Thực trạng & Nhu cầu Chuyển đổi Số</div>
+        <div class="slide-number">01/05</div>
+    </div>
+    
+    <div class="content-grid two-col">
+        <div>
+            <div class="chart-container">
+                <canvas id="chart1"></canvas>
+            </div>
+        </div>
+        
+        <div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Hệ thống rời rạc</div>
+                    <div class="kpi-value">5+</div>
+                    <div class="kpi-label">Phần mềm khác nhau</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);">
+                    <div class="kpi-label">Thời gian lãng phí</div>
+                    <div class="kpi-value">40%</div>
+                    <div class="kpi-label">Nhập liệu trùng lặp</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);">
+                    <div class="kpi-label">Chi phí gia tăng</div>
+                    <div class="kpi-value">25%</div>
+                    <div class="kpi-label">Do quy trình chậm</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                    <div class="kpi-label">Tiềm năng cải thiện</div>
+                    <div class="kpi-value">50%</div>
+                    <div class="kpi-label">Năng suất lao động</div>
+                </div>
+            </div>
+            
+            <div class="insights" style="margin-top: 20px;">
+                <h3>Vấn đề chính</h3>
+                <ul>
+                    <li>Dữ liệu phân tán, thiếu đồng bộ giữa các phòng ban</li>
+                    <li>Nhân viên nhập liệu lặp lại nhiều lần cho cùng thông tin</li>
+                    <li>Ban lãnh đạo khó có cái nhìn tổng thể về tài chính</li>
+                    <li>Thiếu công cụ kiểm soát công nợ và dòng tiền</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">Đề xuất Chuyển đổi Số - Tổng Công ty 36 | FoxAI Technology</div>
+</div>
+
+<!-- Slide 2: Mục tiêu Chuyển đổi Số -->
+<div class="slide">
+    <div class="slide-header">
+        <div class="slide-title">Mục tiêu Chuyển đổi Số</div>
+        <div class="slide-number">02/05</div>
+    </div>
+    
+    <div class="content-grid two-col">
+        <div class="chart-container">
+            <canvas id="chart2"></canvas>
+        </div>
+        
+        <div>
+            <div class="insights">
+                <h3>5 Mục tiêu chính</h3>
+                <ul>
+                    <li><strong>Tăng năng suất:</strong> Tự động hóa quy trình, kết nối thông tin thông suốt giữa các bộ phận</li>
+                    <li><strong>Minh bạch tài chính:</strong> Nguồn dữ liệu tập trung cho mọi hoạt động kế toán, loại bỏ trùng lặp</li>
+                    <li><strong>Giảm chi phí:</strong> Tối ưu mua sắm, quản lý kho, cắt giảm lãng phí và sai sót</li>
+                    <li><strong>Kiểm soát công nợ:</strong> Theo dõi chặt chẽ, cảnh báo kịp thời, đảm bảo sức khỏe tài chính</li>
+                    <li><strong>Quản lý dự án:</strong> Theo dõi tiến độ, chi phí, chất lượng theo thời gian thực</li>
+                </ul>
+            </div>
+            
+            <div class="kpi-grid" style="margin-top: 20px;">
+                <div class="kpi-card" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);">
+                    <div class="kpi-label">Mục tiêu tăng</div>
+                    <div class="kpi-value">30-50%</div>
+                    <div class="kpi-label">Hiệu suất vận hành</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #059669 0%, #34d399 100%);">
+                    <div class="kpi-label">Giảm thiểu</div>
+                    <div class="kpi-value">80%</div>
+                    <div class="kpi-label">Thao tác thủ công</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">Đề xuất Chuyển đổi Số - Tổng Công ty 36 | FoxAI Technology</div>
+</div>
+
+<!-- Slide 3: Kiến trúc Giải pháp -->
+<div class="slide">
+    <div class="slide-header">
+        <div class="slide-title">Kiến trúc Giải pháp Tổng thể</div>
+        <div class="slide-number">03/05</div>
+    </div>
+    
+    <div class="content-grid two-col">
+        <div>
+            <div class="chart-container">
+                <canvas id="chart3"></canvas>
+            </div>
+            
+            <div class="insights" style="margin-top: 20px;">
+                <h3>Thành phần chính</h3>
+                <ul>
+                    <li><strong>SAP Business One:</strong> Hệ thống ERP lõi tích hợp toàn diện</li>
+                    <li><strong>Jira:</strong> Quản lý dự án chuyên nghiệp, theo dõi tiến độ</li>
+                    <li><strong>Fox-Procurement:</strong> Quản lý mua sắm tập trung (Sao Khuê 2025)</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div>
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Tài chính - Kế toán</div>
+                    <div class="kpi-value">100%</div>
+                    <div class="kpi-label">Minh bạch dữ liệu</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);">
+                    <div class="kpi-label">Quản lý Dự án</div>
+                    <div class="kpi-value">360°</div>
+                    <div class="kpi-label">Theo dõi toàn diện</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);">
+                    <div class="kpi-label">Mua sắm</div>
+                    <div class="kpi-value">25%</div>
+                    <div class="kpi-label">Tiết kiệm chi phí</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);">
+                    <div class="kpi-label">RPA tự động</div>
+                    <div class="kpi-value">24/7</div>
+                    <div class="kpi-label">Vận hành liên tục</div>
+                </div>
+            </div>
+            
+            <div class="insights" style="margin-top: 20px;">
+                <h3>Lợi ích tích hợp</h3>
+                <ul>
+                    <li>Một nguồn dữ liệu duy nhất - loại bỏ trùng lặp</li>
+                    <li>Tự động hóa quy trình với FoxAI Native RPA</li>
+                    <li>Quản lý tài sản, thiết bị, nhà thầu phụ tập trung</li>
+                    <li>Báo cáo thời gian thực cho ban lãnh đạo</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">Đề xuất Chuyển đổi Số - Tổng Công ty 36 | FoxAI Technology</div>
+</div>
+
+<!-- Slide 4: Lợi ích & ROI -->
+<div class="slide">
+    <div class="slide-header">
+        <div class="slide-title">Lợi ích & Hiệu quả Dự kiến</div>
+        <div class="slide-number">04/05</div>
+    </div>
+    
+    <div class="content-grid two-col">
+        <div class="chart-container">
+            <canvas id="chart4"></canvas>
+        </div>
+        
+        <div>
+            <div class="chart-container" style="margin-bottom: 20px;">
+                <canvas id="chart5"></canvas>
+            </div>
+            
+            <div class="insights">
+                <h3>Lợi ích đột phá</h3>
+                <ul>
+                    <li><strong>Năng suất +30-50%:</strong> Tự động hóa, giảm nhập liệu thủ công</li>
+                    <li><strong>Chi phí -20-25%:</strong> Tối ưu mua sắm, kiểm soát tồn kho</li>
+                    <li><strong>Minh bạch 100%:</strong> Dữ liệu tập trung, báo cáo real-time</li>
+                    <li><strong>Dự án đúng hạn:</strong> Quản lý tiến độ - chi phí hiệu quả</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">Đề xuất Chuyển đổi Số - Tổng Công ty 36 | FoxAI Technology</div>
+</div>
+
+<!-- Slide 5: Lộ trình Triển khai -->
+<div class="slide">
+    <div class="slide-header">
+        <div class="slide-title">Lộ trình Triển khai 4 Giai đoạn</div>
+        <div class="slide-number">05/05</div>
+    </div>
+    
+    <div class="content-grid two-col">
+        <div class="chart-container">
+            <canvas id="chart6"></canvas>
+        </div>
+        
+        <div>
+            <div class="insights">
+                <h3>Giai đoạn 1: ERP Core (3-4 tháng)</h3>
+                <ul>
+                    <li>Triển khai SAP B1 & Fox-Procurement</li>
+                    <li>Tài chính, Kế toán, Mua hàng, Kho vận</li>
+                </ul>
+            </div>
+            
+            <div class="insights" style="margin-top: 15px;">
+                <h3>Giai đoạn 2: Quản lý Dự án (2-3 tháng)</h3>
+                <ul>
+                    <li>Triển khai Jira cho quản lý dự án</li>
+                    <li>Tích hợp với SAP B1, theo dõi tiến độ</li>
+                </ul>
+            </div>
+            
+            <div class="insights" style="margin-top: 15px;">
+                <h3>Giai đoạn 3-4: Tự động hóa (2-3 tháng)</h3>
+                <ul>
+                    <li>RPA tự động hóa quy trình lặp lại</li>
+                    <li>Hoàn thiện tích hợp, đánh giá & cải tiến</li>
+                </ul>
+            </div>
+            
+            <div class="kpi-grid" style="margin-top: 15px;">
+                <div class="kpi-card" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                    <div class="kpi-label">Tổng thời gian</div>
+                    <div class="kpi-value">9-12</div>
+                    <div class="kpi-label">Tháng triển khai</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+                    <div class="kpi-label">Go-live từng bước</div>
+                    <div class="kpi-value">4</div>
+                    <div class="kpi-label">Giai đoạn chính</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">Đề xuất Chuyển đổi Số - Tổng Công ty 36 | FoxAI Technology</div>
+</div>
+
+<script>
+// Chart 1: Vấn đề hiện tại
+const ctx1 = document.getElementById('chart1').getContext('2d');
+new Chart(ctx1, {
+    type: 'bar',
+    data: {
+        labels: ['Nhập liệu\ntrùng lặp', 'Dữ liệu\nphân tán', 'Thiếu\nminh bạch', 'Quản lý\nthủ công', 'Chậm\nquyết định'],
+        datasets: [{
+            label: 'Mức độ ảnh hưởng (%)',
+            data: [85, 75, 70, 80, 65],
+            backgroundColor: ['#dc2626', '#ea580c', '#f59e0b', '#d97706', '#b91c1c']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Vấn đề Thực trạng Hiện tại', font: { size: 16 } }
+        },
+        scales: {
+            y: { beginAtZero: true, max: 100 }
+        }
+    }
+});
+
+// Chart 2: Mục tiêu
+const ctx2 = document.getElementById('chart2').getContext('2d');
+new Chart(ctx2, {
+    type: 'radar',
+    data: {
+        labels: ['Năng suất', 'Minh bạch', 'Giảm chi phí', 'Kiểm soát nợ', 'Quản lý dự án'],
+        datasets: [{
+            label: 'Hiện tại',
+            data: [40, 35, 45, 40, 50],
+            backgroundColor: 'rgba(220, 38, 38, 0.2)',
+            borderColor: '#dc2626',
+            borderWidth: 2
+        }, {
+            label: 'Sau CĐS',
+            data: [90, 95, 85, 90, 95],
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+            borderColor: '#10b981',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'Cải thiện Hiệu suất sau Chuyển đổi Số', font: { size: 16 } }
+        },
+        scales: {
+            r: { beginAtZero: true, max: 100 }
+        }
+    }
+});
+
+// Chart 3: Kiến trúc
+const ctx3 = document.getElementById('chart3').getContext('2d');
+new Chart(ctx3, {
+    type: 'doughnut',
+    data: {
+        labels: ['SAP Business One', 'Jira PM', 'Fox-Procurement', 'FoxAI RPA', 'Quản lý Tài sản'],
+        datasets: [{
+            data: [35, 20, 20, 15, 10],
+            backgroundColor: ['#1e3a8a', '#0891b2', '#ea580c', '#7c3aed', '#059669']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'right' },
+            title: { display: true, text: 'Thành phần Giải pháp', font: { size: 16 } }
+        }
+    }
+});
+
+// Chart 4: Lợi ích
+const ctx4 = document.getElementById('chart4').getContext('2d');
+new Chart(ctx4, {
+    type: 'bar',
+    data: {
+        labels: ['Năng suất', 'Tiết kiệm\nchi phí', 'Độ chính xác', 'Tốc độ\nxử lý', 'Minh bạch'],
+        datasets: [{
+            label: 'Cải thiện (%)',
+            data: [40, 25, 90, 60, 100],
+            backgroundColor: ['#10b981', '#3b82f6', '#8b5cf6', '#06b6d4', '#059669']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Lợi ích Dự kiến', font: { size: 16 } }
+        },
+        scales: {
+            y: { beginAtZero: true, max: 100 }
+        }
+    }
+});
+
+// Chart 5: ROI Timeline
+const ctx5 = document.getElementById('chart5').getContext('2d');
+new Chart(ctx5, {
+    type: 'line',
+    data: {
+        labels: ['T0', 'T3', 'T6', 'T9', 'T12', 'T18', 'T24'],
+        datasets: [{
+            label: 'Lợi nhuận tích lũy',
+            data: [-100, -80, -40, 20, 80, 180, 300],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: { display: true, text: 'ROI Timeline (% so với đầu tư)', font: { size: 14 } }
+        }
+    }
+});
+
+// Chart 6: Lộ trình
+const ctx6 = document.getElementById('chart6').getContext('2d');
+new Chart(ctx6, {
+    type: 'bar',
+    data: {
+        labels: ['GĐ1:\nERP Core', 'GĐ2:\nJira PM', 'GĐ3:\nRPA', 'GĐ4:\nHoàn thiện'],
+        datasets: [{
+            label: 'Thời gian (tháng)',
+            data: [4, 3, 2.5, 2.5],
+            backgroundColor: ['#1e3a8a', '#0891b2', '#7c3aed', '#059669']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Lộ trình Triển khai (Tổng 9-12 tháng)', font: { size: 16 } }
+        },
+        scales: {
+            x: { beginAtZero: true, max: 5 }
+        }
+    }
+});
+</script>
+
+</body>
+</html>

@@ -213,7 +213,7 @@ class NotebookLMAutomation:
             print(f"New file saved to: {file_path}")
             return file_path
         except Exception as e:
-            print(f"❌ Error saving file: {e}")
+            print(f" Error saving file: {e}")
             return None
 
     def get_content(self, content_source: str) -> Optional[str]:

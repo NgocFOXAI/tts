@@ -98,7 +98,11 @@ async def delete_audio_file(filename: str):
         # Delete the file
         file_path.unlink()
 
-        return {"message": f"File '{filename}' deleted successfully"}
+        # Return explicit JSONResponse to avoid content-length issues
+        return JSONResponse(
+            status_code=200,
+            content={"message": f"File '{filename}' deleted successfully"}
+        )
 
     except HTTPException:
         raise
@@ -124,11 +128,14 @@ async def cleanup_old_files(days: int = 7):
                     file_path.unlink()
                     deleted_files.append(file_name)
 
-        return {
-            "message": f"Cleanup completed",
-            "deleted_files": deleted_files,
-            "count": len(deleted_files)
-        }
+        return JSONResponse(
+            status_code=200,
+            content={
+                "message": "Cleanup completed",
+                "deleted_files": deleted_files,
+                "count": len(deleted_files)
+            }
+        )
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error during cleanup: {str(e)}")

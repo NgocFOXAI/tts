@@ -20,6 +20,7 @@ class LogCleaner:
             cutoff_time = time.time() - (self.retention_days * 24 * 60 * 60)
             deleted_count = 0
             
+            # Clean regular log files
             for log_file in self.log_dir.glob("*.log"):
                 try:
                     file_mtime = os.path.getmtime(log_file)
@@ -29,6 +30,15 @@ class LogCleaner:
                         logger.info(f"Deleted old log file: {log_file.name}")
                 except Exception as e:
                     logger.error(f"Error deleting log file {log_file.name}: {e}")
+            
+            # Clean stdout log files (old format, no longer needed)
+            for stdout_file in self.log_dir.glob("stdout.log_*"):
+                try:
+                    stdout_file.unlink()
+                    deleted_count += 1
+                    logger.info(f"Deleted stdout log file: {stdout_file.name}")
+                except Exception as e:
+                    logger.error(f"Error deleting stdout log file {stdout_file.name}: {e}")
             
             if deleted_count > 0:
                 logger.info(f"Cleaned {deleted_count} old log files (older than {self.retention_days} days)")

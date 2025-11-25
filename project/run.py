@@ -17,6 +17,26 @@ from src.app.main import app
 
 if __name__ == "__main__":
     import uvicorn
-    # Lấy port từ environment variable hoặc dùng 18000 mặc định
-    port = int(os.environ.get("PORT", 18000))
-    uvicorn.run("src.app.main:app", host="0.0.0.0", port=port, reload=False)
+    import asyncio
+    
+    # Lấy port từ environment variable hoặc dùng 18001 mặc định
+    port = int(os.environ.get("PORT", 18001))
+    
+    # Set Windows-specific event loop policy
+    # ProactorEventLoop is required for subprocess operations (Playwright)
+    # Note: ProactorEventLoop is the default in Python 3.8+ on Windows
+    if sys.platform == 'win32':
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+    
+    # Configure uvicorn with custom logging
+    uvicorn.run(
+        "src.app.main:app",
+        host="0.0.0.0",
+        port=port,
+        reload=False,
+        log_config=None,  # Disable default logging, use our custom config
+        access_log=True,
+        timeout_keep_alive=30,  # Reduce keep-alive timeout to prevent stale connections
+        limit_concurrency=1000,  # Limit concurrent connections
+        backlog=2048  # Socket backlog size
+    )

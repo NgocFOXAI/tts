@@ -175,7 +175,7 @@ FILENAME: ten-file-goi-y
         if slide_count != max_slides:
             logger.warning(f"⚠️ Expected {max_slides} slides but got {slide_count}. HTML may need adjustment.")
         else:
-            logger.info(f"✅ Validated: Generated exactly {max_slides} slides as requested")
+            logger.info(f" Validated: Generated exactly {max_slides} slides as requested")
         
         # Return both HTML and suggested filename as tuple
         return text_content, suggested_filename

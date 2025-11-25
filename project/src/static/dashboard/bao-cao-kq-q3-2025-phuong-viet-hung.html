@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo cáo KT-XH Q3/2025 - Phường Việt Hưng</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @page { size: A4 landscape; margin: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; }
+        .slide { width: 297mm; height: 210mm; padding: 20mm; background: white; margin: 0 auto 5mm; page-break-after: always; page-break-inside: avoid; display: flex; flex-direction: column; }
+        h1 { font-size: 32px; color: #1e40af; margin-bottom: 15px; text-align: center; border-bottom: 4px solid #3b82f6; padding-bottom: 10px; }
+        h2 { font-size: 22px; color: #1e40af; margin: 15px 0 10px; }
+        .header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+        .kpi-box { background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); color: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .kpi-value { font-size: 28px; font-weight: bold; margin: 8px 0; }
+        .kpi-label { font-size: 13px; opacity: 0.9; }
+        .content-flex { display: flex; gap: 20px; flex: 1; }
+        .chart-container { flex: 1; position: relative; min-height: 0; }
+        .text-content { flex: 1; }
+        ul { margin-left: 20px; }
+        li { margin: 8px 0; font-size: 15px; line-height: 1.6; }
+        .highlight { background: #dbeafe; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin: 10px 0; }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .footer { text-align: center; font-size: 12px; color: #666; margin-top: auto; padding-top: 10px; border-top: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+<!-- SLIDE 1: TỔNG QUAN -->
+<div class="slide">
+    <div class="header">
+        <h1>BÁO CÁO KINH TẾ - XÃ HỘI Q3/2025</h1>
+        <p style="text-align: center; font-size: 18px;">Phường Việt Hưng - Quận Long Biên - Hà Nội</p>
+    </div>
+    
+    <div class="kpi-grid">
+        <div class="kpi-box">
+            <div class="kpi-label">Diện tích</div>
+            <div class="kpi-value">12.8 km²</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-label">Dân số</div>
+            <div class="kpi-value">121,436</div>
+            <div style="font-size: 12px;">người</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-label">Tổ dân phố</div>
+            <div class="kpi-value">62</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-label">Văn bản phát hành</div>
+            <div class="kpi-value">1,644</div>
+        </div>
+    </div>
+
+    <div class="content-flex">
+        <div class="chart-container">
+            <canvas id="chart1"></canvas>
+        </div>
+        <div class="text-content">
+            <h2>Bối cảnh thành lập</h2>
+            <ul>
+                <li><strong>Thành lập:</strong> 01/7/2025 theo NQ 1656/NQ-UBTVQH15</li>
+                <li>Sáp nhập 7 phường: Thượng Thanh, Đức Giang, Giang Biên, Việt Hưng, Gia Thuỵ, Phúc Đồng, Phúc Lợi</li>
+                <li>Triển khai mô hình chính quyền 2 cấp</li>
+                <li>Tổ chức bộ máy vận hành ngay, không gián đoạn</li>
+            </ul>
+            <div class="highlight">
+                <strong>Kết quả nổi bật Q3/2025:</strong>
+                <ul style="margin-top: 8px;">
+                    <li>Hoàn thành đổi tên 62 tổ dân phố (98.2% phiếu đồng ý)</li>
+                    <li>Ban hành 170 quyết định công tác cán bộ</li>
+                    <li>Xử lý 100% văn bản điện tử</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="footer">Nguồn: UBND Phường Việt Hưng | Báo cáo số 94/BC-UBND ngày 26/9/2025</div>
+</div>
+
+<!-- SLIDE 2: KINH TẾ & TÀI CHÍNH -->
+<div class="slide">
+    <h1>TÌNH HÌNH KINH TẾ & NGÂN SÁCH Q3/2025</h1>
+    
+    <div class="kpi-grid">
+        <div class="kpi-box">
+            <div class="kpi-label">Thu ngân sách</div>
+            <div class="kpi-value">48.4 tỷ</div>
+            <div style="font-size: 14px;">đạt 77% KH</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-label">Chi ngân sách</div>
+            <div class="kpi-value">257.1 tỷ</div>
+            <div style="font-size: 14px;">đạt 65% KH</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-label">Hộ kinh doanh</div>
+            <div class="kpi-value">2,000</div>
+        </div>
+        <div class="kpi-box">
+            <div class="kpi-label">Doanh nghiệp</div>
+            <div class="kpi-value">3,000+</div>
+        </div>
+    </div>
+
+    <div class="content-flex">
+        <div class="chart-container">
+            <canvas id="chart2"></canvas>
+        </div>
+        <div class="text-content">
+            <h2>Thu ngân sách Q3/2025</h2>
+            <ul>
+                <li><strong>Lệ phí trước bạ:</strong> 36.9 tỷ (81% KH)</li>
+                <li><strong>Thuế SDĐPNN:</strong> 6.7 tỷ (48% KH)</li>
+                <li><strong>Phí, lệ phí:</strong> 827 triệu (176% KH)</li>
+                <li><strong>Quỹ đất công:</strong> 4.0 tỷ (142% KH)</li>
+            </ul>
+            
+            <h2 style="margin-top: 15px;">Hoạt động kinh tế</h2>
+            <ul>
+                <li>10 chợ, 1 TTTM, 20 siêu thị</li>
+                <li>01 tuyến phố chuyên doanh hoa cây cảnh</li>
+                <li>159 hộ kinh doanh thành lập mới</li>
+                <li>50 hộ kinh doanh giải thể</li>
+                <li>Tuần lễ văn hóa thương mại với 150 gian hàng</li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer">Nguồn: Phòng Tài chính | Dữ liệu tính đến 30/9/2025</div>
+</div>
+
+<!-- SLIDE 3: ĐẦU TƯ & HẠ TẦNG -->
+<div class="slide">
+    <h1>ĐẦU TƯ CÔNG & PHÁT TRIỂN HẠ TẦNG</h1>
+    
+    <div class="content-flex">
+        <div class="chart-container">
+            <canvas id="chart3"></canvas>
+        </div>
+        <div class="text-content">
+            <h2>Dự án đầu tư công</h2>
+            <ul>
+                <li><strong>03 trường học</strong> hoàn thành đưa vào sử dụng năm học 2025-2026</li>
+                <li><strong>23 dự án GPMB</strong> đang triển khai (20 DA NS Thành phố, 1 DA NS TW, 2 DA ngoài NS)</li>
+                <li><strong>Dự án cầu Đuống mới:</strong> Chi trả 24.9 tỷ cho 8 hộ dân</li>
+                <li><strong>Đường 25m Việt Hưng:</strong> Lập phương án cưỡng chế 12 hộ</li>
+            </ul>
+            
+            <h2>Quản lý đô thị</h2>
+            <ul>
+                <li>Cấp 56 giấy phép xây dựng</li>
+                <li>Xử lý 193 vi phạm TTĐT (thu phạt 98.6 triệu)</li>
+                <li>Duy trì 40 tuyến đường văn minh đô thị</li>
+                <li>Nạo vét 1,945 m³ cống thoát nước</li>
+                <li>Xử lý 8 điểm úng ngập</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="two-col" style="margin-top: 20px;">
+        <div class="highlight">
+            <strong>Cấp GCN QSD đất Q3:</strong>
+            <ul style="margin-top: 5px;">
+                <li>Trình cấp: 133 GCN</li>
+                <li>Tiếp nhận: 394 hồ sơ</li>
+                <li>Đã giải quyết: 310 hồ sơ (78.7%)</li>
+            </ul>
+        </div>
+        <div class="highlight">
+            <strong>Quản lý đất công:</strong>
+            <ul style="margin-top: 5px;">
+                <li>Rà soát 152 vị trí đất công</li>
+                <li>40 HĐ còn hiệu lực</li>
+                <li>70 HĐ hết hạn đã hủy</li>
+            </ul>
+        </div>
+    </div>
+    <div class="footer">Nguồn: Phòng Kinh tế & Hạ tầng | Dữ liệu cập nhật 30/9/2025</div>
+</div>
+
+<!-- SLIDE 4: VĂN HÓA - XÃ HỘI -->
+<div class="slide">
+    <h1>PHÁT TRIỂN VĂN HÓA - XÃ HỘI & GIÁO DỤC</h1>
+    
+    <div class="content-flex">
+        <div class="text-content">
+            <h2>Giáo dục & Đào tạo</h2>
+            <div class="kpi-grid" style="grid-template-columns: repeat(3, 1fr); margin: 15px 0;">
+                <div class="kpi-box" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                    <div class="kpi-label">Tuyển sinh MN</div>
+                    <div class="kpi-value">101.2%</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+                    <div class="kpi-label">Tuyển sinh TH</div>
+                    <div class="kpi-value">105.6%</div>
+                </div>
+                <div class="kpi-box" style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);">
+                    <div class="kpi-label">Tuyển sinh THCS</div>
+                    <div class="kpi-value">93.8%</div>
+                </div>
+            </div>
+            <ul>
+                <li>Khai giảng năm học 2025-2026 đảm bảo an toàn</li>
+                <li>Kiểm tra 28/29 bếp ăn trường học</li>
+                <li>04 trường hoàn thiện hồ sơ tự đánh giá chất lượng</li>
+                <li>Kiểm định 9/23 nhóm lớp mầm non độc lập</li>
+            </ul>
+
+            <h2>Y tế & Dân số</h2>
+            <ul>
+                <li><strong>8,130 lượt khám chữa bệnh</strong></li>
+                <li><strong>426 đơn vị máu</strong> hiến tặng (133% KH, tỷ lệ TC 88%)</li>
+                <li>Sàng lọc trước sinh: 90.3%</li>
+                <li>Sàng lọc sơ sinh: 95.4%</li>
+                <li>Khám sức khỏe người cao tuổi: 13,504/14,995 (90.1%)</li>
+            </ul>
+        </div>
+        <div class="chart-container">
+            <canvas id="chart4"></canvas>
+        </div>
+    </div>
+    
+    <div class="highlight" style="margin-top: 15px;">
+        <strong>Hoạt động văn hóa - thể thao Q3:</strong> 6 đêm văn nghệ, các giải Bóng bàn, Bơi mở rộng, Cờ vua, Bóng rổ thiếu nhi; Tuần lễ văn hóa thương mại sinh vật cảnh; Gắn biển đường phố danh nhân Nguyễn Huy Thảo
+    </div>
+    <div class="footer">Nguồn: Phòng Văn hóa & Xã hội, Trạm Y tế | Tổng hợp Q3/2025</div>
+</div>
+
+<!-- SLIDE 5: AN SINH & NHIỆM VỤ -->
+<div class="slide">
+    <h1>AN SINH XÃ HỘI & NHIỆM VỤ Q4/2025</h1>
+    
+    <div class="two-col">
+        <div>
+            <h2>Công tác an sinh xã hội Q3</h2>
+            <div class="chart-container" style="height: 200px;">
+                <canvas id="chart5"></canvas>
+            </div>
+            <ul style="margin-top: 15px;">
+                <li><strong>2,119 lượt NCC</strong> nhận quà (2.65 tỷ đồng)</li>
+                <li><strong>4.2 tỷ</strong> chi trả trợ cấp NCC tháng 8-9</li>
+                <li><strong>1.59 tỷ</strong> tặng quà dịp Quốc khánh 2/9</li>
+                <li>Sửa chữa 01 nhà chính sách (35 triệu)</li>
+                <li>Cai nghiện: 5 bắt buộc, 5 tự nguyện</li>
+            </ul>
+            
+            <h2 style="margin-top: 15px;">An ninh - Quốc phòng</h2>
+            <ul>
+                <li>Xử lý 31 vụ hình sự (khám phá 20 vụ - 64.5%)</li>
+                <li>12 vụ ma túy (20 đối tượng)</li>
+                <li>46 vụ vi phạm môi trường</li>
+                <li>Động viên 06 thanh niên nhập ngũ</li>
+                <li>Ứng phó bão số 3: Giải tỏa 33 cây đổ</li>
+            </ul>
+        </div>
+        
+        <div>
+            <h2>Nhiệm vụ trọng tâm Q4/2025</h2>
+            <div class="highlight">
+                <strong>15 nhiệm vụ trọng tâm:</strong>
+                <ol style="margin-left: 20px; margin-top: 8px;">
+                    <li>Triển khai 04 chương trình công tác toàn khóa</li>
+                    <li>Hoàn thành các chỉ tiêu KT-XH năm 2025</li>
+                    <li>Đẩy nhanh tiến độ đầu tư công</li>
+                    <li>Quản lý chặt chẽ quỹ đất công</li>
+                    <li>Thẩm định phường đạt chuẩn văn minh đô thị</li>
+                    <li>Xử lý vi phạm TTXD, TTĐT, VSMT</li>
+                    <li>Tổ chức tốt Tết Trung thu & Tết Nguyên đán</li>
+                    <li>Giải quyết đơn thư kịp thời</li>
+                    <li>Phòng chống dịch bệnh theo mùa</li>
+                    <li>Tuyển quân năm 2026 đảm bảo chất lượng</li>
+                    <li>Giữ vững ANCT-TTATXH</li>
+                    <li>Tổng kết chuyển đổi số & thi đua</li>
+                    <li>Khen thưởng tập thể, cá nhân tiêu biểu</li>
+                    <li>Chuẩn bị kỳ họp HĐND cuối năm</li>
+                    <li>Tăng cường phối hợp các đơn vị</li>
+                </ol>
+            </div>
+            
+            <div class="highlight" style="margin-top: 15px; background: #fef3c7; border-left-color: #f59e0b;">
+                <strong>Mục tiêu:</strong> Phấn đấu hoàn thành toàn diện các chỉ tiêu, nhiệm vụ phát triển kinh tế - xã hội năm 2025, tạo động lực vững chắc cho giai đoạn phát triển mới
+            </div>
+        </div>
+    </div>
+    <div class="footer">UBND Phường Việt Hưng | Báo cáo số 94/BC-UBND | Ngày 26 tháng 9 năm 2025</div>
+</div>
+
+<script>
+// Chart 1: Tổ chức bộ máy
+new Chart(document.getElementById('chart1'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Hoàn thành', 'Đang thực hiện'],
+        datasets: [{
+            data: [100, 0],
+            backgroundColor: ['#10b981', '#e5e7eb'],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 14 } } },
+            title: { display: true, text: 'Tiến độ tổ chức bộ máy', font: { size: 18 } }
+        }
+    }
+});
+
+// Chart 2: Thu ngân sách
+new Chart(document.getElementById('chart2'), {
+    type: 'bar',
+    data: {
+        labels: ['Lệ phí TB', 'Thuế SDĐPNN', 'Phí, lệ phí', 'Quỹ đất CI'],
+        datasets: [{
+            label: 'Thực hiện (tỷ đồng)',
+            data: [36.9, 6.7, 0.8, 4.0],
+            backgroundColor: ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Thu ngân sách phân loại Q3/2025', font: { size: 18 } }
+        },
+        scales: {
+            y: { beginAtZero: true, title: { display: true, text: 'Tỷ đồng' } }
+        }
+    }
+});
+
+// Chart 3: Dự án GPMB
+new Chart(document.getElementById('chart3'), {
+    type: 'pie',
+    data: {
+        labels: ['NS Thành phố', 'NS Trung ương', 'Ngoài NS'],
+        datasets: [{
+            data: [20, 1, 2],
+            backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { font: { size: 14 } } },
+            title: { display: true, text: '23 Dự án GPMB theo nguồn vốn', font: { size: 18 } }
+        }
+    }
+});
+
+// Chart 4: Y tế & Giáo dục
+new Chart(document.getElementById('chart4'), {
+    type: 'bar',
+    data: {
+        labels: ['Khám CB', 'Xét nghiệm', 'Siêu âm', 'X-quang', 'Chuyển tuyến'],
+        datasets: [{
+            label: 'Số lượt',
+            data: [8130, 11654, 817, 694, 1051],
+            backgroundColor: '#06b6d4'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Hoạt động khám chữa bệnh Q3/2025', font: { size: 18 } }
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+
+// Chart 5: An sinh xã hội
+new Chart(document.getElementById('chart5'), {
+    type: 'doughnut',
+    data: {
+        labels: ['TW', 'Thành phố', 'Quỹ ĐƠ', 'Khác'],
+        datasets: [{
+            data: [313.5, 1690, 22.5, 624],
+            backgroundColor: ['#3b82f6', '#06b6d4', '#10b981', '#f59e0b']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'right', labels: { font: { size: 12 } } },
+            title: { display: true, text: 'Nguồn kinh phí an sinh (triệu đồng)', font: { size: 16 } }
+        }
+    }
+});
+</script>
+</body>
+</html>
