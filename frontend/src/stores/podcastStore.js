@@ -9,13 +9,13 @@ export const usePodcastStore = create(
       podcastMode: 'text',
       customText: '',
       uploadedFiles: [],
-      uploadedFileMetadata: [], // Serializable file info for persistence
+      uploadedFileMetadata: [],
       startTime: null,
-      generationId: null, // Track current generation request
+      generationId: null,
+      generationProgress: null, // Progress message
       
       // Actions
       startGeneration: (mode, text = '', files = []) => {
-        // Store file metadata for persistence
         const fileMetadata = files.map(f => ({
           name: f.name,
           size: f.size,
@@ -32,16 +32,22 @@ export const usePodcastStore = create(
           uploadedFiles: files,
           uploadedFileMetadata: fileMetadata,
           startTime: Date.now(),
-          generationId
+          generationId,
+          generationProgress: 'Đang gửi yêu cầu...'
         });
         
         return generationId;
       },
       
-      completeGeneration: (result = null) => set({ 
+      updateProgress: (message) => set({ 
+        generationProgress: message 
+      }),
+      
+      completeGeneration: () => set({ 
         isGenerating: false,
         startTime: null,
-        generationId: null
+        generationId: null,
+        generationProgress: null
       }),
       
       clearGeneration: () => set({ 
@@ -50,7 +56,8 @@ export const usePodcastStore = create(
         uploadedFiles: [],
         uploadedFileMetadata: [],
         startTime: null,
-        generationId: null
+        generationId: null,
+        generationProgress: null
       }),
       
       setPodcastMode: (mode) => set({ podcastMode: mode }),
@@ -62,7 +69,6 @@ export const usePodcastStore = create(
           ? filesOrUpdater(state.uploadedFiles) 
           : filesOrUpdater;
         
-        // Update metadata too
         const fileMetadata = Array.isArray(newFiles) ? newFiles.map(f => ({
           name: f.name,
           size: f.size,
@@ -76,32 +82,38 @@ export const usePodcastStore = create(
         };
       }),
       
-      // Check if generation has timed out (5 minutes since we return immediately now)
-      isTimedOut: () => {
-        const { startTime } = get();
-        if (!startTime) return false;
-        const elapsed = Date.now() - startTime;
-        return elapsed > 5 * 60 * 1000; // 5 minutes
-      },
-      
-      // Get elapsed time in minutes
-      getElapsedMinutes: () => {
+      // Get elapsed time in seconds
+      getElapsedSeconds: () => {
         const { startTime } = get();
         if (!startTime) return 0;
-        return Math.floor((Date.now() - startTime) / 60000);
+        return Math.floor((Date.now() - startTime) / 1000);
       }
     }),
     {
       name: 'podcast-generation-storage',
-      // Persist serializable data (exclude uploadedFiles, include metadata)
       partialize: (state) => ({ 
+        // Persist generation state but NOT uploadedFiles (File objects can't be serialized)
         isGenerating: state.isGenerating,
         podcastMode: state.podcastMode,
         customText: state.customText,
-        uploadedFileMetadata: state.uploadedFileMetadata,
+        uploadedFileMetadata: state.uploadedFileMetadata, // Metadata only
         startTime: state.startTime,
-        generationId: state.generationId
-      })
+        generationId: state.generationId,
+        generationProgress: state.generationProgress
+        // uploadedFiles is NOT persisted - will be lost on refresh (expected behavior)
+      }),
+      // Add storage event listener to sync across tabs
+      storage: {
+        getItem: (name) => {
+          const str = localStorage.getItem(name);
+          if (!str) return null;
+          return JSON.parse(str);
+        },
+        setItem: (name, value) => {
+          localStorage.setItem(name, JSON.stringify(value));
+        },
+        removeItem: (name) => localStorage.removeItem(name),
+      },
     }
   )
 );

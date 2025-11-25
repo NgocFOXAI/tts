@@ -1,0 +1,131 @@
+/* Global Progress Bar - Persistent across pages */
+.bottomProgressBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #3b82f6 100%);
+  color: white;
+  padding: 16px 24px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  animation: slideUp 0.3s ease-out;
+  border-top: 3px solid #60a5fa;
+  transition: all 0.3s ease;
+}
+
+.bottomProgressBar.collapsed {
+  padding: 8px 24px;
+  right: auto;
+  left: auto;
+  bottom: 20px;
+  right: 20px;
+  border-radius: 50px;
+  width: auto;
+  min-width: 80px;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.progressContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+}
+
+.collapseButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.collapseButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.collapseButton:active {
+  transform: translateY(0);
+}
+
+.progressIcon {
+  flex-shrink: 0;
+}
+
+.loadingSpinner {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.progressText {
+  flex: 1;
+  min-width: 0;
+}
+
+.progressTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: white;
+}
+
+.progressSubtitle {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 400;
+}
+
+/* Responsive for bottom progress bar */
+@media (max-width: 768px) {
+  .bottomProgressBar {
+    padding: 12px 16px;
+  }
+
+  .progressContent {
+    gap: 12px;
+  }
+
+  .loadingSpinner {
+    width: 24px;
+    height: 24px;
+    border-width: 2px;
+  }
+
+  .progressTitle {
+    font-size: 0.875rem;
+  }
+
+  .progressSubtitle {
+    font-size: 0.75rem;
+  }
+}

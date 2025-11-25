@@ -1,23 +1,23 @@
 .dataAnalysisContainer {
-  width: 100%;
-  height: calc(100vh - 95px);
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .dataAnalysisContainer {
-    height: calc(100vh - 80px);
+    padding: 15px;
   }
 }
 
 @media (max-width: 480px) {
   .dataAnalysisContainer {
-    height: calc(100vh - 70px);
+    padding: 10px;
   }
 }
 
 @media (max-width: 360px) {
   .dataAnalysisContainer {
-    height: calc(100vh - 65px);
+    padding: 8px;
   }
 }

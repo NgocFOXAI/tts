@@ -8,6 +8,7 @@ import FileManager from './components/FileManager';
 import SmartReport from './components/SmartReport';
 import DataAnalysis from './components/DataAnalysis';
 import NotificationManager, { useNotifications } from './components/common/NotificationManager';
+import GlobalProgressBar from './components/common/GlobalProgressBar';
 import styles from './styles/App.module.css';
 
 const foxaiLogo = '/static/logo/foxai-logo-3.png';
@@ -27,7 +28,6 @@ function AppContent() {
       label: 'Phân Tích Dữ Liệu', 
       path: '/data-analysis',
       subTabs: [
-        { id: 'data-analysis-text', label: 'Phân Tích Dữ Liệu Văn Bản', path: '/data-analysis?mode=text' },
         { id: 'data-analysis-chart', label: 'Tạo Biểu Đồ Báo Cáo', path: '/data-analysis?mode=chart' }
       ]
     },
@@ -45,9 +45,9 @@ function AppContent() {
       label: 'Quản Lý File', 
       path: '/files',
       subTabs: [
-        { id: 'files-docs', label: 'Tài Liệu', path: '/files?tab=documents' },
-        { id: 'files-audio', label: 'Âm Thanh', path: '/files?tab=audio' },
-        { id: 'files-reports', label: 'Báo cáo', path: '/files?tab=reports' }
+        { id: 'files-docs', label: 'File Tài Liệu', path: '/files?tab=documents' },
+        { id: 'files-audio', label: 'File Podcast', path: '/files?tab=audio' },
+        { id: 'files-reports', label: 'File Báo cáo', path: '/files?tab=reports' }
       ]
     },
   ];
@@ -78,6 +78,9 @@ function AppContent() {
         notifications={notifications} 
         onRemove={removeNotification} 
       />
+
+      {/* Global Progress Bar - Shows on all pages */}
+      <GlobalProgressBar />
 
       {!isHomePage && (
         <div className={styles.chatTabSwitcher} ref={navRef}>

@@ -48,6 +48,20 @@ const FileManager = ({ notify }) => {
 
     const API_BASE = env.api.baseUrl;
 
+    // Warn user before leaving if generating
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            if (generating) {
+                e.preventDefault();
+                e.returnValue = 'Bạn đang tạo cuộc hội thoại. Bạn có chắc muốn rời khỏi trang này?';
+                return e.returnValue;
+            }
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }, [generating]);
+
     // Listen for browser back/forward navigation
     useEffect(() => {
         const handlePopState = () => {
@@ -482,20 +496,58 @@ const FileManager = ({ notify }) => {
 
             {showUploadModal && (
                 <div className="modal-overlay">
-                    <div className="modal-content">
+                    <div className="modal-content" style={{ maxWidth: '600px' }}>
                         <h3>Tải lên tài liệu</h3>
-                        <p>Bạn sắp tải lên {uploadFiles.length} file:</p>
-                        <ul className="upload-file-list">
+                        <p style={{ marginBottom: '16px' }}>
+                            Bạn sắp tải lên <strong>{uploadFiles.length}</strong> file:
+                        </p>
+                        
+                        {/* File List Preview */}
+                        <div style={{ 
+                            maxHeight: '300px', 
+                            overflowY: 'auto', 
+                            border: '1px solid #e0e0e0', 
+                            borderRadius: '8px',
+                            padding: '12px',
+                            marginBottom: '16px',
+                            backgroundColor: '#f9f9f9'
+                        }}>
                             {uploadFiles.map((file, index) => (
-                                <li key={index}>{file.name} ({formatFileSize(file.size)})</li>
+                                <div key={index} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '10px 12px',
+                                    marginBottom: '8px',
+                                    backgroundColor: 'white',
+                                    borderRadius: '6px',
+                                    border: '1px solid #e8e8e8'
+                                }}>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ 
+                                            fontWeight: '500', 
+                                            fontSize: '14px',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                            whiteSpace: 'nowrap',
+                                            marginBottom: '4px'
+                                        }}>
+                                            {file.name}
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#666' }}>
+                                            {formatFileSize(file.size)}
+                                        </div>
+                                    </div>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
+                        
                         <div className="modal-actions">
                             <button onClick={() => { setShowUploadModal(false); setUploadFiles([]); }} className="modal-btn cancel" disabled={uploading}>
                                 Hủy
                             </button>
                             <button onClick={confirmUpload} className="modal-btn confirm" disabled={uploading}>
-                                {uploading ? 'Đang tải lên...' : 'Tải lên'}
+                                {uploading ? 'Đang tải lên...' : `Tải lên ${uploadFiles.length} file`}
                             </button>
                         </div>
                     </div>
@@ -573,23 +625,12 @@ const FileManager = ({ notify }) => {
             <div className="actions">
                 {activeTab === 'documents' && (
                     <>
-                        <input
-                            type="file"
-                            multiple
-                            accept=".pdf,.doc,.docx,.txt,.md"
-                            onChange={handleFileUpload}
-                            style={{ display: 'none' }}
-                            id="file-upload"
-                        />
-                        <label htmlFor="file-upload" className="upload-btn">
-                            Tải Lên Tài Liệu
-                        </label>
                         <button 
                             onClick={() => setShowFileSelector(!showFileSelector)} 
-                            className="generate-btn"
+                            className="generate-btn-primary"
                             disabled={documentFiles.length === 0 || generating}
                         >
-                            {generating ? ' Đang tạo...' : `Tạo Cuộc Trò Chuyện ${documentFiles.length > 0 ? '▼' : ''}`}
+                            {generating ? 'Đang tạo...' : `Tạo Podcast Thông Minh ${documentFiles.length > 0 ? '▼' : ''}`}
                         </button>
                         {showFileSelector && documentFiles.length > 0 && (
                             <FileSelector 
@@ -601,6 +642,18 @@ const FileManager = ({ notify }) => {
                                 onCancel={() => setShowFileSelector(false)}
                             />
                         )}
+                        <input
+                            type="file"
+                            multiple
+                            accept=".pdf,.doc,.docx,.txt,.md"
+                            onChange={handleFileUpload}
+                            style={{ display: 'none' }}
+                            id="file-upload"
+                            title="Có thể chọn nhiều files cùng lúc"
+                        />
+                        <label htmlFor="file-upload" className="upload-btn" title="Chọn nhiều files bằng cách giữ Ctrl (Windows) hoặc Cmd (Mac)">
+                            Tải Lên Tài Liệu
+                        </label>
                         <button onClick={fetchDocumentFiles} className="refresh-btn">
                             Làm Mới
                         </button>

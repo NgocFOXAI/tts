@@ -31,23 +31,6 @@ const FileUploadZone = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
   };
 
-  const getFileIcon = (fileName) => {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    switch (ext) {
-      case 'pdf': return '📄';
-      case 'jpg':
-      case 'jpeg':
-      case 'png':
-      case 'gif':
-      case 'bmp':
-      case 'webp': return '🖼️';
-      case 'txt': return '';
-      case 'doc':
-      case 'docx': return '📋';
-      default: return '';
-    }
-  };
-
   if (disabled) {
     return null;
   }
@@ -59,7 +42,7 @@ const FileUploadZone = ({
         className={`${styles.dropZone} ${isDragOver ? styles.dragOver : ''}`}
         {...dragProps}
       >
-        <span>Kéo thả file hoặc </span>
+        <span>Kéo thả file vào đây hoặc </span>
         <button 
           type="button" 
           className={styles.browseBtn}
@@ -76,6 +59,10 @@ const FileUploadZone = ({
           onChange={handleFileInputChange}
           style={{ display: 'none' }}
         />
+        
+        <div style={{ fontSize: '0.85em', marginTop: '8px', color: '#666' }}>
+          Có thể chọn nhiều files. Giữ Ctrl (Windows) hoặc Cmd (Mac) khi chọn
+        </div>
       </div>
 
       {/* File List */}
@@ -83,7 +70,6 @@ const FileUploadZone = ({
         <div className={styles.fileList}>
           {files.map((file, index) => (
             <div key={index} className={styles.fileItem}>
-              <span className={styles.fileIcon}>{getFileIcon(file.name)}</span>
               <div className={styles.fileInfo}>
                 <div className={styles.fileName}>{file.name}</div>
                 <div className={styles.fileSize}>{formatFileSize(file.size)}</div>

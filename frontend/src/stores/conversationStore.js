@@ -45,12 +45,24 @@ export const useConversationStore = create(
     }),
     {
       name: 'conversation-generation-storage',
-      // Only persist these fields
+      // Only persist generation state
       partialize: (state) => ({ 
         generating: state.generating,
-        selectedFiles: state.selectedFiles,
+        selectedFiles: state.selectedFiles, // File info persists across tabs/reload
         startTime: state.startTime
-      })
+      }),
+      // Add storage event listener to sync across tabs
+      storage: {
+        getItem: (name) => {
+          const str = localStorage.getItem(name);
+          if (!str) return null;
+          return JSON.parse(str);
+        },
+        setItem: (name, value) => {
+          localStorage.setItem(name, JSON.stringify(value));
+        },
+        removeItem: (name) => localStorage.removeItem(name),
+      },
     }
   )
 );

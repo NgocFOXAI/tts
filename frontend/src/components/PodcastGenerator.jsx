@@ -18,34 +18,47 @@ const PodcastGenerator = () => {
     customText,
     uploadedFiles,
     uploadedFileMetadata,
-    generationId,
     startGeneration,
+    updateProgress,
     completeGeneration,
     clearGeneration,
     setPodcastMode,
     setCustomText,
-    setUploadedFiles,
-    isTimedOut,
-    getElapsedMinutes
+    setUploadedFiles
   } = usePodcastStore();
   
   // Local states
-  const [notebookResult, setNotebookResult] = useState(null);
-  const [notebookError, setNotebookError] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [currentGenerationId, setCurrentGenerationId] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Notifications
   const { notifications, removeNotification, notify } = useNotifications();
 
-  // Clear any stuck generation state on mount (since backend returns immediately now)
+  // Warn user about unsaved files before leaving page
   useEffect(() => {
-    if (isGeneratingNotebook) {
-      clearGeneration();
+    const handleBeforeUnload = (e) => {
+      // Warn if there are uploaded files (they will be lost on reload)
+      if (uploadedFiles.length > 0 || isGeneratingNotebook) {
+        e.preventDefault();
+        e.returnValue = 'Bạn có files đã tải lên hoặc đang tạo podcast. Bạn có chắc muốn rời khỏi trang này?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [uploadedFiles.length, isGeneratingNotebook]);
+
+  // Show warning if page was reloaded with file metadata but no files
+  useEffect(() => {
+    if (uploadedFileMetadata.length > 0 && uploadedFiles.length === 0 && !isGeneratingNotebook) {
+      notify.warning(
+        `Trang đã được reload. ${uploadedFileMetadata.length} file trước đó đã bị mất. Vui lòng tải lại files.`
+      );
+      // Clear the metadata since files are gone
+      setUploadedFiles([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [uploadedFileMetadata.length, uploadedFiles.length, isGeneratingNotebook, notify, setUploadedFiles]);
 
   // URL parameter handling
   useEffect(() => {
@@ -123,12 +136,11 @@ const PodcastGenerator = () => {
 
   const processFiles = (files) => {
     const maxFiles = 10;
-    const supportedTypes = [
-      'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'application/msword',
-      'text/plain',
-      'text/markdown'
+    const supportedExtensions = [
+      '.pdf', '.txt', '.md',
+      '.3g2', '.3gp', '.aac', '.aif', '.aifc', '.aiff', '.amr', '.au', 
+      '.avi', '.cda', '.m4a', '.mid', '.mp3', '.mp4', '.mpeg', 
+      '.ogg', '.opus', '.ra', '.ram', '.snd', '.wav', '.wma'
     ];
 
     // Check file count limit
@@ -142,8 +154,11 @@ const PodcastGenerator = () => {
       return;
     }
 
-    // Validate file types
-    const invalidFiles = files.filter(file => !supportedTypes.includes(file.type));
+    // Validate file types by extension
+    const invalidFiles = files.filter(file => {
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      return !supportedExtensions.includes(ext);
+    });
     if (invalidFiles.length > 0) {
       notify.error(`File không được hỗ trợ: ${invalidFiles.map(f => f.name).join(', ')}`);
       return;
@@ -196,85 +211,53 @@ const PodcastGenerator = () => {
       return;
     }
 
-    // Start generation with Zustand store and get generation ID
-    const genId = startGeneration(podcastMode, customText, uploadedFiles);
-    setCurrentGenerationId(genId);
-    
-    setNotebookError(null);
-    setNotebookResult(null);
+    // Start generation with Zustand store
+    startGeneration(podcastMode, customText, uploadedFiles);
 
     try {
-      // Show initial notification
-      notify.info('🚀 Đang gửi yêu cầu đến hệ thống...', {
-        duration: 2000
-      });
+      updateProgress('Đang gửi yêu cầu đến hệ thống...');
 
       // Prepare form data based on podcast mode
       let response;
       
       if (podcastMode === 'documents') {
         const formData = new FormData();
-        
-        // Only add files for documents mode
         uploadedFiles.forEach(file => {
           formData.append('files', file);
         });
-
-        // Call API with files
+        
+        updateProgress('Đang tải lên tài liệu và xử lý...');
         response = await apiService.generateAdvancedAudioWithFiles(formData);
       } else {
-        // Call API with text only for text mode
+        updateProgress('Đang phân tích nội dung văn bản...');
         response = await apiService.generateAdvancedAudio({
           custom_text: customText.trim()
         });
       }
 
-      // API returns immediately, show fake progress then complete
-      if (currentGenerationId === genId) {
-        // Simulate processing with progress notifications
-        notify.info(' Đang xử lý yêu cầu...', { duration: 2000 });
-        
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        notify.info('Báo cáo Đang phân tích nội dung...', { duration: 2000 });
-        
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Complete generation FIRST to clear the banner
-        completeGeneration(response);
-        
-        // Then show result
-        setNotebookResult(response);
-        
-        // Show success notification
-        notify.success(
-          ' Đã gửi yêu cầu thành công!\n\n' +
-          '🎧 Podcast sẽ được tạo trong 15-30 phút.\n' +
-          'Kiểm tra trong phần Quản Lý Âm Thanh sau.',
-          {
-            title: 'Yêu cầu đã được tiếp nhận',
-            duration: 10000
-          }
-        );
+      // Complete generation (keep files/text for user to edit or reuse)
+      completeGeneration();
+      
+      // Show success notification with actual result
+      if (response.success) {
+        notify.success(response.message, {
+          title: '✅ Hoàn thành',
+          duration: 10000
+        });
+      } else {
+        notify.error(response.message, {
+          title: '❌ Lỗi',
+          duration: 10000
+        });
       }
 
     } catch (error) {
-      // Only show error if this is still the current generation
-      if (currentGenerationId === genId) {
-        setNotebookError(error.message);
-        notify.error(`❌ Lỗi gửi yêu cầu: ${error.message}`, {
-          title: 'Lỗi',
-          duration: 10000
-        });
-        completeGeneration();
-      }
+      completeGeneration();
+      notify.error(`Lỗi: ${error.message}`, {
+        title: '❌ Lỗi hệ thống',
+        duration: 10000
+      });
     }
-  };
-
-  const formatProcessingTime = (seconds) => {
-    if (!seconds) return 'N/A';
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${remainingSeconds}s`;
   };
 
   const settingsConfig = {
@@ -393,17 +376,23 @@ Loại nội dung phù hợp:
                           type="file"
                           id="documentUpload"
                           multiple
-                          accept=".pdf,.doc,.docx,.txt,.md"
+                          accept=".pdf,.txt,.md,.3g2,.3gp,.aac,.aif,.aifc,.aiff,.amr,.au,.avi,.cda,.m4a,.mid,.mp3,.mp4,.mpeg,.ogg,.opus,.ra,.ram,.snd,.wav,.wma"
                           onChange={handleFileUpload}
                           style={{ display: 'none' }}
+                          disabled={isGeneratingNotebook}
                         />
-                        <label htmlFor="documentUpload" className={styles.browseButton}>
+                        <label 
+                          htmlFor="documentUpload" 
+                          className={styles.browseButton}
+                          style={{ pointerEvents: isGeneratingNotebook ? 'none' : 'auto', opacity: isGeneratingNotebook ? 0.6 : 1 }}
+                        >
                           Chọn Tài Liệu
                         </label>
                       </div>
                       <div className={styles.dropZoneInfo}>
-                        <p>Hỗ trợ: PDF, Word (.doc, .docx), Text (.txt), Markdown (.md)</p>
-                        <p>Tối đa 10 file, mỗi file không quá 10MB</p>
+                        <p>Hỗ trợ: PDF, Text, Markdown, Audio (MP3, WAV, M4A, AAC, OGG...), Video (MP4, AVI, MPEG...)</p>
+                        <p>Có thể chọn nhiều files cùng lúc</p>
+                        <p>Tối đa 10 files, mỗi file không quá 10MB</p>
                       </div>
                     </div>
                   </div>
@@ -453,10 +442,10 @@ Loại nội dung phù hợp:
                   {isGeneratingNotebook ? (
                     <>
                       <span className={styles.loadingSpinner}></span>
-                      Đang Gửi Yêu Cầu...
+                      Đang Xử Lý...
                     </>
                   ) : (
-                    'Gửi Yêu Cầu Tạo Podcast'
+                    'Tạo Podcast Thông Minh'
                   )}
                 </button>
               </div>
@@ -464,111 +453,14 @@ Loại nội dung phù hợp:
               {/* Info */}
               <div className={styles.infoBox}>
                 <div>
-                  <strong>Công Nghệ Hoạt Động:</strong> {podcastMode === 'text' ? 'Dán nội dung chuyên sâu vào ô trên' : 'Tải lên tài liệu của bạn'} và nhấn "Khởi Tạo Podcast Thông Minh". Hệ thống AI sẽ tự động tạo ra podcast chất lượng cao.
+                  <strong>Công Nghệ Hoạt Động:</strong> {podcastMode === 'text' ? 'Dán nội dung chuyên sâu vào ô trên' : 'Tải lên tài liệu của bạn'} và nhấn "Tạo Podcast Thông Minh". Hệ thống AI sẽ tự động tạo ra podcast chất lượng cao.
                 </div>
               </div>
               <div className={styles.alternativeBox}>
-                <span>Thời gian xử lý ước tính từ <strong>15-50 phút</strong> tùy thuộc độ dài nội dung</span>
+                <span>Thời gian xử lý: <strong>15-45 phút</strong> tùy thuộc độ dài nội dung</span>
               </div>
             </form>
           </div>
-
-          {/* Results */}
-          {notebookResult && (
-            <div className={styles.resultContainer}>
-              {notebookResult.success ? (
-                <div className={styles.successResult}>
-                  <h3> Yêu cầu đã được gửi thành công!</h3>
-                  <div className={styles.resultInfo}>
-                    <div className={styles.convertedText} style={{ 
-                      whiteSpace: 'pre-line',
-                      background: '#f0f9ff',
-                      padding: '20px',
-                      borderRadius: '8px',
-                      border: '1px solid #0284c7'
-                    }}>
-                      <p style={{ fontSize: '1.1em', lineHeight: '1.8' }}>
-                        {notebookResult.message}
-                      </p>
-                      
-                      <div style={{ 
-                        marginTop: '20px', 
-                        padding: '15px',
-                        background: '#fff',
-                        borderRadius: '6px',
-                        border: '1px solid #e0e0e0'
-                      }}>
-                        <p style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#0284c7' }}>
-                          📍 Hướng dẫn tiếp theo:
-                        </p>
-                        <ul style={{ margin: 0, paddingLeft: '20px', lineHeight: '1.8' }}>
-                          <li>Hệ thống đang xử lý yêu cầu của bạn</li>
-                          <li>Thời gian hoàn thành: 15-30 phút</li>
-                          <li>File âm thanh sẽ được lưu tự động</li>
-                          <li>Kiểm tra trong phần <strong>Quản Lý Âm Thanh</strong></li>
-                        </ul>
-                      </div>
-
-                      <div style={{ 
-                        marginTop: '20px',
-                        display: 'flex',
-                        gap: '10px',
-                        justifyContent: 'center'
-                      }}>
-                        <button
-                          onClick={() => window.location.href = '/'}
-                          style={{
-                            padding: '12px 24px',
-                            background: '#0284c7',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '1em',
-                            fontWeight: '500'
-                          }}
-                        >
-                          🏠 Về Trang Chủ
-                        </button>
-                        <button
-                          onClick={() => {
-                            setNotebookResult(null);
-                            setNotebookError(null);
-                            clearGeneration();
-                            setCustomText('');
-                            setUploadedFiles([]);
-                          }}
-                          style={{
-                            padding: '12px 24px',
-                            background: '#10b981',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            fontSize: '1em',
-                            fontWeight: '500'
-                          }}
-                        >
-                          ➕ Tạo Podcast Mới
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className={styles.errorResult}>
-                  ❌ Lỗi gửi yêu cầu: {notebookResult.message}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Error Display */}
-          {notebookError && (
-            <div className={styles.errorResult}>
-              Podcast Generation Error: {notebookError}
-            </div>
-          )}
         </div>
       </div>
 

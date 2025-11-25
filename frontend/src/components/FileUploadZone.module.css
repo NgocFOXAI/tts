@@ -6,25 +6,45 @@
 /* Drop Zone - Gọn gàng */
 .dropZone {
   border: 2px dashed #ccc;
-  border-radius: 6px;
-  padding: 15px;
+  border-radius: 8px;
+  padding: 20px 15px;
   text-align: center;
   background: #f9f9f9;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   cursor: pointer;
   font-size: 14px;
   color: #666;
+  position: relative;
 }
 
 .dropZone:hover {
   border-color: #007bff;
   background: #f0f8ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.1);
 }
 
 .dropZone.dragOver {
   border-color: #007bff;
   background: #e6f3ff;
   color: #007bff;
+  border-style: solid;
+  box-shadow: 0 0 20px rgba(0, 123, 255, 0.2);
+}
+
+/* Keyboard shortcut hint */
+.dropZone kbd {
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-shadow: 0 1px 0px rgba(0, 0, 0, 0.2);
+  display: inline-block;
+  font-family: monospace;
+  font-size: 11px;
+  line-height: 1.4;
+  margin: 0 2px;
+  padding: 2px 6px;
+  white-space: nowrap;
 }
 
 .dropIcon {

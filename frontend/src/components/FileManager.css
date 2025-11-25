@@ -144,7 +144,7 @@
     position: relative;
 }
 
-.upload-btn, .generate-btn, .refresh-btn, .cleanup-btn {
+.upload-btn, .generate-btn, .generate-btn-primary, .refresh-btn, .cleanup-btn {
     padding: 12px 24px;
     border: 2px solid;
     border-radius: 8px;
@@ -156,17 +156,44 @@
     align-items: center;
     justify-content: center;
     min-width: 160px;
-    max-width: 180px;
-    width: 180px;
+    max-width: 220px;
     height: 46px;
     white-space: nowrap;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.upload-btn, .generate-btn {
-    background: linear-gradient(135deg, #3b82f6, #2563eb, #1d4ed8);
+/* Primary button - Tạo Podcast */
+.generate-btn-primary {
+    background: #3b82f6;
     color: white;
+    border-color: #3b82f6;
+    font-size: 15px;
+    min-width: 220px;
+    max-width: 250px;
+    position: relative;
+}
+
+.generate-btn-primary:hover:not(:disabled) {
+    background: #2563eb;
     border-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.generate-btn-primary:disabled {
+    background: #e5e7eb;
+    color: #9ca3af;
+    border-color: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Secondary buttons */
+.upload-btn, .generate-btn {
+    background: white;
+    color: #3b82f6;
+    border-color: #3b82f6;
 }
 
 .generate-btn {
@@ -174,13 +201,15 @@
 }
 
 .upload-btn:hover, .generate-btn:hover:not(:disabled) {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8, #1e40af);
+    background: #eff6ff;
+    border-color: #2563eb;
+    color: #2563eb;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .generate-btn:disabled {
-    background: #e5e7eb;
+    background: #f3f4f6;
     color: #9ca3af;
     border-color: #d1d5db;
     cursor: not-allowed;
@@ -697,10 +726,14 @@
         width: 100%;
     }
 
-    .upload-btn, .generate-btn, .refresh-btn, .cleanup-btn {
+    .upload-btn, .generate-btn, .generate-btn-primary, .refresh-btn, .cleanup-btn {
         width: 100%;
         min-width: auto;
         max-width: none;
+    }
+
+    .generate-btn-primary {
+        grid-column: 1 / -1;
     }
     
     .stats-container {
@@ -819,7 +852,7 @@
         gap: 8px;
     }
 
-    .upload-btn, .refresh-btn, .generate-btn, .cleanup-btn {
+    .upload-btn, .refresh-btn, .generate-btn, .generate-btn-primary, .cleanup-btn {
         width: 100%;
         padding: 12px 16px;
         font-size: 13px;
@@ -929,7 +962,7 @@
         gap: 6px;
     }
 
-    .upload-btn, .refresh-btn, .generate-btn, .cleanup-btn {
+    .upload-btn, .refresh-btn, .generate-btn, .generate-btn-primary, .cleanup-btn {
         padding: 11px 14px;
         font-size: 12px;
         height: 44px;

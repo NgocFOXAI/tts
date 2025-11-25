@@ -62,15 +62,15 @@ function HomePage({ onNavigate }) {
             </p>
           </div>
 
-          {/* Chuyển đổi ngữ âm */}
+          {/* Podcast thông minh */}
           <div 
             className={`${styles.featureCard} ${styles.clickableCard} ${styles.animateFromLeft}`}
             onClick={() => onNavigate('tts')}
           >
             <div className={styles.featureImageBox}>
-              <img src={textToSpeechImg} alt="Chuyển đổi ngữ âm" className={styles.featureImage} />
+              <img src={textToSpeechImg} alt="Podcast thông minh" className={styles.featureImage} />
             </div>
-            <h3 className={styles.featureTitle}>Chuyển đổi ngữ âm</h3>
+            <h3 className={styles.featureTitle}>Podcast thông minh</h3>
             <p className={styles.featureDescription}>
               Chuyển văn bản thành giọng nói tự nhiên với nhiều giọng đọc đa dạng.
             </p>

@@ -189,12 +189,13 @@ class ApiService {
       throw new Error('Custom text is required');
     }
     
+    // Create FormData to match backend's Form field expectation
+    const formData = new FormData();
+    formData.append('custom_text', custom_text.trim());
+    
     const response = await this.request('/audio-generation/generate', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ custom_text: custom_text.trim() }),
+      body: formData, // Send as FormData, not JSON
       noTimeout: true, // Disable timeout for long-running podcast generation
     });
     return response.json();

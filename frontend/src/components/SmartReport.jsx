@@ -334,7 +334,6 @@ const SmartReport = ({ notify }) => {
           <div 
             className={styles.podcastContainer}
             ref={podcastContainerRef}
-            style={{ position: 'relative', overflow: 'auto', height: '100%' }}
           >
               {/* Content with drag drop */}
               <div 
