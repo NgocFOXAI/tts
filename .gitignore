@@ -120,3 +120,8 @@ audio_downloads/
 
 # Audio uploads
 project/src/static/audio_downloads/
+
+project/src/static/file_cache/
+
+# Project static files
+project/static/
